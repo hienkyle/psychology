@@ -191,3 +191,93 @@
   window.addEventListener('partchange', function () { if (!panel.hidden) render(); });
   render();
 })();
+
+/* Interactive correlation explorer (.corr). Points are generated so their sample r matches the slider exactly. */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.corr'), function (box) {
+    var svg = box.querySelector('svg');
+    var dotsG = box.querySelector('.dots');
+    var fit = box.querySelector('.fit');
+    var range = box.querySelector('input[type=range]');
+    var rOut = box.querySelector('.corr-r');
+    var kindOut = box.querySelector('.corr-kind');
+    var desc = box.querySelector('.corr-desc');
+    var xLab = box.querySelector('.corr-x');
+    var yLab = box.querySelector('.corr-y');
+    var presets = Array.prototype.slice.call(box.querySelectorAll('.corr-presets button'));
+    var defX = xLab ? xLab.textContent : '', defY = yLab ? yLab.textContent : '';
+    var N = 48, X0 = 44, X1 = 304, Y0 = 222, Y1 = 22, LIM = 2.6;
+
+    /* seeded random numbers so the cloud is the same on every visit */
+    var s = 20260222;
+    function rnd() { s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+    function gauss() { var u = 1 - rnd(), v = rnd(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+    function standardize(a) {
+      var m = a.reduce(function (p, c) { return p + c; }, 0) / a.length;
+      var sd = Math.sqrt(a.reduce(function (p, c) { return p + (c - m) * (c - m); }, 0) / a.length);
+      return a.map(function (v) { return (v - m) / sd; });
+    }
+    var x = [], z = [];
+    for (var i = 0; i < N; i++) { x.push(gauss()); z.push(gauss()); }
+    x = standardize(x);
+    z = standardize(z);
+    /* remove the part of z that correlates with x, so x and e are exactly uncorrelated */
+    var b = x.reduce(function (p, c, k) { return p + c * z[k]; }, 0) / N;
+    var e = standardize(z.map(function (v, k) { return v - b * x[k]; }));
+
+    var NS = 'http://www.w3.org/2000/svg';
+    var dots = x.map(function () {
+      var c = document.createElementNS(NS, 'circle');
+      c.setAttribute('r', '4.2'); c.setAttribute('class', 'dot');
+      dotsG.appendChild(c); return c;
+    });
+    function px(v) { v = Math.max(-LIM, Math.min(LIM, v)); return X0 + (v + LIM) / (2 * LIM) * (X1 - X0); }
+    function py(v) { v = Math.max(-LIM, Math.min(LIM, v)); return Y0 - (v + LIM) / (2 * LIM) * (Y0 - Y1); }
+
+    function draw(r) {
+      var q = Math.sqrt(Math.max(0, 1 - r * r));
+      dots.forEach(function (d, k) {
+        var y = r * x[k] + q * e[k];
+        d.style.transform = 'translate(' + px(x[k]).toFixed(1) + 'px,' + py(y).toFixed(1) + 'px)';
+      });
+      fit.setAttribute('x1', px(-LIM)); fit.setAttribute('y1', py(-LIM * r));
+      fit.setAttribute('x2', px(LIM)); fit.setAttribute('y2', py(LIM * r));
+      fit.style.opacity = Math.abs(r) < 0.05 ? 0 : 1;
+      var sign = r > 0.0001 ? '+' : (r < -0.0001 ? '−' : '');
+      rOut.textContent = 'r = ' + sign + Math.abs(r).toFixed(2);
+      var kind, text;
+      if (Math.abs(r) < 0.05) {
+        kind = 'No correlation';
+        text = 'The variables are unrelated: knowing one tells you nothing about the other.';
+      } else if (r > 0) {
+        kind = 'Positive correlation';
+        text = 'The variables move in the same direction: as one increases, so does the other.';
+      } else {
+        kind = 'Negative correlation';
+        text = 'The variables move in opposite directions: as one increases, the other decreases.';
+      }
+      if (Math.abs(r) >= 0.05) text += Math.abs(r) > 0.995 ? ' At ±1 every point sits on the line.' : ' The closer r is to ±1, the tighter the points hug the line.';
+      kindOut.textContent = kind;
+      desc.textContent = text;
+      range.setAttribute('aria-valuetext', rOut.textContent + ', ' + kind.toLowerCase());
+    }
+    range.addEventListener('input', function () {
+      presets.forEach(function (p) { p.setAttribute('aria-pressed', 'false'); });
+      if (xLab) xLab.textContent = defX;
+      if (yLab) yLab.textContent = defY;
+      draw(parseFloat(range.value));
+    });
+    presets.forEach(function (p) {
+      p.addEventListener('click', function () {
+        presets.forEach(function (o) { o.setAttribute('aria-pressed', o === p ? 'true' : 'false'); });
+        var r = parseFloat(p.getAttribute('data-r'));
+        range.value = r;
+        if (xLab) xLab.textContent = p.getAttribute('data-x');
+        if (yLab) yLab.textContent = p.getAttribute('data-y');
+        draw(r);
+      });
+    });
+    var start = presets.filter(function (p) { return p.getAttribute('aria-pressed') === 'true'; })[0];
+    if (start) start.click(); else draw(parseFloat(range.value));
+  });
+})();
