@@ -56,9 +56,20 @@
     root.setAttribute('data-part', part.firstElementChild.getAttribute('href').slice(1));
     window.dispatchEvent(new Event('partchange'));
   }
+  /* Sticky ribbon: publish its height so the contents bar and anchor jumps sit below it */
+  var headEl = document.querySelector('.site-head'), headH = 0;
+  function measureHead() {
+    if (!headEl) return;
+    headH = Math.round(headEl.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--head-h', headH + 'px');
+  }
+  measureHead();
+  if (headEl && window.ResizeObserver) new ResizeObserver(measureHead).observe(headEl);
+  else window.addEventListener('resize', measureHead);
+
   function spy() {
     if (!links.length) return;
-    var offset = window.innerWidth < 900 ? 96 : 48;
+    var offset = (window.innerWidth < 900 ? 96 : 48) + headH;
     var idx = 0;
     for (var i = 0; i < targets.length; i++) {
       if (targets[i] && targets[i].getBoundingClientRect().top - offset <= 0) idx = i;
