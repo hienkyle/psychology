@@ -438,3 +438,200 @@
     set(box.getAttribute('data-mode') || 'sym');
   });
 })();
+
+/* ---- Unit 4 components ---- */
+/* Generic picker (.picker, .lightsw, .syn2): buttons with data-k show the panel with matching data-for, or set data-mode */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.picker'), function (box) {
+    var btns = Array.prototype.slice.call(box.querySelectorAll('.pill-row button[data-k]'));
+    var panels = Array.prototype.slice.call(box.querySelectorAll('[data-for]'));
+    function pick(k) {
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-k') === k ? 'true' : 'false'); });
+      panels.forEach(function (p) { p.hidden = p.getAttribute('data-for') !== k; });
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { pick(b.getAttribute('data-k')); }); });
+    var first = btns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })[0] || btns[0];
+    if (first) pick(first.getAttribute('data-k'));
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-modes]'), function (box) {
+    var btns = Array.prototype.slice.call(box.querySelectorAll('.pill-row button[data-mode]'));
+    var state = box.querySelector('.mode-state');
+    function set(m) {
+      box.setAttribute('data-mode', m);
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mode') === m ? 'true' : 'false'); });
+      var on = btns.filter(function (b) { return b.getAttribute('data-mode') === m; })[0];
+      if (state && on) state.innerHTML = on.getAttribute('data-state');
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { set(b.getAttribute('data-mode')); }); });
+    set(box.getAttribute('data-mode') || (btns[0] && btns[0].getAttribute('data-mode')));
+  });
+})();
+
+/* Sleep-debt calculator (.debt): age groups carry the Table 4.1 ranges */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.debt'), function (box) {
+    var sel = box.querySelector('select');
+    var range = box.querySelector('input[type=range]');
+    var hrs = box.querySelector('.debt-hours b');
+    var scale = box.querySelector('.debt-scale');
+    var may = scale.querySelector('.may'), rec = scale.querySelector('.rec'), pin = scale.querySelector('.pin');
+    var verdict = box.querySelector('.debt-verdict');
+    var week = box.querySelector('.debt-week');
+    var note = box.querySelector('.debt-note');
+    var MIN = parseFloat(range.min), MAX = parseFloat(range.max);
+    function pct(v) { return ((Math.max(MIN, Math.min(MAX, v)) - MIN) / (MAX - MIN) * 100) + '%'; }
+    function fmt(v) { return (Math.round(v * 10) / 10).toString().replace(/\.0$/, ''); }
+    function draw() {
+      var o = sel.options[sel.selectedIndex];
+      var rl = parseFloat(o.getAttribute('data-rl')), rh = parseFloat(o.getAttribute('data-rh'));
+      var ml = parseFloat(o.getAttribute('data-ml')), mh = parseFloat(o.getAttribute('data-mh'));
+      var h = parseFloat(range.value);
+      hrs.textContent = fmt(h);
+      range.setAttribute('aria-valuetext', fmt(h) + ' hours a night');
+      may.style.left = pct(ml); may.style.width = 'calc(' + pct(mh) + ' - ' + pct(ml) + ')';
+      rec.style.left = pct(rl); rec.style.width = 'calc(' + pct(rh) + ' - ' + pct(rl) + ')';
+      pin.style.left = pct(h);
+      var v, cls;
+      if (h >= rl && h <= rh) { v = 'Recommended'; cls = 'yes'; }
+      else if (h >= ml && h <= mh) { v = 'May be appropriate'; cls = 'may'; }
+      else { v = 'Not recommended'; cls = 'no'; }
+      verdict.textContent = v;
+      verdict.className = 'verdict debt-verdict ' + (cls === 'may' ? '' : cls);
+      if (cls === 'may') { verdict.style.background = 'var(--note-bg)'; verdict.style.color = 'var(--note)'; }
+      else { verdict.style.background = ''; verdict.style.color = ''; }
+      var short = Math.max(0, rl - h);
+      week.textContent = fmt(short * 7) + ' h';
+      note.textContent = short > 0
+        ? 'That is ' + fmt(short) + ' h a night below the low end of the recommended ' + fmt(rl) + '–' + fmt(rh) + ' h. Night after night, the shortfall builds into a sleep debt.'
+        : (h > rh ? 'No shortfall, though this is more than the recommended ' + fmt(rl) + '–' + fmt(rh) + ' h.' : 'No shortfall: this is inside the recommended ' + fmt(rl) + '–' + fmt(rh) + ' h.');
+    }
+    sel.addEventListener('change', function () {
+      var o = sel.options[sel.selectedIndex];
+      range.value = o.getAttribute('data-start') || o.getAttribute('data-rl');
+      draw();
+    });
+    range.addEventListener('input', draw);
+    draw();
+  });
+})();
+
+/* EEG explorer (.eeg): draws a scrolling schematic trace for each stage */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.eeg'), function (box) {
+    var btns = Array.prototype.slice.call(box.querySelectorAll('.pill-row button[data-k]'));
+    var infos = Array.prototype.slice.call(box.querySelectorAll('.eeg-info'));
+    var wave = box.querySelector('.wave');
+    var marks = box.querySelector('.marks');
+    var waveName = box.querySelector('.eeg-wave'), hz = box.querySelector('.eeg-hz');
+    var ampM = box.querySelector('.eeg-amp i'), frqM = box.querySelector('.eeg-frq i');
+    var W = 600, MID = 70;
+    /* seeded noise so each stage looks the same every visit */
+    var seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    /* window = 2 seconds over 600 px */
+    function trace(k) {
+      seed = 7;
+      var pts = [], N = 1200, i, t, y, x;
+      var phase2 = rnd() * 6, jit = [];
+      for (i = 0; i <= 2 * N; i++) jit.push((rnd() - .5));
+      for (i = 0; i <= 2 * N; i++) {
+        x = i * (2 * W) / (2 * N);
+        t = (x % W) / W * 2; /* seconds within one 600px window, so the trace tiles seamlessly */
+        var j = jit[i % N] ;
+        if (k === 'awake') y = 5 * Math.sin(2 * Math.PI * 21 * t) + 3 * Math.sin(2 * Math.PI * 27 * t + phase2) + 2.2 * j;
+        else if (k === 'rem') y = 6 * Math.sin(2 * Math.PI * 18 * t) + 3 * Math.sin(2 * Math.PI * 9 * t + phase2) + 2.5 * j;
+        else if (k === 'stage1') {
+          var a = 12 * Math.sin(2 * Math.PI * 10 * t), th = 17 * Math.sin(2 * Math.PI * 5.5 * t + 1);
+          var mix = Math.max(0, Math.min(1, (t - .8) / .4));
+          y = a * (1 - mix) + th * mix + 2 * j;
+        } else if (k === 'stage2') {
+          var sp = Math.exp(-Math.pow((t - .45) / .11, 2));
+          y = 15 * (1 - .85 * sp) * Math.sin(2 * Math.PI * 5 * t) + 2 * j;
+          y += 17 * sp * Math.sin(2 * Math.PI * 14 * t);
+          var kc = t - 1.35;
+          y += -48 * Math.exp(-Math.pow(kc / .05, 2)) + 30 * Math.exp(-Math.pow((kc - .12) / .07, 2));
+        } else y = 46 * Math.sin(2 * Math.PI * 1.5 * t) + 6 * Math.sin(2 * Math.PI * 4 * t + phase2) + 2 * j;
+        pts.push((i ? 'L' : 'M') + x.toFixed(1) + ' ' + (MID - y).toFixed(1));
+      }
+      return pts.join('');
+    }
+    function show(k) {
+      var b = btns.filter(function (x) { return x.getAttribute('data-k') === k; })[0];
+      btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      infos.forEach(function (n) { n.hidden = n.getAttribute('data-for') !== k; });
+      wave.setAttribute('d', trace(k));
+      waveName.textContent = b.getAttribute('data-wave');
+      hz.textContent = b.getAttribute('data-hz');
+      ampM.style.setProperty('--w', b.getAttribute('data-amp') + '%');
+      frqM.style.setProperty('--w', b.getAttribute('data-frq') + '%');
+      marks.innerHTML = k === 'stage2'
+        ? '<g><line class="mark-l" x1="135" y1="8" x2="135" y2="132"/><text class="mark" x="141" y="20">sleep spindle</text><line class="mark-l" x1="405" y1="8" x2="405" y2="132"/><text class="mark" x="411" y="20">K-complex</text></g><g transform="translate(600 0)"><line class="mark-l" x1="135" y1="8" x2="135" y2="132"/><text class="mark" x="141" y="20">sleep spindle</text><line class="mark-l" x1="405" y1="8" x2="405" y2="132"/><text class="mark" x="411" y="20">K-complex</text></g>'
+        : k === 'stage1' ? '<g><text class="mark" x="8" y="20">alpha</text><text class="mark" x="390" y="20">→ theta</text></g><g transform="translate(600 0)"><text class="mark" x="8" y="20">alpha</text><text class="mark" x="390" y="20">→ theta</text></g>' : '';
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { show(b.getAttribute('data-k')); }); });
+    show((btns.filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; })[0] || btns[0]).getAttribute('data-k'));
+  });
+})();
+
+/* Hypnogram (.hypno): data-seq = "stage:minutes,..." ; a playhead walks through the night */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call(document.querySelectorAll('.hypno'), function (box) {
+    var svg = box.querySelector('svg');
+    var seq = box.getAttribute('data-seq').split(',').map(function (s) { var p = s.split(':'); return { s: p[0], m: parseFloat(p[1]) }; });
+    var X0 = 70, X1 = 590, Ytop = 24, step = 34;
+    var LV = { W: 0, R: 1, '1': 2, '2': 3, '3': 4 };
+    var NAMES = { W: 'Awake', R: 'REM sleep', '1': 'NREM stage 1', '2': 'NREM stage 2', '3': 'NREM stage 3 (slow-wave)' };
+    var total = seq.reduce(function (a, b) { return a + b.m; }, 0);
+    function X(min) { return X0 + min / total * (X1 - X0); }
+    function Y(s) { return Ytop + LV[s] * step; }
+    var d = '', t = 0, rem = '', deep = '';
+    seq.forEach(function (seg, i) {
+      var x1 = X(t), x2 = X(t + seg.m), y = Y(seg.s);
+      d += (i ? 'L' : 'M') + x1.toFixed(1) + ' ' + y + 'L' + x2.toFixed(1) + ' ' + y;
+      if (seg.s === 'R') rem += 'M' + x1.toFixed(1) + ' ' + y + 'L' + x2.toFixed(1) + ' ' + y;
+      if (seg.s === '3') deep += '<rect class="deep" x="' + x1.toFixed(1) + '" y="' + (y - 4) + '" width="' + (x2 - x1).toFixed(1) + '" height="' + (Ytop + 4 * step + 4 - (y - 4)) + '"/>';
+      seg.a = t; t += seg.m;
+    });
+    box.querySelector('.deep-g').innerHTML = deep;
+    box.querySelector('.path').setAttribute('d', d);
+    box.querySelector('.rem').setAttribute('d', rem);
+    var head = box.querySelector('.head-g'), dot = box.querySelector('.head-dot');
+    var read = box.querySelector('.hypno-read');
+    var playBtn = box.querySelector('.hypno-play');
+    function at(min) {
+      var seg = seq[seq.length - 1];
+      for (var i = 0; i < seq.length; i++) if (min < seq[i].a + seq[i].m) { seg = seq[i]; break; }
+      head.setAttribute('transform', 'translate(' + X(min).toFixed(1) + ' 0)');
+      dot.setAttribute('cy', Y(seg.s));
+      var h = Math.floor(min / 60), m = Math.floor(min % 60);
+      read.innerHTML = '<b>' + h + ' h ' + (m < 10 ? '0' : '') + m + ' min</b> into the night: ' + NAMES[seg.s] + '.';
+    }
+    var raf = null;
+    function play() {
+      if (raf) cancelAnimationFrame(raf);
+      if (reduce) { at(total - 1); return; }
+      var t0 = null, dur = 16000;
+      function stepF(ts) {
+        if (t0 === null) t0 = ts;
+        var f = Math.min(1, (ts - t0) / dur);
+        at(f * (total - 0.01));
+        raf = f < 1 ? requestAnimationFrame(stepF) : null;
+      }
+      raf = requestAnimationFrame(stepF);
+    }
+    if (playBtn) playBtn.addEventListener('click', play);
+    svg.addEventListener('pointermove', function (e) {
+      var r = svg.getBoundingClientRect();
+      var vx = (e.clientX - r.left) / r.width * 600;
+      if (vx < X0 || vx > X1) return;
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+      at((vx - X0) / (X1 - X0) * (total - 0.01));
+    });
+    at(0);
+    if ('IntersectionObserver' in window && !reduce) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { play(); io.disconnect(); } }, { threshold: .5 });
+      io.observe(svg);
+    }
+  });
+})();

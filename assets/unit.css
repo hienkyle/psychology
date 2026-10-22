@@ -555,3 +555,143 @@ h4{font-family:var(--font-ui);font-size:1.08rem;line-height:1.35;font-weight:600
 .bm-spot.is-on{fill:var(--note);stroke:var(--surface);stroke-width:2;transform:scale(1.25);transform-box:fill-box;transform-origin:center}
 @media (prefers-reduced-motion:no-preference){.bm-hit.is-on{animation:bm-glow 2.4s ease-in-out infinite}}
 @keyframes bm-glow{50%{filter:drop-shadow(0 0 12px var(--glow)) drop-shadow(0 0 3px var(--glow))}}
+
+/* ---- Unit 4 components (reusable) ---- */
+/* Figure: consciousness continuum */
+.consc{font-family:var(--font-ui)}
+.consc-bar{position:relative;height:2.6rem;border-radius:999px;background:linear-gradient(90deg, color-mix(in srgb, var(--note) 55%, var(--surface)), color-mix(in srgb, var(--accent) 22%, var(--surface)) 55%, color-mix(in srgb, var(--fg) 70%, var(--bg)));border:1px solid var(--line);overflow:hidden}
+.consc-bar::after{content:"";position:absolute;top:0;bottom:0;width:30%;background:linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);transform:translateX(-120%)}
+@media (prefers-reduced-motion:no-preference){.consc-bar::after{animation:sweep 6s ease-in-out infinite}}
+@keyframes sweep{0%,10%{transform:translateX(-120%)}70%,100%{transform:translateX(380%)}}
+.consc-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.8rem;align-items:start;margin-top:.5rem}
+.consc-end{font-size:.86rem;font-weight:600;white-space:nowrap}
+.consc-end:last-child{text-align:right}
+.consc-end small{display:block;font-weight:400;color:var(--muted)}
+.consc-mid{position:relative;text-align:center;padding-top:.65rem;border-top:2px dashed var(--line)}
+.consc-mid::before,.consc-mid::after{content:"";position:absolute;top:-.5rem;width:2px;height:.5rem;background:var(--line)}
+.consc-mid::before{left:0}.consc-mid::after{right:0}
+.consc-kicker{display:block;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.consc-mid .chips{justify-content:center;margin:0}
+@media (max-width:520px){.consc-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.consc-mid{grid-column:1/-1;order:3}.consc-end{white-space:normal}}
+
+/* Figure: light, the SCN and melatonin (day / night switch) */
+.lightsw{display:grid;gap:.9rem;font-family:var(--font-ui)}
+.lightsw svg{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line);transition:background .4s}
+.lightsw[data-mode="day"] svg{background:color-mix(in srgb, var(--note) 12%, var(--surface))}
+.lightsw[data-mode="night"] svg{background:color-mix(in srgb, var(--fg) 14%, var(--bg))}
+.lightsw .sun,.lightsw .lightray{transition:opacity .4s}
+.lightsw .moon{transition:opacity .4s}
+.lightsw[data-mode="night"] .sun,.lightsw[data-mode="night"] .lightray{opacity:0}
+.lightsw[data-mode="day"] .moon{opacity:0}
+.lightsw .mel{fill:var(--accent);transition:opacity .4s}
+.lightsw[data-mode="day"] .mel{opacity:.12}
+.lightsw .inhib{opacity:0;transition:opacity .4s}
+.lightsw[data-mode="day"] .inhib{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .lightsw[data-mode="night"] .mel{animation:melrise 3s ease-in infinite}
+  .lightsw[data-mode="night"] .mel:nth-of-type(2){animation-delay:.6s}
+  .lightsw[data-mode="night"] .mel:nth-of-type(3){animation-delay:1.2s}
+  .lightsw[data-mode="night"] .mel:nth-of-type(4){animation-delay:1.8s}
+  .lightsw[data-mode="night"] .mel:nth-of-type(5){animation-delay:2.4s}
+}
+@keyframes melrise{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(70px,-34px);opacity:0}}
+.lightsw-state{margin:0;font-size:.92rem;color:var(--muted);text-align:left}
+.lightsw-state b{color:var(--fg)}
+
+/* Figure: schematic circadian temperature curve with a moving clock hand */
+.tcurve svg{width:100%;height:auto;display:block}
+.tcurve .night{fill:color-mix(in srgb, var(--fg) 9%, transparent)}
+.tcurve .curve{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+
+/* Figure: sleep-debt calculator */
+.debt{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem;align-items:start;font-family:var(--font-ui)}
+.debt label{display:grid;gap:.35rem;font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.debt select{font:600 .95rem var(--font-ui);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.45rem .5rem;min-width:0}
+.debt input[type=range]{width:100%;accent-color:var(--accent)}
+.debt-hours{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent);line-height:1}
+.debt-hours small{font-size:.9rem;color:var(--muted);font-weight:600}
+.debt-scale{position:relative;height:1.1rem;border-radius:999px;background:var(--bad-bg);border:1px solid var(--line);overflow:hidden}
+.debt-scale .may{position:absolute;top:0;bottom:0;background:var(--note-bg)}
+.debt-scale .rec{position:absolute;top:0;bottom:0;background:var(--good-bg);border-left:2px solid var(--good);border-right:2px solid var(--good)}
+.debt-scale .pin{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1.5px;background:var(--fg);border-radius:2px;transition:left .2s}
+.debt-key{display:flex;flex-wrap:wrap;gap:.3rem .9rem;font-size:.75rem;color:var(--muted)}
+.debt-key i{display:inline-block;width:.75rem;height:.75rem;border-radius:3px;margin-right:.3rem;vertical-align:-1px;border:1px solid var(--line)}
+.debt-out{display:grid;gap:.5rem}
+.debt-out p{font-family:var(--font-body);font-size:.95rem;margin:0;text-align:left}
+.debt-week{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.debt{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: sleep-related brain structures (uses the .brainmap behaviour) */
+.sb-cortex{fill:color-mix(in srgb, var(--muted) 14%, var(--surface));stroke:var(--muted);stroke-width:1.4}
+.sb-cc{fill:none;stroke:color-mix(in srgb, var(--muted) 45%, var(--surface));stroke-width:9;stroke-linecap:round}
+.sb-cereb{fill:color-mix(in srgb, var(--muted) 26%, var(--surface));stroke:var(--muted);stroke-width:1.2}
+.sb-stem{fill:color-mix(in srgb, var(--muted) 30%, var(--surface));stroke:var(--muted);stroke-width:1.2}
+.sb-thal{fill:color-mix(in srgb, var(--accent) 40%, var(--surface));--glow:var(--accent)}
+.sb-hypo{fill:color-mix(in srgb, var(--good) 42%, var(--surface));--glow:var(--good)}
+.sb-scn{fill:var(--good);stroke:var(--surface);stroke-width:2;--glow:var(--good)}
+.sb-pons{fill:color-mix(in srgb, var(--bad) 34%, var(--surface));--glow:var(--bad)}
+.sb-gland{fill:color-mix(in srgb, var(--note) 55%, var(--surface));--glow:var(--note)}
+.sb-thal.is-on{fill:color-mix(in srgb, var(--accent) 70%, var(--surface))}
+.sb-hypo.is-on{fill:color-mix(in srgb, var(--good) 70%, var(--surface))}
+.sb-pons.is-on{fill:color-mix(in srgb, var(--bad) 60%, var(--surface))}
+.sb-gland.is-on{fill:var(--note)}
+.sb-scn.is-on{fill:var(--good);transform:scale(1.3);transform-box:fill-box;transform-origin:center}
+.sb-lead{stroke:var(--muted);stroke-width:1;fill:none}
+
+/* Figure: EEG explorer */
+.eeg{display:grid;gap:.9rem;font-family:var(--font-ui)}
+.eeg svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.eeg .wave{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linejoin:round}
+.eeg .base{stroke:var(--line);stroke-width:1}
+.eeg .mark{fill:var(--note);font-size:11px;font-weight:700}
+.eeg .mark-l{stroke:var(--note);stroke-width:1.2;stroke-dasharray:3 3}
+@media (prefers-reduced-motion:no-preference){.eeg .scroll{animation:eegscroll 7s linear infinite}}
+@keyframes eegscroll{from{transform:translateX(0)}to{transform:translateX(-600px)}}
+.eeg-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:1rem;align-items:start}
+.eeg-stats{display:grid;gap:.5rem}
+.eeg-stat{border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem;background:var(--surface)}
+.eeg-stat b{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.eeg-stat span{font-size:1rem;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
+.eeg-meter{height:.45rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin-top:.35rem}
+.eeg-meter i{display:block;height:100%;width:var(--w);background:var(--accent);transition:width .35s}
+@media (max-width:640px){.eeg-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: hypnogram */
+.hypno svg{width:100%;height:auto;display:block}
+.hypno .lvl{stroke:var(--line);stroke-width:1}
+.hypno .path{fill:none;stroke:var(--fg);stroke-width:2;stroke-linejoin:round}
+.hypno .rem{fill:none;stroke:var(--note);stroke-width:4;stroke-linecap:round}
+.hypno .deep{fill:color-mix(in srgb, var(--accent) 24%, transparent)}
+.hypno .head{stroke:var(--accent);stroke-width:2}
+.hypno .head-dot{fill:var(--accent)}
+.hypno-read{font-family:var(--font-ui);font-size:.9rem;margin:.6rem 0 0;color:var(--muted);text-align:left;min-height:1.5em}
+.hypno-read b{color:var(--fg)}
+
+/* Figure: drug class picker */
+.picker{display:grid;gap:.9rem;font-family:var(--font-ui)}
+.pk-info{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr);gap:1.1rem;align-items:center;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:.9rem 1rem}
+.pk-info svg{display:block;width:100%;max-width:170px;height:auto;margin:0 auto}
+.pk-info h4{margin:0 0 .25rem;color:var(--accent);font-size:1.05rem}
+.pk-info p{font-family:var(--font-body);font-size:.95rem;margin:.2rem 0 0;text-align:left}
+.pk-nt{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:.15rem .6rem;background:var(--accent-soft);color:var(--accent)}
+@media (max-width:560px){.pk-info{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: synapse with and without a reuptake blocker */
+.syn2{display:grid;gap:1rem}
+.syn2 .mode-state{margin:0}
+.syn2 .plug{fill:var(--muted);opacity:0;transition:opacity .3s}
+.syn2 .x{stroke:var(--bad);stroke-width:2.4;fill:none;stroke-linecap:round;opacity:0;transition:opacity .3s}
+.syn2[data-mode="block"] .plug,.syn2[data-mode="block"] .x{opacity:1}
+.syn2 .extra{opacity:0;transition:opacity .4s}
+.syn2[data-mode="block"] .extra{opacity:1}
+@media (prefers-reduced-motion:no-preference){.syn2[data-mode="block"] .syn .nt.back{animation-name:stuck}}
+@keyframes stuck{0%,10%{transform:translate(0,0);opacity:0}20%{opacity:1}45%,100%{transform:translate(0,40px);opacity:1}}
+
+/* Figure: sleep apnea, two types */
+.apnea svg{display:block;width:100%;max-width:200px;height:auto;margin:.2rem auto .6rem}
+.apnea .tube{fill:none;stroke:var(--muted);stroke-width:2}
+.apnea .air{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:4 4}
+.apnea .block{fill:var(--bad)}
+.apnea .sig{fill:none;stroke:var(--note);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:5 3}
+.apnea .xx{stroke:var(--bad);stroke-width:2.6;stroke-linecap:round}
+@media (prefers-reduced-motion:no-preference){.apnea .air,.apnea .sig{animation:march 1s linear infinite}}
