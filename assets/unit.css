@@ -408,3 +408,150 @@ h4{font-family:var(--font-ui);font-size:1.08rem;line-height:1.35;font-weight:600
 /* Compact tables shrink to their content instead of spanning the column */
 .table-wrap.fit{width:fit-content;max-width:100%}
 .table-wrap.fit td.num,.table-wrap.fit th.num{width:auto;min-width:4.5rem;text-align:right}
+
+/* ---- Unit 3 components (reusable) ---- */
+/* Shared: pill buttons for interactive figures */
+.pill-row{display:flex;flex-wrap:wrap;gap:.4rem}
+.pill-row button{font:600 .8rem/1.2 var(--font-ui);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:.4rem .75rem;cursor:pointer;text-align:left}
+.pill-row button:hover{border-color:var(--accent)}
+.pill-row button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.fig-panel{display:grid;gap:.7rem;min-width:0;font-family:var(--font-ui)}
+.fig-panel h4{margin:0;font-size:1.05rem;color:var(--accent)}
+.fig-panel p{font-family:var(--font-body);font-size:.95rem;margin:0;text-align:left}
+.fig-panel .kicker{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.s-note{fill:var(--note)} .s-bg{fill:var(--bg)} .s-linefill{fill:var(--line)}
+.s-stroke-muted{stroke:var(--muted);fill:none} .s-stroke-line{stroke:var(--line);fill:none} .s-stroke-note{stroke:var(--note);fill:none}
+
+/* Figure: Punnett square explorer */
+.punnett{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.2rem;align-items:start;font-family:var(--font-ui)}
+.pn-parents{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.pn-parents label{display:grid;gap:.3rem;font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.pn-parents select{font:600 .95rem var(--font-ui);color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.45rem .5rem;min-width:0}
+.pn-square{border-collapse:separate;border-spacing:4px;width:auto;margin:0 auto;font-size:1rem}
+.pn-square th{background:none;border:0;color:var(--accent);font-size:1.05rem;font-weight:700;padding:.2rem .5rem;text-align:center;text-transform:none;letter-spacing:0}
+.pn-square td{border:1px solid var(--line);border-radius:8px;width:4.6rem;height:4.2rem;text-align:center;vertical-align:middle;padding:.2rem;background:var(--bg);transition:background .25s,border-color .25s}
+.pn-square td b{display:block;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.pn-square td span{display:block;font-size:.7rem;color:var(--muted);line-height:1.2}
+.pn-square td.dom{background:var(--accent-soft);border-color:var(--accent)}
+.pn-square td.rec{background:var(--note-bg);border-color:var(--note-line)}
+.pn-result{display:grid;gap:.45rem}
+.pn-result .row{display:grid;grid-template-columns:minmax(0,9rem) minmax(0,1fr) 3rem;gap:.6rem;align-items:center;font-size:.86rem}
+.pn-result .track{height:1rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.pn-result .fill{height:100%;width:var(--w);background:var(--accent);transition:width .35s ease}
+.pn-result .row.rec .fill{background:var(--note)}
+.pn-result .pct{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+@media (max-width:640px){.punnett{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: neuron with a signal jumping between nodes of Ranvier */
+.neuron .myelin{fill:var(--note-bg);stroke:var(--note);stroke-width:1.4}
+.neuron .cell{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2}
+.neuron .spike{fill:var(--note)}
+@media (prefers-reduced-motion:no-preference){.neuron .spike{animation:saltatory 3.2s infinite}}
+@keyframes saltatory{
+  0%{transform:translateX(0);opacity:0}5%{opacity:1}
+  14%,22%{transform:translateX(96px)}30%,38%{transform:translateX(178px)}46%,54%{transform:translateX(260px)}62%,70%{transform:translateX(342px)}82%{transform:translateX(420px);opacity:1}90%,100%{transform:translateX(420px);opacity:0}}
+
+/* Figure: synapse with release, binding and reuptake */
+.syn .nt{fill:var(--note)}
+.syn .rcpt{fill:var(--accent)}
+@media (prefers-reduced-motion:no-preference){
+  .syn .nt.go{animation:cross 3.6s ease-in-out infinite}
+  .syn .nt.back{animation:reup 3.6s ease-in-out infinite}
+  .syn .nt:nth-of-type(2){animation-delay:.4s}.syn .nt:nth-of-type(3){animation-delay:.8s}.syn .nt:nth-of-type(4){animation-delay:1.2s}.syn .nt:nth-of-type(5){animation-delay:1.6s}.syn .nt:nth-of-type(6){animation-delay:2s}
+}
+@keyframes cross{0%,10%{transform:translateY(0);opacity:0}20%{opacity:1}55%,85%{transform:translateY(62px);opacity:1}100%{transform:translateY(62px);opacity:0}}
+@keyframes reup{0%,10%{transform:translate(0,0);opacity:0}20%{opacity:1}45%{transform:translate(0,40px)}80%{transform:translate(-30px,-6px);opacity:1}100%{transform:translate(-30px,-6px);opacity:0}}
+
+/* Figure: action potential explorer */
+.ap{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:1.2rem;align-items:start}
+.ap svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.ap .grid-l{stroke:var(--line);stroke-width:1}
+.ap .axis{stroke:var(--muted);stroke-width:1.2}
+.ap .curve{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.ap .thr{stroke:var(--note);stroke-width:1.6;stroke-dasharray:6 5}
+.ap .zone{fill:var(--accent);opacity:0;transition:opacity .25s}
+.ap .zone.on{opacity:.12}
+.ap .probe{fill:var(--note);stroke:var(--surface);stroke-width:2}
+.ap-ions{display:flex;flex-wrap:wrap;gap:.35rem}
+.ap-ions span{font-size:.78rem;font-weight:600;border-radius:999px;padding:.2rem .6rem;border:1px solid var(--line);background:var(--surface)}
+.ap-ions span.in{border-color:var(--accent);color:var(--accent)}
+.ap-ions span.out{border-color:var(--note);color:var(--note)}
+@media (max-width:700px){.ap{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: drug action at the receptor */
+.drug svg{display:block;width:100%;max-width:220px;height:auto;margin:.2rem auto .6rem}
+.drug .site{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+.drug .key{fill:var(--note)}
+.drug .blocker{fill:var(--muted)}
+.drug .x{stroke:var(--bad);stroke-width:2.4;fill:none;stroke-linecap:round}
+
+/* Figure: sympathetic / parasympathetic switch */
+.ans{display:grid;gap:1rem;font-family:var(--font-ui)}
+.ans-top{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+.ans-icons{display:flex;gap:1rem;align-items:center}
+.ans-icons svg{width:58px;height:58px;display:block}
+.ans .pupil{fill:var(--fg);transition:r .5s ease}
+.ans .heart{fill:var(--bad);transform-origin:29px 31px}
+@media (prefers-reduced-motion:no-preference){.ans .heart{animation:beat 1.2s ease-in-out infinite}.ans[data-mode="sym"] .heart{animation-duration:.5s}}
+@keyframes beat{0%,60%,100%{transform:scale(1)}20%{transform:scale(1.14)}}
+.ans-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr));gap:.5rem}
+.ans-list li{margin:0;padding:.55rem .75rem;border:1px solid var(--line);border-radius:8px;background:var(--bg);text-align:left}
+.ans-list b{display:block;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ans-list span{display:block;font-size:.95rem;font-weight:600;color:var(--fg)}
+.ans[data-mode="sym"] .ans-list li{border-color:var(--note-line);background:var(--note-bg)}
+.ans[data-mode="para"] .ans-list li{border-color:var(--good);background:var(--good-bg)}
+.ans-state{font-size:.9rem;color:var(--muted);margin:0}
+
+/* Figure: clickable brain map */
+.brainmap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:1.2rem;align-items:start}
+.brainmap svg{width:100%;height:auto;display:block}
+.bm-hit{cursor:pointer;transition:filter .2s, stroke-width .2s}
+.bm-hit:hover{filter:brightness(.94)}
+.bm-hit:focus{outline:none}
+.bm-hit:focus-visible,.bm-hit.is-on{stroke:var(--fg);stroke-width:3}
+.bm-frontal{fill:color-mix(in srgb, var(--accent) 34%, var(--surface))}
+.bm-parietal{fill:color-mix(in srgb, var(--note) 34%, var(--surface))}
+.bm-temporal{fill:color-mix(in srgb, var(--good) 32%, var(--surface))}
+.bm-occipital{fill:color-mix(in srgb, var(--bad) 28%, var(--surface))}
+.bm-cereb{fill:color-mix(in srgb, var(--muted) 34%, var(--surface))}
+.bm-stem{fill:color-mix(in srgb, var(--muted) 22%, var(--surface))}
+.bm-spot{fill:var(--surface);stroke:var(--fg);stroke-width:1.6}
+.bm-spot.is-on{fill:var(--fg)}
+.bm-strip{fill:none;stroke-linecap:round;stroke-width:12;opacity:.55}
+.bm-strip.motor{stroke:var(--accent)} .bm-strip.somato{stroke:var(--note)}
+.bm-strip.is-on{opacity:1;stroke-width:14}
+.bm-label{font-size:13px;font-weight:700;fill:var(--fg);pointer-events:none}
+.bm-small{font-size:10.5px;font-weight:600;fill:var(--fg);pointer-events:none}
+.bm-sulcus{stroke:var(--fg);stroke-width:1.6;fill:none;opacity:.55;pointer-events:none}
+.bm-fold{stroke:var(--fg);stroke-width:1;fill:none;opacity:.18;pointer-events:none}
+@media (max-width:700px){.brainmap{grid-template-columns:minmax(0,1fr)}}
+.pn-result .track,.pn-result .fill{display:block}
+.drug-list{display:grid;gap:.8rem}
+.drug-list .card{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:1.1rem;align-items:center}
+.drug-list .card svg{margin:0 auto}
+@media (max-width:560px){.drug-list .card{grid-template-columns:minmax(0,1fr)}}
+/* Fig 3.1 fix: keep the bottom border on the last row, centre the row labels */
+.pn-square tr td{border:1px solid var(--line)}
+.pn-square tr td.dom{border-color:var(--accent)}
+.pn-square tr td.rec{border-color:var(--note-line)}
+.pn-square th{vertical-align:middle}
+/* Long highlighted terms may wrap so justified lines stay evenly spaced */
+.term.term-long{white-space:normal}
+/* Fig 3.11: the chosen region lights up (brighter fill and a glow); everything else dims */
+.bm-hit.is-on{stroke:none}
+.bm-hit:focus-visible{stroke:var(--fg);stroke-width:2.5}
+.brainmap svg.has-pick .bm-hit{opacity:.45;transition:opacity .25s, fill .25s, filter .25s}
+.brainmap svg.has-pick .bm-hit.is-on{opacity:1}
+.bm-frontal{--glow:var(--accent)} .bm-parietal{--glow:var(--note)} .bm-temporal{--glow:var(--good)} .bm-occipital{--glow:var(--bad)}
+.bm-cereb,.bm-stem{--glow:var(--muted)} .bm-strip.motor{--glow:var(--accent)} .bm-strip.somato{--glow:var(--note)} .bm-spot{--glow:var(--note)}
+.bm-hit.is-on{filter:drop-shadow(0 0 7px var(--glow)) drop-shadow(0 0 2px var(--glow))}
+.bm-frontal.is-on{fill:color-mix(in srgb, var(--accent) 58%, var(--surface))}
+.bm-parietal.is-on{fill:color-mix(in srgb, var(--note) 58%, var(--surface))}
+.bm-temporal.is-on{fill:color-mix(in srgb, var(--good) 56%, var(--surface))}
+.bm-occipital.is-on{fill:color-mix(in srgb, var(--bad) 50%, var(--surface))}
+.bm-cereb.is-on,.bm-stem.is-on{fill:color-mix(in srgb, var(--muted) 60%, var(--surface))}
+.bm-strip.is-on{stroke-width:14}
+.bm-strip.motor.is-on{stroke:var(--accent)} .bm-strip.somato.is-on{stroke:var(--note)}
+.bm-spot.is-on{fill:var(--note);stroke:var(--surface);stroke-width:2;transform:scale(1.25);transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:no-preference){.bm-hit.is-on{animation:bm-glow 2.4s ease-in-out infinite}}
+@keyframes bm-glow{50%{filter:drop-shadow(0 0 12px var(--glow)) drop-shadow(0 0 3px var(--glow))}}

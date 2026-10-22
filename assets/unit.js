@@ -292,3 +292,149 @@
     if (start) start.click(); else draw(parseFloat(range.value));
   });
 })();
+
+/* ---- Unit 3 components ---- */
+/* Punnett square explorer (.punnett) */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.punnett'), function (box) {
+    var s1 = box.querySelector('.pn-p1'), s2 = box.querySelector('.pn-p2');
+    var presets = Array.prototype.slice.call(box.querySelectorAll('.pn-presets button'));
+    var table = box.querySelector('.pn-square');
+    var res = box.querySelector('.pn-result');
+    var note = box.querySelector('.pn-note');
+    var cfg = {};
+    function genos() { return [cfg.D + cfg.D, cfg.D + cfg.r, cfg.r + cfg.r]; }
+    function pheno(g) { return g.indexOf(cfg.D) >= 0 ? cfg.dn : cfg.rn; }
+    function fill(sel, val) {
+      sel.innerHTML = '';
+      genos().forEach(function (g) {
+        var o = document.createElement('option');
+        o.value = g; o.textContent = g + ' (' + pheno(g) + ')';
+        sel.appendChild(o);
+      });
+      sel.value = val;
+    }
+    function draw() {
+      var a = s1.value.split(''), b = s2.value.split('');
+      var rows = '<tr><th></th><th scope="col">' + b[0] + '</th><th scope="col">' + b[1] + '</th></tr>';
+      var counts = {}; var dom = 0;
+      a.forEach(function (x) {
+        rows += '<tr><th scope="row">' + x + '</th>';
+        b.forEach(function (y) {
+          var g = [x, y].sort(function (m, n) { return m === cfg.D ? -1 : n === cfg.D ? 1 : 0; }).join('');
+          var isDom = g.indexOf(cfg.D) >= 0;
+          if (isDom) dom++;
+          counts[g] = (counts[g] || 0) + 1;
+          rows += '<td class="' + (isDom ? 'dom' : 'rec') + '"><b>' + g + '</b><span>' + pheno(g) + '</span></td>';
+        });
+        rows += '</tr>';
+      });
+      table.innerHTML = rows;
+      var pD = dom * 25, pR = 100 - pD;
+      res.innerHTML =
+        '<div class="row"><span>' + cfg.dn + '</span><span class="track"><span class="fill" style="--w:' + pD + '%"></span></span><span class="pct">' + pD + '%</span></div>' +
+        '<div class="row rec"><span>' + cfg.rn + '</span><span class="track"><span class="fill" style="--w:' + pR + '%"></span></span><span class="pct">' + pR + '%</span></div>';
+      var parts = Object.keys(counts).map(function (g) { return g + ' ' + counts[g] * 25 + '%'; });
+      if (note) note.textContent = 'Genotypes: ' + parts.join(', ') + '. Each box is one equally likely combination (25%).';
+    }
+    function load(p) {
+      presets.forEach(function (o) { o.setAttribute('aria-pressed', o === p ? 'true' : 'false'); });
+      cfg = { D: p.getAttribute('data-d'), r: p.getAttribute('data-r'), dn: p.getAttribute('data-dn'), rn: p.getAttribute('data-rn') };
+      fill(s1, p.getAttribute('data-p1')); fill(s2, p.getAttribute('data-p2'));
+      draw();
+    }
+    presets.forEach(function (p) { p.addEventListener('click', function () { load(p); }); });
+    s1.addEventListener('change', draw); s2.addEventListener('change', draw);
+    load(presets.filter(function (p) { return p.getAttribute('aria-pressed') === 'true'; })[0] || presets[0]);
+  });
+})();
+
+/* Action potential explorer (.ap) */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call(document.querySelectorAll('.ap'), function (box) {
+    var path = box.querySelector('.curve');
+    var probe = box.querySelector('.probe');
+    var btns = Array.prototype.slice.call(box.querySelectorAll('.ap-phases button'));
+    var infos = Array.prototype.slice.call(box.querySelectorAll('.ap-info'));
+    var zones = Array.prototype.slice.call(box.querySelectorAll('.zone'));
+    var fire = box.querySelector('.ap-fire');
+    var total = path.getTotalLength();
+    function pointAtX(x) {
+      var lo = 0, hi = total;
+      for (var i = 0; i < 30; i++) { var mid = (lo + hi) / 2; if (path.getPointAtLength(mid).x < x) lo = mid; else hi = mid; }
+      return path.getPointAtLength(hi);
+    }
+    function place(p) { probe.setAttribute('cx', p.x.toFixed(1)); probe.setAttribute('cy', p.y.toFixed(1)); }
+    function show(i, move) {
+      btns.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+      infos.forEach(function (n, k) { n.hidden = k !== i; });
+      var b = btns[i];
+      zones.forEach(function (z) { z.classList.toggle('on', z.getAttribute('data-i') === String(i)); });
+      if (move !== false) place(pointAtX(parseFloat(b.getAttribute('data-x'))));
+    }
+    var raf = null;
+    btns.forEach(function (b, k) { b.addEventListener('click', function () { if (raf) cancelAnimationFrame(raf); raf = null; show(k); }); });
+    if (fire) fire.addEventListener('click', function () {
+      if (raf) cancelAnimationFrame(raf);
+      if (reduce) { show(btns.length - 1); return; }
+      var t0 = null, dur = 4200, cur = -1;
+      var ends = btns.map(function (b) { return parseFloat(b.getAttribute('data-end')); });
+      function step(t) {
+        if (t0 === null) t0 = t;
+        var f = Math.min(1, (t - t0) / dur);
+        var p = path.getPointAtLength(f * total);
+        place(p);
+        var idx = 0; while (idx < ends.length - 1 && p.x > ends[idx]) idx++;
+        if (idx !== cur) { cur = idx; show(idx, false); }
+        raf = f < 1 ? requestAnimationFrame(step) : null;
+      }
+      raf = requestAnimationFrame(step);
+    });
+    show(0);
+  });
+})();
+
+/* Clickable brain map (.brainmap) */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.brainmap'), function (box) {
+    var hits = Array.prototype.slice.call(box.querySelectorAll('[data-k]'));
+    var infos = Array.prototype.slice.call(box.querySelectorAll('.bm-info'));
+    function pick(k) {
+      hits.forEach(function (h) {
+        var on = h.getAttribute('data-k') === k;
+        if (h.tagName === 'BUTTON') h.setAttribute('aria-pressed', on ? 'true' : 'false');
+        else h.classList.toggle('is-on', on);
+      });
+      infos.forEach(function (n) { n.hidden = n.getAttribute('data-for') !== k; });
+      var svg = box.querySelector('svg'); if (svg) svg.classList.add('has-pick');
+    }
+    hits.forEach(function (h) {
+      h.addEventListener('click', function () { pick(h.getAttribute('data-k')); });
+      if (h.tagName !== 'BUTTON') h.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(h.getAttribute('data-k')); }
+      });
+    });
+    var first = box.querySelector('.pill-row button[aria-pressed="true"]') || hits[0];
+    pick(first.getAttribute('data-k'));
+  });
+})();
+
+/* Sympathetic / parasympathetic switch (.ans) */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.ans'), function (box) {
+    var btns = Array.prototype.slice.call(box.querySelectorAll('.ans-modes button'));
+    var items = Array.prototype.slice.call(box.querySelectorAll('.ans-list span[data-sym]'));
+    var pupil = box.querySelector('.pupil');
+    var state = box.querySelector('.ans-state');
+    function set(mode) {
+      box.setAttribute('data-mode', mode);
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mode') === mode ? 'true' : 'false'); });
+      items.forEach(function (s) { s.textContent = s.getAttribute('data-' + mode); });
+      if (pupil) pupil.setAttribute('r', mode === 'sym' ? '11' : '5');
+      if (state) state.textContent = box.querySelector('.ans-modes button[data-mode="' + mode + '"]').getAttribute('data-state');
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { set(b.getAttribute('data-mode')); }); });
+    set(box.getAttribute('data-mode') || 'sym');
+  });
+})();
