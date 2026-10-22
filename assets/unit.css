@@ -695,3 +695,495 @@ h4{font-family:var(--font-ui);font-size:1.08rem;line-height:1.35;font-weight:600
 .apnea .sig{fill:none;stroke:var(--note);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:5 3}
 .apnea .xx{stroke:var(--bad);stroke-width:2.6;stroke-linecap:round}
 @media (prefers-reduced-motion:no-preference){.apnea .air,.apnea .sig{animation:march 1s linear infinite}}
+
+/* ---- Unit 5 components (reusable) ---- */
+/* Shared: range sliders and read-outs inside interactive figures */
+.ctl{display:grid;gap:.3rem;font-family:var(--font-ui);font-size:.78rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ctl input[type=range]{width:100%;accent-color:var(--accent)}
+.ctl output{font-size:1rem;letter-spacing:0;text-transform:none;color:var(--fg);font-variant-numeric:tabular-nums}
+.ctl-row{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 12rem), 1fr));gap:.9rem 1.2rem;margin-top:.9rem}
+.fig-read{font-family:var(--font-body);font-size:.95rem;margin:.8rem 0 0;color:var(--muted);text-align:left;min-height:1.5em}
+.fig-read b{font-family:var(--font-ui);color:var(--fg)}
+.fig-svg{width:100%;height:auto;display:block}
+.fig-pair{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 14rem), 1fr));gap:1rem;align-items:start}
+.fig-pair > div{min-width:0}
+.sub-cap{display:block;font-family:var(--font-ui);font-size:.8rem;font-weight:600;color:var(--muted);text-align:center;margin-top:.35rem}
+
+/* Figure: step flow (one step lit at a time, HTML version) */
+.chain{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.45rem .35rem;align-items:stretch;font-family:var(--font-ui)}
+.chain li{margin:0;display:flex;align-items:center;gap:.35rem;text-align:left}
+.chain li + li::before{content:"";width:.9rem;height:2px;background:var(--line);flex:none}
+.chain .st{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:.45rem .65rem;font-size:.85rem;line-height:1.3;transition:background .25s, border-color .25s}
+.chain .st small{display:block;font-size:.72rem;color:var(--muted);font-weight:500}
+.chain .st b{font-weight:600}
+.chain li.on .st{border-color:var(--accent);background:var(--accent-soft)}
+.chain li.done .st{border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
+.chain-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:.9rem;font-family:var(--font-ui)}
+.chain-say{font-family:var(--font-body);font-size:.95rem;margin:.7rem 0 0;text-align:left;min-height:3em}
+.chain-say b{font-family:var(--font-ui)}
+
+/* Figure: one light, two rooms (difference threshold) */
+.wb svg{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--line)}
+.wb .room{transition:fill .5s}
+.wb[data-mode="dark"] .room{fill:#0E1117}
+.wb[data-mode="bright"] .room{fill:#F2EEE2}
+.wb .seat{transition:fill .5s}
+.wb[data-mode="dark"] .seat{fill:#1E2430}
+.wb[data-mode="bright"] .seat{fill:#D9D2BF}
+.wb .glow{fill:#FFF7C2}
+.wb[data-mode="dark"] .glow{opacity:.85}
+.wb[data-mode="bright"] .glow{opacity:.85}
+.wb .halo{fill:url(#wbHalo);transition:opacity .5s}
+.wb[data-mode="bright"] .halo{opacity:.12}
+.wb .tag-dark{transition:opacity .5s}
+.wb[data-mode="bright"] .tag-dark{opacity:0}
+.wb .tag-bright{opacity:0;transition:opacity .5s}
+.wb[data-mode="bright"] .tag-bright{opacity:1}
+.wb .room-lbl{font-size:13px;font-weight:700}
+.wb[data-mode="dark"] .room-lbl{fill:#E2E7EE}
+.wb[data-mode="bright"] .room-lbl{fill:#1A2330}
+.wb .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.wb .mode-state b{color:var(--fg)}
+.wb .pill-row{margin-bottom:.8rem}
+
+/* Figure: bottom-up and top-down, two directions */
+.dir2{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 15rem), 1fr));gap:1rem;font-family:var(--font-ui)}
+.dir{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:.7rem;align-items:stretch;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:.9rem}
+.dir h4{grid-column:1/-1;margin:0;color:var(--accent);font-size:1.02rem}
+.dir .arrow{position:relative;border-radius:999px;background:var(--accent-soft)}
+.dir .arrow::after{content:"";position:absolute;left:50%;width:0;height:0;border-left:.55rem solid transparent;border-right:.55rem solid transparent;transform:translateX(-50%)}
+.dir.up .arrow::after{top:-.1rem;border-bottom:.8rem solid var(--accent)}
+.dir.down .arrow::after{bottom:-.1rem;border-top:.8rem solid var(--accent)}
+.dir .arrow i{position:absolute;left:50%;width:.55rem;height:.55rem;margin-left:-.275rem;border-radius:50%;background:var(--accent)}
+@media (prefers-reduced-motion:no-preference){
+  .dir.up .arrow i{animation:dirup 2.4s ease-in-out infinite}
+  .dir.down .arrow i{animation:dirdown 2.4s ease-in-out infinite}
+}
+@keyframes dirup{0%{bottom:4%;opacity:0}15%{opacity:1}85%{opacity:1}100%{bottom:80%;opacity:0}}
+@keyframes dirdown{0%{top:4%;opacity:0}15%{opacity:1}85%{opacity:1}100%{top:80%;opacity:0}}
+.dir ol{list-style:none;margin:0;padding:0;display:grid;gap:.45rem}
+.dir li{margin:0;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:.4rem .6rem;font-size:.85rem;line-height:1.35;text-align:left}
+.dir li b{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dir .eg{grid-column:1/-1;font-family:var(--font-body);font-size:.92rem;margin:0;color:var(--muted);text-align:left}
+
+/* Figure: sensory adaptation (sensed vs noticed) */
+.adapt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1.2rem;align-items:center;font-family:var(--font-ui)}
+.adapt .lamp{width:84px;height:84px;border-radius:50%;background:color-mix(in srgb, var(--note) 25%, var(--surface));border:2px solid var(--note);box-shadow:0 0 0 0 transparent}
+@media (prefers-reduced-motion:no-preference){.adapt .lamp{animation:flash 1.2s steps(1) infinite}}
+@keyframes flash{0%{background:#FFD54A;box-shadow:0 0 28px 8px rgba(255,213,74,.55)}50%{background:color-mix(in srgb, var(--note) 25%, var(--surface));box-shadow:0 0 0 0 transparent}}
+.adapt .meters{display:grid;gap:.75rem}
+.meter b{display:flex;justify-content:space-between;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:.3rem}
+.meter .trk{height:.8rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.meter .trk i{display:block;height:100%;width:100%;background:var(--accent)}
+.meter.notice .trk i{background:var(--note);width:15%}
+@media (prefers-reduced-motion:no-preference){.meter.notice .trk i{animation:fadeNotice 9s ease-out infinite}}
+@keyframes fadeNotice{0%{width:100%}70%{width:12%}92%{width:12%}100%{width:100%}}
+@media (max-width:480px){.adapt{grid-template-columns:minmax(0,1fr)}.adapt .lamp{margin:0 auto}}
+
+/* Figure: inattentional blindness demo */
+.ib{font-family:var(--font-ui)}
+.ib svg{width:100%;height:auto;display:block;background:#8E959D;border-radius:8px;border:1px solid var(--line)}
+.ib .ib-w{fill:#FFFFFF}
+.ib .ib-b{fill:#11151B}
+.ib .ib-x{fill:#D7262B}
+.ib-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:.8rem}
+.ib-msg{font-family:var(--font-body);font-size:.95rem;margin:.7rem 0 0;text-align:left;min-height:1.5em}
+.ib-msg b{font-family:var(--font-ui)}
+.ib-cover{font-size:15px;font-weight:600;fill:#FFFFFF}
+
+/* Figure: Müller-Lyer illusion */
+.ml svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+.ml .shaft{stroke:var(--fg);stroke-width:4;stroke-linecap:round}
+.ml .fin{stroke:var(--fg);stroke-width:4;stroke-linecap:round;fill:none;transition:opacity .4s}
+.ml .guide{stroke:var(--note);stroke-width:1.6;stroke-dasharray:5 5;opacity:0;transition:opacity .4s}
+.ml[data-mode="reveal"] .guide{opacity:1}
+.ml[data-mode="reveal"] .fin{opacity:.18}
+.ml .room-w{fill:var(--bg);stroke:var(--muted);stroke-width:1.4}
+.ml .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.ml .mode-state b{color:var(--fg)}
+.ml .pill-row{margin-bottom:.6rem}
+
+/* Figure: wave explorer and light explorer */
+.wavex svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.wavex .axis{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4}
+.wavex .w{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.wavex .dim{stroke:var(--note);stroke-width:1.6;fill:none}
+.wavex .dim-t{fill:var(--note);font-size:12px;font-weight:700}
+.wavex .pt{fill:var(--fg);font-size:12px;font-weight:600}
+.lightx .swatch{height:3.2rem;border-radius:8px;border:1px solid var(--line);transition:background .15s}
+.lightx .swatch-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:1rem;align-items:center;margin-top:.9rem;font-family:var(--font-ui)}
+.lightx .name{font-size:1.15rem;font-weight:700;color:var(--fg)}
+.lightx .name small{display:block;font-size:.8rem;font-weight:500;color:var(--muted)}
+.lightx .spec{height:.7rem;border-radius:999px;background:linear-gradient(90deg,#7A00D6 0%,#3A00FF 10%,#0072FF 22%,#00C8E6 30%,#00D23C 42%,#9BE300 52%,#FFE600 60%,#FF9A00 70%,#FF3A00 82%,#C80000 100%);margin-top:.25rem}
+@media (max-width:480px){.lightx .swatch-row{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: ranges on a log scale (hearing ranges by species) */
+.ranges svg{width:100%;height:auto;display:block}
+.ranges .rg{fill:color-mix(in srgb, var(--accent) 55%, var(--surface))}
+.ranges .rg.you{fill:var(--accent)}
+.ranges .grid{stroke:var(--line);stroke-width:1}
+.ranges .lab{fill:var(--fg);font-size:12.5px;font-weight:600}
+.ranges .val{fill:var(--muted);font-size:11px}
+.ranges .tick{fill:var(--muted);font-size:11px}
+@media (prefers-reduced-motion:no-preference){.ranges .rg{transform-box:fill-box;transform-origin:left center;animation:grow-x .8s ease-out both}}
+@keyframes grow-x{from{transform:scaleX(0)}}
+
+/* Figure: decibel ladder */
+.db svg{width:100%;height:auto;display:block}
+.db .zone-safe{fill:var(--good-bg)} .db .zone-risk{fill:var(--note-bg)} .db .zone-pain{fill:var(--bad-bg)}
+.db .scale{stroke:var(--muted);stroke-width:1.2}
+.db .tk{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.db .mk{fill:var(--fg)}
+.db .ln{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3}
+.db .t{fill:var(--fg);font-size:12px;font-weight:600}
+.db .s{fill:var(--muted);font-size:11px}
+.db .z{font-size:11px;font-weight:700;letter-spacing:.06em}
+.db .z.safe{fill:var(--good)} .db .z.risk{fill:var(--note)} .db .z.pain{fill:var(--bad)}
+
+/* Figure: tone player */
+.tone{display:grid;gap:.9rem;font-family:var(--font-ui)}
+.tone .warn{font-size:.82rem;color:var(--muted);margin:0;text-align:left}
+.tone .play{display:inline-flex;align-items:center;gap:.5rem}
+.tone .play svg{width:14px;height:14px;fill:currentColor}
+
+/* Clickable anatomy diagrams (eye, ear, skin): use the .brainmap behaviour */
+.eye-sclera{fill:color-mix(in srgb, var(--muted) 10%, var(--surface));stroke:var(--muted);stroke-width:2}
+.eye-cornea{fill:color-mix(in srgb, var(--accent) 16%, var(--surface));stroke:var(--accent);stroke-width:2.5;--glow:var(--accent)}
+.eye-iris{fill:color-mix(in srgb, var(--note) 55%, var(--surface));--glow:var(--note)}
+.eye-pupil{fill:var(--fg);--glow:var(--fg)}
+.eye-lens{fill:color-mix(in srgb, var(--accent) 30%, var(--surface));stroke:var(--accent);stroke-width:1.5;--glow:var(--accent)}
+.eye-retina{fill:none;stroke:color-mix(in srgb, var(--bad) 60%, var(--surface));stroke-width:9;stroke-linecap:round;--glow:var(--bad)}
+.eye-fovea{fill:var(--good);--glow:var(--good)}
+.eye-nerve{fill:color-mix(in srgb, var(--note) 38%, var(--surface));stroke:var(--note);stroke-width:1.2;--glow:var(--note)}
+.eye-spot{fill:var(--surface);stroke:var(--fg);stroke-width:1.6;--glow:var(--fg)}
+.eye-ray{stroke:var(--note);stroke-width:1.6;fill:none;stroke-dasharray:6 4;opacity:.8;pointer-events:none}
+.ear-outer{fill:color-mix(in srgb, var(--note) 32%, var(--surface));stroke:var(--note);stroke-width:1.4;--glow:var(--note)}
+.ear-canal{fill:color-mix(in srgb, var(--note) 14%, var(--surface));stroke:var(--note);stroke-width:1.2;--glow:var(--note)}
+.ear-drum{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;--glow:var(--accent)}
+.ear-bone{fill:color-mix(in srgb, var(--muted) 35%, var(--surface));stroke:var(--fg);stroke-width:1.3;--glow:var(--fg)}
+.ear-oval{fill:var(--surface);stroke:var(--accent);stroke-width:2.4;--glow:var(--accent)}
+.ear-coch{fill:color-mix(in srgb, var(--good) 34%, var(--surface));stroke:var(--good);stroke-width:1.4;--glow:var(--good)}
+.ear-canals{fill:none;stroke:color-mix(in srgb, var(--bad) 55%, var(--surface));stroke-width:7;stroke-linecap:round;--glow:var(--bad)}
+.ear-sac{fill:color-mix(in srgb, var(--bad) 40%, var(--surface));stroke:var(--bad);stroke-width:1.2;--glow:var(--bad)}
+.ear-nerve{fill:none;stroke:color-mix(in srgb, var(--note) 60%, var(--surface));stroke-width:6;stroke-linecap:round;--glow:var(--note)}
+.ear-head{fill:color-mix(in srgb, var(--muted) 6%, var(--surface));stroke:none}
+.ear-wave{fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;opacity:.75}
+@media (prefers-reduced-motion:no-preference){.ear-wave{animation:earwave 2.4s ease-in infinite}.ear-wave:nth-of-type(2){animation-delay:.8s}.ear-wave:nth-of-type(3){animation-delay:1.6s}}
+@keyframes earwave{0%{transform:translateX(-24px);opacity:0}30%{opacity:.8}100%{transform:translateX(40px);opacity:0}}
+.skin-epi{fill:color-mix(in srgb, var(--note) 22%, var(--surface));stroke:var(--note);stroke-width:1.2}
+.skin-der{fill:color-mix(in srgb, var(--bad) 10%, var(--surface))}
+.skin-hyp{fill:color-mix(in srgb, var(--note) 9%, var(--bg))}
+.skin-fib{fill:none;stroke:var(--muted);stroke-width:1.6;opacity:.75;pointer-events:none}
+.sk-meiss{fill:color-mix(in srgb, var(--accent) 50%, var(--surface));stroke:var(--accent);--glow:var(--accent)}
+.sk-merk{fill:color-mix(in srgb, var(--good) 55%, var(--surface));stroke:var(--good);--glow:var(--good)}
+.sk-ruff{fill:color-mix(in srgb, var(--note) 55%, var(--surface));stroke:var(--note);--glow:var(--note)}
+.sk-pac{fill:color-mix(in srgb, var(--bad) 32%, var(--surface));stroke:var(--bad);--glow:var(--bad)}
+.sk-free{fill:none;stroke:var(--fg);stroke-width:2.2;stroke-linecap:round;--glow:var(--fg)}
+.anat .bm-label{font-size:12px}
+.anat svg.has-pick .bm-hit{opacity:.5}
+.anat svg.has-pick .bm-hit.is-on{opacity:1}
+
+/* Figure: pupil in bright and dim light */
+.pupil svg{width:100%;max-width:420px;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid var(--line);transition:background .4s}
+.pupil[data-mode="bright"] svg{background:color-mix(in srgb, var(--note) 14%, var(--surface))}
+.pupil[data-mode="dim"] svg{background:color-mix(in srgb, var(--fg) 16%, var(--bg))}
+.pupil .p{fill:#0B0E12;transform-box:fill-box;transform-origin:center;transition:transform .7s cubic-bezier(.3,.7,.3,1)}
+.pupil[data-mode="bright"] .p{transform:scale(.45)}
+.pupil .ir{fill:#5F8A6E}
+.pupil .ir2{fill:none;stroke:#3E6150;stroke-width:1.2;opacity:.7}
+.pupil .wh{fill:#F7F5F0;stroke:#C9C2B4}
+.pupil .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.pupil .mode-state b{color:var(--fg)}
+.pupil .pill-row{margin-bottom:.8rem}
+
+/* Figure: blind spot demo */
+.bspot svg{width:100%;height:auto;display:block;background:#FFFFFF;border-radius:8px;border:1px solid var(--line)}
+.bspot .x{stroke:#11151B;stroke-width:5;stroke-linecap:round}
+.bspot .d{fill:#11151B}
+
+/* Figure: visual pathway (left / right visual field) */
+.vpath svg{width:100%;height:auto;display:block}
+.vpath .brain{fill:color-mix(in srgb, var(--muted) 10%, var(--surface));stroke:var(--muted);stroke-width:1.4}
+.vpath .mid{stroke:var(--line);stroke-width:1.4;stroke-dasharray:4 4}
+.vpath .occ{fill:color-mix(in srgb, var(--muted) 18%, var(--surface));stroke:var(--muted);stroke-width:1.2;transition:fill .35s}
+.vpath .eyeb{fill:var(--surface);stroke:var(--fg);stroke-width:1.6}
+.vpath .ret-r{stroke:var(--accent);stroke-width:5;fill:none;stroke-linecap:round}
+.vpath .ret-l{stroke:var(--note);stroke-width:5;fill:none;stroke-linecap:round}
+.vpath .fld-r{fill:color-mix(in srgb, var(--accent) 18%, transparent);stroke:var(--accent);stroke-width:1.2;stroke-dasharray:4 3}
+.vpath .fld-l{fill:color-mix(in srgb, var(--note) 18%, transparent);stroke:var(--note);stroke-width:1.2;stroke-dasharray:4 3}
+.vpath .pr{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s}
+.vpath .pl{stroke:var(--note);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s}
+.vpath .ray-r{stroke:var(--accent);stroke-width:1.4;stroke-dasharray:3 4;fill:none;transition:opacity .35s}
+.vpath .ray-l{stroke:var(--note);stroke-width:1.4;stroke-dasharray:3 4;fill:none;transition:opacity .35s}
+.vpath .grp-r,.vpath .grp-l{transition:opacity .35s}
+.vpath[data-mode="right"] .grp-l{opacity:.12}
+.vpath[data-mode="left"] .grp-r{opacity:.12}
+.vpath[data-mode="right"] .occ-l{fill:color-mix(in srgb, var(--accent) 45%, var(--surface))}
+.vpath[data-mode="left"] .occ-r{fill:color-mix(in srgb, var(--note) 50%, var(--surface))}
+.vpath[data-mode="both"] .occ-l{fill:color-mix(in srgb, var(--accent) 35%, var(--surface))}
+.vpath[data-mode="both"] .occ-r{fill:color-mix(in srgb, var(--note) 40%, var(--surface))}
+@media (prefers-reduced-motion:no-preference){.vpath .pr,.vpath .pl{stroke-dasharray:7 5;animation:march-vp 1s linear infinite}}
+@keyframes march-vp{to{stroke-dashoffset:-12}}
+.vpath .t{fill:var(--fg);font-size:12px;font-weight:600}
+.vpath .s{fill:var(--muted);font-size:11px}
+.vpath .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.vpath .mode-state b{color:var(--fg)}
+.vpath .pill-row{margin-bottom:.8rem}
+
+/* Figure: cone sensitivity explorer */
+.cones svg{width:100%;height:auto;display:block}
+.cones .c-s{fill:none;stroke:#3B6CF6;stroke-width:2.6}
+.cones .c-m{fill:none;stroke:#1FA65A;stroke-width:2.6}
+.cones .c-l{fill:none;stroke:#E0452E;stroke-width:2.6}
+.cones .ax{stroke:var(--muted);stroke-width:1.1}
+.cones .tk{fill:var(--muted);font-size:11px}
+.cones .cursor{stroke:var(--fg);stroke-width:1.6;stroke-dasharray:4 3}
+.cone-bars{display:grid;gap:.45rem;font-family:var(--font-ui);font-size:.85rem}
+.cone-bars div{display:grid;grid-template-columns:6.5rem minmax(0,1fr) 2.6rem;gap:.6rem;align-items:center}
+.cone-bars .trk{height:.75rem;border-radius:999px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
+.cone-bars .trk i{display:block;height:100%;width:0;transition:width .15s}
+.cone-bars .v{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted)}
+.cones-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1.1rem;align-items:center}
+.cones-grid .swatch{height:2.4rem;border-radius:8px;border:1px solid var(--line);margin-bottom:.7rem}
+@media (max-width:640px){.cones-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: negative afterimage */
+.after{display:grid;gap:.8rem;font-family:var(--font-ui)}
+.after svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto;border-radius:6px;border:1px solid var(--line)}
+.after .blank{fill:#FFFFFF;opacity:0;transition:opacity .15s}
+.after.is-blank .blank{opacity:1}
+.after .count{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.after-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.after .ans{font-family:var(--font-body);font-size:.95rem;margin:0;text-align:left;color:var(--muted)}
+.after .ans b{font-family:var(--font-ui);color:var(--fg)}
+
+/* Figure: depth cue scenes */
+.cue svg{width:100%;max-width:440px;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.cue .gnd{fill:color-mix(in srgb, var(--good) 16%, var(--surface))}
+.cue .sky{fill:color-mix(in srgb, var(--accent) 10%, var(--surface))}
+.cue .road{fill:color-mix(in srgb, var(--muted) 40%, var(--surface))}
+.cue .mark{stroke:var(--surface);stroke-width:3;stroke-dasharray:10 10}
+.cue .rail{stroke:var(--fg);stroke-width:2.4;fill:none}
+.cue .obj-a{fill:var(--accent)} .cue .obj-b{fill:var(--note)} .cue .obj-c{fill:color-mix(in srgb, var(--bad) 70%, var(--surface))}
+.cue .trunk{fill:color-mix(in srgb, var(--note) 70%, var(--fg))}
+.cue .crown{fill:var(--good)}
+.cue .hz{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
+.cue .t{fill:var(--fg);font-size:12px;font-weight:600}
+.cue .s{fill:var(--muted);font-size:11px}
+
+/* Figure: hearing chain uses .chain; basilar membrane explorer */
+.bmx svg{width:100%;height:auto;display:block}
+.bmx .memb{fill:url(#bmGrad);stroke:var(--muted);stroke-width:1.2}
+.bmx .peak{fill:var(--bad);opacity:.9}
+.bmx .env{fill:color-mix(in srgb, var(--bad) 22%, transparent);stroke:var(--bad);stroke-width:1.4}
+.bmx .t{fill:var(--fg);font-size:12px;font-weight:600}
+.bmx .s{fill:var(--muted);font-size:11px}
+.bmx .badges{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem}
+.bmx .badge{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--font-ui);font-size:.8rem;font-weight:600;border-radius:999px;padding:.25rem .65rem;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.bmx .badge.yes{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+.bmx .badge.no{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+
+/* Figure: sound localization */
+.loc svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto}
+.loc .head{fill:color-mix(in srgb, var(--muted) 12%, var(--surface));stroke:var(--fg);stroke-width:1.6}
+.loc .nose{fill:color-mix(in srgb, var(--muted) 12%, var(--surface));stroke:var(--fg);stroke-width:1.6}
+.loc .ear{fill:color-mix(in srgb, var(--note) 40%, var(--surface));stroke:var(--note);stroke-width:1.4;transition:fill .3s, transform .3s;transform-box:fill-box;transform-origin:center}
+.loc .src{transition:transform .55s cubic-bezier(.3,.7,.3,1)}
+.loc .src circle{fill:var(--accent)}
+.loc .ring{fill:none;stroke:var(--accent);stroke-width:1.6;opacity:0;transform-box:fill-box;transform-origin:center}
+@media (prefers-reduced-motion:no-preference){.loc .ring{animation:ringout 1.8s ease-out infinite}.loc .ring:nth-of-type(2){animation-delay:.6s}.loc .ring:nth-of-type(3){animation-delay:1.2s}}
+@keyframes ringout{0%{transform:scale(1);opacity:.9}100%{transform:scale(8);opacity:0}}
+.loc[data-mode="left"] .src{transform:translate(-150px,0)}
+.loc[data-mode="right"] .src{transform:translate(150px,0)}
+.loc[data-mode="front"] .src{transform:translate(0,-118px)}
+.loc[data-mode="back"] .src{transform:translate(0,118px)}
+.loc[data-mode="above"] .src{transform:translate(0,0)}
+.loc[data-mode="left"] .ear-l,.loc[data-mode="right"] .ear-r{fill:var(--note);transform:scale(1.25)}
+.loc .above-t{opacity:0;transition:opacity .3s}
+.loc[data-mode="above"] .above-t{opacity:1}
+.loc .t{fill:var(--fg);font-size:12px;font-weight:600}
+.loc .s{fill:var(--muted);font-size:11px}
+.loc .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.loc .mode-state b{color:var(--fg)}
+.loc .pill-row{margin-bottom:.6rem}
+
+/* Figure: taste bud */
+.tb svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto}
+.tb .tissue{fill:color-mix(in srgb, var(--bad) 14%, var(--surface));stroke:var(--bad);stroke-width:1.2}
+.tb .bud{fill:color-mix(in srgb, var(--note) 26%, var(--surface));stroke:var(--note);stroke-width:1.4}
+.tb .cell{fill:color-mix(in srgb, var(--accent) 26%, var(--surface));stroke:var(--accent);stroke-width:1.2}
+.tb .hair{stroke:var(--accent);stroke-width:1.6;stroke-linecap:round}
+.tb .nrv{fill:none;stroke:var(--note);stroke-width:2.4;stroke-linecap:round}
+.tb .mol{fill:var(--good)}
+@media (prefers-reduced-motion:no-preference){.tb .mol{animation:molfall 3.2s ease-in infinite}.tb .mol:nth-of-type(2){animation-delay:1.1s}.tb .mol:nth-of-type(3){animation-delay:2.2s}}
+@keyframes molfall{0%{transform:translateY(-30px);opacity:0}20%{opacity:1}75%{transform:translateY(46px);opacity:1}100%{transform:translateY(52px);opacity:0}}
+.tb .t{fill:var(--fg);font-size:12px;font-weight:600}
+.tb .ld{stroke:var(--muted);stroke-width:1;fill:none}
+
+/* Figure: two sensory routes side by side */
+.routes{display:grid;gap:.9rem}
+.route h4{margin:0 0 .45rem;font-size:1rem;color:var(--accent)}
+
+/* Figure: apparent motion */
+.phi svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.phi .dot{fill:var(--accent)}
+.phi .ghost{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:3 3}
+
+/* Figure: figure and ground */
+.fg svg{width:100%;max-width:320px;height:auto;display:block;margin:0 auto;border-radius:8px;border:1px solid var(--line)}
+.fg .vase,.fg .face{transition:fill .45s}
+.fg[data-mode="vase"] .vase{fill:var(--accent)} .fg[data-mode="vase"] .face{fill:var(--bg)}
+.fg[data-mode="faces"] .vase{fill:var(--bg)} .fg[data-mode="faces"] .face{fill:var(--accent)}
+.fg .mode-state{margin:.8rem 0 0;font-family:var(--font-ui);font-size:.92rem;color:var(--muted);text-align:left}
+.fg .mode-state b{color:var(--fg)}
+.fg .pill-row{margin-bottom:.8rem}
+
+/* Figure: grouping principles */
+.grp svg{width:100%;max-width:340px;height:auto;display:block;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.grp .d{fill:var(--fg);transition:transform .35s}
+.grp .d2{fill:var(--accent)}
+.grp .dw{fill:var(--surface);stroke:var(--fg);stroke-width:1.4}
+.grp .seg{fill:none;stroke:var(--fg);stroke-width:5;stroke-linecap:round}
+.grp .read{font-family:var(--font-ui);font-size:1rem;letter-spacing:.02em}
+.anat .eye-retina.is-on{stroke:var(--bad);stroke-width:11}
+.anat .ear-drum.is-on{stroke:var(--accent);stroke-width:7}
+.anat .ear-canals.is-on{stroke:var(--bad);stroke-width:9}
+.anat .ear-nerve.is-on{stroke:var(--note);stroke-width:8}
+.anat .sk-free.is-on{stroke:var(--fg);stroke-width:3}
+.anat .bm-hit.is-on:is(.eye-cornea,.eye-lens,.eye-nerve,.eye-spot,.ear-outer,.ear-canal,.ear-bone,.ear-oval,.ear-coch,.ear-sac,.sk-meiss,.sk-merk,.sk-ruff,.sk-pac){stroke:var(--fg);stroke-width:2}
+.dir.up ol{display:flex;flex-direction:column-reverse}
+.wavex .guide{stroke:var(--muted);stroke-width:1;stroke-dasharray:2 4}
+.db-key{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;font-family:var(--font-ui);font-size:.8rem;color:var(--muted);margin-top:.6rem}
+.db-key i{display:inline-block;width:.8rem;height:.8rem;border-radius:3px;margin-right:.35rem;vertical-align:-1px;border:1px solid var(--line)}
+.db-key .k-safe{background:var(--good-bg);border-color:var(--good)} .db-key .k-risk{background:var(--note-bg);border-color:var(--note)} .db-key .k-pain{background:var(--bad-bg);border-color:var(--bad)}
+tbody tr:last-child th{border-bottom:0}
+.brainmap.anat{grid-template-columns:minmax(0,1fr)}
+.cones-grid{grid-template-columns:minmax(0,1fr)}
+.cones-ctl{display:grid;grid-template-columns:4.5rem minmax(0,1fr) minmax(0,1.15fr);gap:1.1rem;align-items:center}
+.cones-ctl .swatch{margin:0;height:3.2rem}
+@media (max-width:600px){.cones-ctl{grid-template-columns:4rem minmax(0,1fr)}.cones-ctl .cone-bars{grid-column:1/-1}}
+
+/* Figure: stimulus-to-perception pathway (.s2p) */
+.s2p{font-family:var(--font-ui);--n:5}
+.s2p .pill-row{margin-bottom:1rem}
+.s2p .sv{display:none}
+.s2p[data-sense="vision"] .v-vision,.s2p[data-sense="hearing"] .v-hearing,.s2p[data-sense="smell"] .v-smell,.s2p[data-sense="touch"] .v-touch{display:inline}
+.s2p .lab .sl{display:none}
+.s2p[data-sense="vision"] .lab .v-vision,.s2p[data-sense="hearing"] .lab .v-hearing,.s2p[data-sense="smell"] .lab .v-smell,.s2p[data-sense="touch"] .lab .v-touch{display:block}
+.s2p-zones{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0 .5rem;margin-bottom:.6rem;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.s2p-zones span{padding-bottom:.35rem;border-bottom:2px solid var(--line);position:relative}
+.s2p-zones b{color:var(--accent);font-weight:700}
+.s2p-zones .z1{grid-column:1}.s2p-zones .z2{grid-column:2/4;border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}.s2p-zones .z3{grid-column:4}.s2p-zones .z4{grid-column:5;border-color:color-mix(in srgb, var(--note) 60%, var(--line))}
+.s2p-zones .z4 b{color:var(--note)}
+.s2p-wrap{position:relative}
+.s2p-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.5rem;position:relative;z-index:1}
+.s2p-track li{margin:0;text-align:center}
+.stn{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:.55rem;width:100%;cursor:pointer;padding:.2rem 0;border-radius:12px}
+.stn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stn .disc{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;background:var(--surface);border:2px solid var(--line);box-shadow:0 2px 0 var(--line);transition:transform .3s, border-color .3s, background .3s, box-shadow .3s}
+.stn .disc svg{width:60px;height:60px;overflow:visible}
+.stn:hover .disc{border-color:var(--accent)}
+.s2p-track li.done .disc{border-color:color-mix(in srgb, var(--accent) 55%, var(--line))}
+.s2p-track li.on .disc{border-color:var(--accent);background:var(--accent-soft);transform:scale(1.08);box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent)}
+.s2p-track li:last-child.on .disc{border-color:var(--note);background:var(--note-bg);box-shadow:0 0 0 6px color-mix(in srgb, var(--note) 16%, transparent)}
+.stn .lab{display:grid;gap:.1rem;line-height:1.25}
+.stn .lab b{font-size:.86rem;font-weight:600;color:var(--fg)}
+.stn .lab small{font-size:.76rem;color:var(--muted)}
+.s2p-track li.on .lab b{color:var(--accent)}
+.s2p-track li:last-child.on .lab b{color:var(--note)}
+.stn .zn{display:none}
+/* rail behind the discs, from the first disc centre to the last */
+.s2p-rail{position:absolute;left:10%;right:10%;top:46px;height:4px;border-radius:2px;background:var(--line);z-index:0}
+.s2p-fill{position:absolute;left:0;top:0;bottom:0;width:calc(100% * var(--p, 0));background:var(--accent);border-radius:2px;transition:width .5s ease}
+.s2p-rail .pl{position:absolute;top:50%;left:0;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px 2px color-mix(in srgb, var(--accent) 55%, transparent);opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  .s2p-rail .pl{animation:s2pRun 3.6s linear infinite}
+  .s2p-rail .pl:nth-of-type(3){animation-delay:1.2s}.s2p-rail .pl:nth-of-type(4){animation-delay:2.4s}
+}
+@keyframes s2pRun{0%{left:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{left:100%;opacity:0}}
+/* icon styles */
+.s2p svg *{vector-effect:non-scaling-stroke}
+.ic-sun{fill:#F2B705}
+.ic-ray,.ic-beam{stroke:#E0A100;stroke-width:2.2;stroke-linecap:round;fill:none}
+.ic-beam{stroke-dasharray:4 3}
+.ic-body{fill:color-mix(in srgb, var(--accent) 25%, var(--surface));stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+.ic-arc{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round}
+.ic-mol circle{fill:var(--good);stroke:var(--surface);stroke-width:1.5}
+.ic-mol path{stroke:var(--good);stroke-width:2;fill:none}
+.ic-skin{fill:none;stroke:var(--note);stroke-width:2.4;stroke-linecap:round}
+.ic-skin2{stroke:color-mix(in srgb, var(--note) 45%, transparent);stroke-width:2;stroke-dasharray:3 3}
+.ic-cell{fill:color-mix(in srgb, var(--accent) 22%, var(--surface));stroke:var(--accent);stroke-width:2}
+.ic-ring{fill:none;stroke:var(--accent);stroke-width:1.4}
+.ic-line{stroke:var(--accent);stroke-width:1.4;opacity:.7}
+.ic-tail{stroke:var(--note);stroke-width:2.2;stroke-linecap:round;fill:none}
+.ic-hair{stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;fill:none}
+.ic-wave{fill:none;stroke:#E0A100;stroke-width:2.4;stroke-linecap:round}
+.ic-arrow{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic-spike{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.ic-axon{stroke:var(--note);stroke-width:3;stroke-linecap:round}
+.ic-myelin rect{fill:color-mix(in srgb, var(--note) 30%, var(--surface));stroke:var(--note);stroke-width:1.4}
+.ap-run{transform:translate(4px,0)}
+@media (prefers-reduced-motion:no-preference){.ap-run{animation:apRun 1.8s linear infinite}}
+@keyframes apRun{from{transform:translate(0,0)}to{transform:translate(50px,0)}}
+.ic-brain{fill:color-mix(in srgb, var(--muted) 14%, var(--surface));stroke:var(--fg);stroke-width:1.8}
+.ic-gyri{fill:none;stroke:var(--muted);stroke-width:1.2;opacity:.7}
+.ic-cereb{fill:color-mix(in srgb, var(--muted) 26%, var(--surface));stroke:var(--fg);stroke-width:1.4}
+.ic-stem{fill:color-mix(in srgb, var(--muted) 20%, var(--surface));stroke:var(--fg);stroke-width:1.4}
+.s2p .rg{fill:var(--note);opacity:.85}
+@media (prefers-reduced-motion:no-preference){.s2p-track li.on .rg{animation:rgGlow 1.6s ease-in-out infinite}}
+@keyframes rgGlow{50%{opacity:.45}}
+.s2p-say{font-family:var(--font-body);font-size:1rem;line-height:1.55;margin:1.1rem 0 0;padding:.8rem 1rem;border-left:3px solid var(--accent);background:var(--bg);border-radius:0 8px 8px 0;text-align:left;min-height:4.4em}
+.s2p-say b{font-family:var(--font-ui);color:var(--accent)}
+.s2p-say.last{border-left-color:var(--note)}
+.s2p-say.last b{color:var(--note)}
+@media (max-width:620px){
+  .s2p-zones{display:none}
+  .s2p-track{grid-template-columns:minmax(0,1fr);gap:.4rem}
+  .stn{flex-direction:row;align-items:center;gap:.9rem;text-align:left}
+  .stn .disc{width:64px;height:64px;flex:none}
+  .stn .disc svg{width:42px;height:42px}
+  .stn .lab{text-align:left}
+  .stn .zn{display:block;margin-left:auto;font-size:.66rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:right;max-width:6.5rem}
+  .s2p-rail{left:30px;right:auto;top:36px;bottom:36px;width:4px;height:auto}
+  .s2p-fill{width:auto;right:0;height:calc(100% * var(--p, 0));transition:height .5s ease}
+  @keyframes s2pRunV{0%{top:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:100%;opacity:0}}
+  .s2p-rail .pl{left:50%;top:0;animation-name:s2pRunV}
+}
+.ic-press{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+/* Ear diagram v2: one continuous inner ear */
+.ear-cavity{fill:color-mix(in srgb, var(--surface) 70%, var(--bg));stroke:color-mix(in srgb, var(--muted) 45%, transparent);stroke-width:1.2}
+.ear-fold{fill:none;stroke:color-mix(in srgb, var(--note) 55%, transparent);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.ear-vnerve{fill:none;stroke:color-mix(in srgb, var(--note) 45%, var(--surface));stroke-width:4;stroke-linecap:round;pointer-events:none}
+.ear-canals .tube-o,.ear-cochlea .tube-o{fill:none;stroke:var(--accent);stroke-width:13;stroke-linecap:round}
+.ear-canals .tube-i,.ear-cochlea .tube-i{fill:none;stroke:color-mix(in srgb, var(--accent) 18%, var(--surface));stroke-width:9;stroke-linecap:round}
+.ear-canals{--glow:var(--accent)} .ear-cochlea{--glow:var(--good)}
+.coch-body{fill:color-mix(in srgb, var(--accent) 18%, var(--surface));stroke:var(--accent);stroke-width:2}
+.coch-duct{fill:none;stroke:var(--accent);stroke-width:1.6;opacity:.7}
+.coch-memb{fill:none;stroke:var(--bad);stroke-width:2.4;stroke-linecap:round}
+.ear-lab{fill:color-mix(in srgb, var(--accent) 18%, var(--surface));stroke:var(--accent);stroke-width:2;--glow:var(--bad)}
+.ear-sac{fill:color-mix(in srgb, var(--bad) 22%, var(--surface));stroke:var(--bad);stroke-width:1.6;--glow:var(--bad)}
+.ear-oval{fill:var(--surface);stroke:var(--fg);stroke-width:2;--glow:var(--fg)}
+.ear-bone{fill:color-mix(in srgb, var(--note) 22%, var(--surface));stroke:var(--fg);stroke-width:1.4;stroke-linejoin:round;--glow:var(--note)}
+.ear-bone .bone-hole{fill:color-mix(in srgb, var(--surface) 70%, var(--bg));stroke:var(--fg);stroke-width:1}
+.ear-drum{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;--glow:var(--accent)}
+.ear-outer{fill:color-mix(in srgb, var(--note) 30%, var(--surface));stroke:var(--note);stroke-width:1.6}
+.ear-canal{fill:color-mix(in srgb, var(--surface) 70%, var(--bg));stroke:var(--note);stroke-width:1.4}
+.ear-nerve{fill:none;stroke:color-mix(in srgb, var(--note) 70%, var(--surface));stroke-width:6;stroke-linecap:round;--glow:var(--note)}
+.ear-lbl text{font-size:13px;font-weight:700;fill:var(--fg);pointer-events:none}
+.ear-lbl text.sub{font-size:11px;font-weight:500;fill:var(--muted)}
+.anat .ear-canals.is-on .tube-i,.anat .ear-cochlea.is-on .tube-i{stroke:color-mix(in srgb, var(--accent) 40%, var(--surface))}
+.anat .ear-cochlea.is-on .coch-body{fill:color-mix(in srgb, var(--accent) 36%, var(--surface))}
+.anat .ear-lab.bm-hit.is-on{stroke:var(--accent);stroke-width:2}
+/* Skin diagram v2 */
+.skin-epi{fill:color-mix(in srgb, var(--note) 20%, var(--surface));stroke:color-mix(in srgb, var(--note) 70%, var(--surface));stroke-width:1.4}
+.skin-der{fill:color-mix(in srgb, var(--bad) 11%, var(--surface))}
+.skin-hyp{fill:color-mix(in srgb, var(--note) 10%, var(--bg))}
+.skin-strata path{fill:none;stroke:color-mix(in srgb, var(--note) 35%, transparent);stroke-width:1}
+.skin-surf{stroke:var(--note);stroke-width:2.4}
+.nerve-o{fill:none;stroke:color-mix(in srgb, var(--muted) 70%, var(--surface));stroke-width:10;stroke-linecap:round}
+.nerve-i{fill:none;stroke:color-mix(in srgb, var(--note) 14%, var(--surface));stroke-width:6;stroke-linecap:round}
+.skin-fib path{fill:none;stroke:color-mix(in srgb, var(--muted) 85%, var(--surface));stroke-width:2.2;stroke-linecap:round}
+.sk-coil{fill:none;stroke:var(--accent);stroke-width:1;opacity:.8;pointer-events:none}
+.sk-merk .merk-br{fill:none;stroke:var(--good);stroke-width:1.8}
+.sk-ruff .ruff-br{fill:none;stroke:var(--note);stroke-width:1.2}
+.sk-pac ellipse{stroke:var(--bad);stroke-width:1.3}

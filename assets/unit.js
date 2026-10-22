@@ -635,3 +635,377 @@
     }
   });
 })();
+
+/* ---- Unit 5 components ---- */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NS = 'http://www.w3.org/2000/svg';
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function onVisible(el, fn) {
+    if (!('IntersectionObserver' in window)) { fn(); return; }
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { fn(); io.disconnect(); } }, { threshold: .4 });
+    io.observe(el);
+  }
+
+  /* Wavelength (nm) to an approximate display colour (after Dan Bruton's approximation) */
+  function nmToRgb(w) {
+    var r = 0, g = 0, b = 0;
+    if (w < 440) { r = -(w - 440) / 60; b = 1; }
+    else if (w < 490) { g = (w - 440) / 50; b = 1; }
+    else if (w < 510) { g = 1; b = -(w - 510) / 20; }
+    else if (w < 580) { r = (w - 510) / 70; g = 1; }
+    else if (w < 645) { r = 1; g = -(w - 645) / 65; }
+    else { r = 1; }
+    var f = 1;
+    if (w < 420) f = .3 + .7 * (w - 380) / 40;
+    else if (w > 700) f = .3 + .7 * (740 - w) / 40;
+    return [r * f, g * f, b * f];
+  }
+  function rgbCss(c, k) { k = k == null ? 1 : k; return 'rgb(' + c.map(function (v) { return Math.round(255 * Math.pow(Math.max(0, v * k), .8)); }).join(',') + ')'; }
+  function colourName(w) {
+    if (w < 450) return 'Violet';
+    if (w < 485) return 'Blue';
+    if (w < 500) return 'Blue-green';
+    if (w < 550) return 'Green';
+    if (w < 570) return 'Yellow-green';
+    if (w < 590) return 'Yellow';
+    if (w < 625) return 'Orange';
+    return 'Red';
+  }
+
+  /* Step chain (.chain-fig): one step lit at a time, with play / pause / step */
+  $$('.chain-fig').forEach(function (box) {
+    var items = $$('.chain li', box), say = $('.chain-say', box);
+    var btnPlay = $('.ch-play', box), btnPrev = $('.ch-prev', box), btnNext = $('.ch-next', box);
+    var i = 0, timer = null;
+    function show(k) {
+      i = (k + items.length) % items.length;
+      items.forEach(function (li, n) { li.classList.toggle('on', n === i); li.classList.toggle('done', n < i); });
+      if (say) say.innerHTML = '<b>Step ' + (i + 1) + ' of ' + items.length + ':</b> ' + items[i].getAttribute('data-say');
+    }
+    function stop() { clearInterval(timer); timer = null; if (btnPlay) btnPlay.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(function () { show(i + 1); }, 2600); if (btnPlay) btnPlay.textContent = 'Pause'; }
+    if (btnPlay) btnPlay.addEventListener('click', function () { timer ? stop() : play(); });
+    if (btnPrev) btnPrev.addEventListener('click', function () { stop(); show(i - 1); });
+    if (btnNext) btnNext.addEventListener('click', function () { stop(); show(i + 1); });
+    items.forEach(function (li, n) { li.addEventListener('click', function () { stop(); show(n); }); });
+    show(0);
+    if (!reduce) onVisible(box, play);
+  });
+
+  /* Inattentional blindness demo (.ib), modelled on Most et al. (2000) */
+  $$('.ib').forEach(function (box) {
+    var svg = $('svg', box), layer = $('.ib-layer', box), cover = $('.ib-cover-g', box);
+    var startBtn = $('.ib-start', box), msg = $('.ib-msg', box), askRow = $('.ib-ask', box);
+    var W = 520, H = 300, shapes = [], cross, raf = null, t0 = 0, bounces = 0, DUR = 14000;
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function make(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+    function build() {
+      layer.innerHTML = ''; shapes = []; bounces = 0;
+      for (var n = 0; n < 8; n++) {
+        var white = n < 4, sq = n % 2 === 0, s = 26;
+        var el = sq ? make('rect', { width: s, height: s, class: white ? 'ib-w' : 'ib-b' }) : make('circle', { r: s / 2, class: white ? 'ib-w' : 'ib-b' });
+        layer.appendChild(el);
+        var sp = rnd(1.4, 2.2), a = rnd(0, Math.PI * 2);
+        shapes.push({ el: el, sq: sq, s: s, white: white, x: rnd(30, W - 60), y: rnd(30, H - 60), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp });
+      }
+      cross = make('path', { d: 'M-6 -18h12v12h12v12h-12v12h-12v-12h-12v-12h12z', class: 'ib-x', transform: 'translate(-40,' + (H / 2) + ')' });
+      layer.appendChild(cross);
+    }
+    function frame(t) {
+      if (!t0) t0 = t;
+      var el = t - t0;
+      shapes.forEach(function (o) {
+        o.x += o.vx; o.y += o.vy;
+        var hit = false;
+        if (o.x < 0) { o.x = 0; o.vx *= -1; hit = true; }
+        if (o.x > W - o.s) { o.x = W - o.s; o.vx *= -1; hit = true; }
+        if (o.y < 0) { o.y = 0; o.vy *= -1; hit = true; }
+        if (o.y > H - o.s) { o.y = H - o.s; o.vy *= -1; hit = true; }
+        if (hit && o.white) bounces++;
+        if (o.sq) { o.el.setAttribute('x', o.x); o.el.setAttribute('y', o.y); }
+        else { o.el.setAttribute('cx', o.x + o.s / 2); o.el.setAttribute('cy', o.y + o.s / 2); }
+      });
+      /* the red cross crosses the screen between 5 s and 10 s */
+      var p = Math.min(1, Math.max(0, (el - 5000) / 5000));
+      cross.setAttribute('transform', 'translate(' + (-40 + p * (W + 80)) + ',' + (H / 2) + ')');
+      if (el < DUR) raf = requestAnimationFrame(frame);
+      else finish();
+    }
+    function finish() {
+      raf = null; layer.innerHTML = ''; cover.style.display = '';
+      $('text', cover).textContent = 'Time is up';
+      msg.innerHTML = '<b>How many bounces did you count?</b> Before checking, answer one more question:';
+      askRow.hidden = false; startBtn.disabled = false; startBtn.textContent = 'Run it again';
+    }
+    $$('button[data-saw]', box).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var saw = b.getAttribute('data-saw') === 'yes';
+        askRow.hidden = true;
+        msg.innerHTML = (saw ? '<b>You spotted it.</b> ' : '<b>You missed it, like many people do.</b> ') +
+          'A red cross slid across the middle of the screen for about five seconds. The white shapes bounced about ' + bounces +
+          ' times. In Most and colleagues’ study, about one third of participants who were counting did not notice the cross.';
+      });
+    });
+    startBtn.addEventListener('click', function () {
+      if (raf) return;
+      build(); cover.style.display = 'none'; askRow.hidden = true; startBtn.disabled = true;
+      msg.innerHTML = '<b>Count every time a white shape bounces off an edge.</b> Ignore the black shapes.';
+      t0 = 0; raf = requestAnimationFrame(frame);
+    });
+  });
+
+  /* Wave anatomy explorer (.wavex): labels sit in a left margin so they never cross the wave */
+  $$('.wavex:not(.lightx)').forEach(function (box) {
+    var path = $('.w', box), amp = $('input[name=amp]', box), wl = $('input[name=wl]', box);
+    var read = $('.fig-read', box), oA = $('output[name=oa]', box), oW = $('output[name=ow]', box);
+    var X0 = 130, X1 = 585, MID = 130, BX = 108;
+    function set(sel, attrs) { var e = $(sel, box); for (var k in attrs) e.setAttribute(k, attrs[k]); }
+    function draw() {
+      var A = +amp.value, L = +wl.value, d = '';
+      for (var x = X0; x <= X1; x += 2) {
+        var y = MID - A * Math.cos(2 * Math.PI * (x - X0 - L / 4) / L);
+        d += (x === X0 ? 'M' : 'L') + x + ' ' + y.toFixed(1);
+      }
+      path.setAttribute('d', d);
+      var c1 = X0 + L / 4, t1 = c1 + L / 2, wy = MID - A - 16;
+      set('.g-amp', { d: 'M' + BX + ' ' + MID + 'V' + (MID - A) + 'M' + (BX - 5) + ' ' + (MID - A) + 'h10M' + (BX - 5) + ' ' + MID + 'h10' });
+      set('.gd-crest', { x1: BX + 6, x2: c1, y1: MID - A, y2: MID - A });
+      set('.gd-trough', { x1: BX + 6, x2: t1, y1: MID + A, y2: MID + A });
+      set('.t-amp', { x: BX - 10, y: MID - A / 2 + 4 });
+      set('.lbl-crest', { x: BX - 10, y: MID - A + 4 });
+      set('.lbl-trough', { x: BX - 10, y: MID + A + 4 });
+      set('.g-wl', { d: 'M' + c1 + ' ' + wy + 'H' + (c1 + L) + 'M' + c1 + ' ' + (wy - 6) + 'v12M' + (c1 + L) + ' ' + (wy - 6) + 'v12' });
+      set('.t-wl', { x: c1 + L / 2, y: wy - 9 });
+      var waves = (X1 - X0) / L;
+      oA.textContent = A <= 45 ? 'Small' : A <= 70 ? 'Medium' : 'Large';
+      oW.textContent = L <= 120 ? 'Short' : L <= 220 ? 'Medium' : 'Long';
+      read.innerHTML = '<b>' + waves.toFixed(1) + ' waves</b> fit across the box. ' +
+        (L <= 120 ? 'Short wavelength, so more waves pass a point each second: <b>high frequency</b>.' :
+          L <= 220 ? 'A middle wavelength gives a <b>middle frequency</b>.' : 'Long wavelength, so fewer waves pass a point each second: <b>low frequency</b>.');
+    }
+    amp.addEventListener('input', draw); wl.addEventListener('input', draw); draw();
+  });
+
+  /* Light explorer (.lightx): wavelength to colour, amplitude to brightness */
+  $$('.lightx').forEach(function (box) {
+    var nm = $('input[name=nm]', box), am = $('input[name=am]', box), path = $('.w', box);
+    var sw = $('.swatch', box), name = $('.name', box), oN = $('output[name=on]', box), oA = $('output[name=oa]', box);
+    function draw() {
+      var w = +nm.value, A = +am.value, c = nmToRgb(w), k = .25 + .75 * A / 100;
+      var L = 40 + (w - 380) / 360 * 120, d = '';
+      for (var x = 10; x <= 590; x += 2) {
+        var y = 70 - (A * .55) * Math.sin(2 * Math.PI * (x - 10) / L);
+        d += (x === 10 ? 'M' : 'L') + x + ' ' + y.toFixed(1);
+      }
+      path.setAttribute('d', d); path.style.stroke = rgbCss(c, 1);
+      sw.style.background = rgbCss(c, k);
+      oN.textContent = w + ' nm'; oA.textContent = A < 35 ? 'Low' : A < 70 ? 'Medium' : 'High';
+      name.innerHTML = colourName(w) + '<small>' + (A < 35 ? 'dim' : A < 70 ? 'moderately bright' : 'bright') + ' · ' + (w < 500 ? 'shorter wavelength' : w < 600 ? 'middle wavelength' : 'longer wavelength') + '</small>';
+    }
+    nm.addEventListener('input', draw); am.addEventListener('input', draw); draw();
+  });
+
+  /* Tone player (.tone): Web Audio, kept quiet on purpose */
+  $$('.tone').forEach(function (box) {
+    var f = $('input[name=fq]', box), v = $('input[name=vol]', box), oF = $('output[name=of]', box), oV = $('output[name=ov]', box);
+    var btn = $('.play', box), read = $('.fig-read', box), shapeBtns = $$('.pill-row button[data-wave]', box);
+    var ctx = null, osc = null, gain = null, shape = 'sine';
+    function hz() { return Math.round(20 * Math.pow(1000, +f.value / 1000)); }
+    function paint() {
+      var h = hz();
+      oF.textContent = h.toLocaleString('en-US') + ' Hz';
+      oV.textContent = +v.value < 34 ? 'Soft' : +v.value < 67 ? 'Medium' : 'Louder';
+      read.innerHTML = h < 250 ? '<b>Low frequency:</b> heard as a low pitch.' : h < 2000 ? '<b>Middle frequency:</b> a middle pitch, where hearing is most sensitive.' : h < 12000 ? '<b>High frequency:</b> heard as a high pitch.' : '<b>Very high frequency:</b> near the top of the human range; some listeners and many speakers cannot reproduce it.';
+      if (osc) { osc.frequency.setValueAtTime(h, ctx.currentTime); gain.gain.setTargetAtTime(level(), ctx.currentTime, .02); }
+    }
+    function level() { return .02 + .1 * (+v.value / 100); }
+    function stop() {
+      if (!osc) return;
+      var o = osc, g = gain; osc = null;
+      g.gain.setTargetAtTime(0, ctx.currentTime, .03); setTimeout(function () { try { o.stop(); } catch (e) {} }, 200);
+      btn.lastChild.textContent = ' Play tone';
+    }
+    btn.addEventListener('click', function () {
+      if (osc) { stop(); return; }
+      try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { read.textContent = 'This browser cannot play audio.'; return; }
+      if (ctx.state === 'suspended') ctx.resume();
+      osc = ctx.createOscillator(); gain = ctx.createGain();
+      osc.type = shape; osc.frequency.value = hz(); gain.gain.value = 0;
+      osc.connect(gain); gain.connect(ctx.destination); osc.start();
+      gain.gain.setTargetAtTime(level(), ctx.currentTime, .03);
+      btn.lastChild.textContent = ' Stop';
+      setTimeout(function () { if (osc) stop(); }, 4000);
+    });
+    shapeBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        shape = b.getAttribute('data-wave');
+        shapeBtns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        if (osc) osc.type = shape;
+      });
+    });
+    f.addEventListener('input', paint); v.addEventListener('input', paint); paint();
+  });
+
+  /* Cone sensitivity explorer (.cones): curves drawn from three peaks */
+  $$('.cones').forEach(function (box) {
+    var PEAK = { s: 455, m: 535, l: 580 }, SIG = { s: 30, m: 42, l: 45 };
+    var X0 = 50, X1 = 570, Y0 = 210, Y1 = 30;
+    function px(w) { return X0 + (w - 380) / 360 * (X1 - X0); }
+    function resp(k, w) { var z = (w - PEAK[k]) / SIG[k]; return Math.exp(-z * z / 2); }
+    ['s', 'm', 'l'].forEach(function (k) {
+      var d = '';
+      for (var w = 380; w <= 740; w += 4) d += (w === 380 ? 'M' : 'L') + px(w).toFixed(1) + ' ' + (Y0 - resp(k, w) * (Y0 - Y1)).toFixed(1);
+      $('.c-' + k, box).setAttribute('d', d);
+    });
+    var nm = $('input[name=nm]', box), cur = $('.cursor', box), sw = $('.swatch', box), out = $('output[name=on]', box);
+    function draw() {
+      var w = +nm.value, x = px(w);
+      cur.setAttribute('x1', x); cur.setAttribute('x2', x);
+      out.textContent = w + ' nm · ' + colourName(w);
+      sw.style.background = rgbCss(nmToRgb(w));
+      ['s', 'm', 'l'].forEach(function (k) {
+        var r = resp(k, w);
+        $('.cb-' + k + ' i', box).style.width = (r * 100).toFixed(0) + '%';
+        $('.cb-' + k + ' .v', box).textContent = Math.round(r * 100) + '%';
+      });
+    }
+    nm.addEventListener('input', draw); draw();
+  });
+
+  /* Negative afterimage (.after) */
+  $$('.after').forEach(function (box) {
+    var go = $('.af-go', box), now = $('.af-now', box), reset = $('.af-reset', box), count = $('.count', box), ans = $('.ans', box);
+    var timer = null, left = 0;
+    function blank() {
+      clearInterval(timer); timer = null; box.classList.add('is-blank');
+      count.textContent = 'Look now';
+      ans.innerHTML = '<b>What do you see?</b> Keep your eyes on the same spot. <button type="button" class="btn af-show">Show the answer</button>';
+      $('.af-show', box).addEventListener('click', function () {
+        ans.innerHTML = '<b>Expected afterimage:</b> where the green was, a reddish patch; where the yellow was, a bluish disc; and where the black ring was, a light ring. Each color is replaced by its opponent partner (green–red, yellow–blue, black–white).';
+      });
+    }
+    go.addEventListener('click', function () {
+      clearInterval(timer); box.classList.remove('is-blank'); left = 30; count.textContent = left + ' s';
+      ans.textContent = 'Stare at the small white dot in the centre and keep your eyes still.';
+      timer = setInterval(function () { left--; count.textContent = left + ' s'; if (left <= 0) blank(); }, 1000);
+    });
+    now.addEventListener('click', blank);
+    reset.addEventListener('click', function () { clearInterval(timer); timer = null; box.classList.remove('is-blank'); count.textContent = '30 s'; ans.textContent = 'Press Start, then stare at the white dot until the timer ends.'; });
+  });
+
+  /* Basilar membrane explorer (.bmx): place along the membrane by frequency */
+  $$('.bmx').forEach(function (box) {
+    var f = $('input[name=fq]', box), peak = $('.env', box), dot = $('.peak', box), out = $('output[name=of]', box);
+    var bRate = $('.b-rate', box), bPlace = $('.b-place', box), read = $('.fig-read', box);
+    var XB = 70, XT = 550; /* base on the left, tip on the right */
+    function hz() { return Math.round(20 * Math.pow(1000, +f.value / 1000)); }
+    function draw() {
+      var h = hz(), p = 1 - Math.log(h / 20) / Math.log(1000); /* 0 = base (high), 1 = tip (low) */
+      var x = XB + p * (XT - XB);
+      peak.setAttribute('d', 'M' + (x - 70) + ' 100 C ' + (x - 30) + ' 100 ' + (x - 18) + ' 58 ' + x + ' 58 C ' + (x + 18) + ' 58 ' + (x + 30) + ' 100 ' + (x + 70) + ' 100 Z');
+      dot.setAttribute('cx', x);
+      out.textContent = h.toLocaleString('en-US') + ' Hz';
+      var rate = h <= 4000;
+      bRate.className = 'badge ' + (rate ? 'yes' : 'no'); bRate.textContent = rate ? 'Firing rate: helps code it' : 'Firing rate: too fast to follow';
+      bPlace.className = 'badge yes'; bPlace.textContent = 'Place: codes it';
+      read.innerHTML = 'Strongest response ' + (p < .33 ? 'near the <b>base</b>' : p < .66 ? 'in the <b>middle</b>' : 'near the <b>tip</b>') + ' of the basilar membrane. ' +
+        (rate ? 'Up to about 4,000 Hz, both the rate of action potentials and the place of activation contribute to pitch.' : 'Above about 4,000 Hz, pitch can only be encoded by place.');
+    }
+    f.addEventListener('input', draw); draw();
+  });
+
+  /* Apparent motion (.phi): two lights flashing in turn */
+  $$('.phi').forEach(function (box) {
+    var a = $('.dot-a', box), b = $('.dot-b', box), s = $('input[name=gap]', box), out = $('output[name=og]', box), read = $('.fig-read', box);
+    var on = 0, timer = null;
+    function tick() { on = 1 - on; a.style.opacity = on ? 1 : 0; b.style.opacity = on ? 0 : 1; }
+    function run() {
+      clearInterval(timer);
+      var ms = +s.value; out.textContent = ms + ' ms';
+      read.innerHTML = ms >= 500 ? '<b>Slow:</b> most people see two separate lights taking turns.' : ms >= 200 ? '<b>Middle speeds:</b> the light starts to seem to jump across the gap.' : '<b>Fast:</b> many people now see a single light moving back and forth, although nothing moves.';
+      if (reduce) { a.style.opacity = 1; b.style.opacity = .35; return; }
+      timer = setInterval(tick, ms);
+    }
+    s.addEventListener('input', run); onVisible(box, run);
+  });
+
+  /* Proximity slider (.grp-prox): move column pairs apart */
+  $$('.grp-prox').forEach(function (box) {
+    var s = $('input[name=gap]', box), dots = $$('.d', box), read = $('.fig-read', box);
+    function draw() {
+      var g = +s.value;
+      dots.forEach(function (d) {
+        var col = +d.getAttribute('data-col'), pair = Math.floor(col / 2), side = col % 2 ? 1 : -1;
+        var shift = (pair - 1) * g * 1.6 + side * -g * .55;
+        d.style.transform = 'translateX(' + shift.toFixed(1) + 'px)';
+      });
+      read.innerHTML = g < 4 ? 'Evenly spaced: you see <b>one block</b> of dots.' : g < 10 ? 'The columns start to pair up.' : 'Pairs of columns sit close together: you see <b>three columns</b>.';
+    }
+    s.addEventListener('input', draw); draw();
+  });
+})();
+
+/* Stimulus-to-perception pathway (.s2p): five stations, four example senses */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TEXT = {
+    vision: ['Light from the environment enters the eye.',
+      'Photoreceptors in the retina, rods and cones, detect the light. Detection by a receptor is <b>sensation</b>.',
+      'The light causes chemical changes in the photoreceptors, which convert its energy into action potentials. This conversion is <b>transduction</b>.',
+      'Action potentials travel along the optic nerve to the brain.',
+      'The occipital lobe organizes and interprets the signals, and you consciously see. This is <b>perception</b>.'],
+    hearing: ['Sound waves travel down the auditory canal and set the eardrum and ossicles vibrating.',
+      'Moving fluid in the cochlea stimulates hair cells on the basilar membrane. Detection by a receptor is <b>sensation</b>.',
+      'Hair-cell activation is mechanical: activated hair cells generate neural impulses. This conversion is <b>transduction</b>.',
+      'Impulses travel along the auditory nerve, through the inferior colliculus and the thalamus.',
+      'The auditory cortex in the temporal lobe processes them, and you hear a meaningful sound. This is <b>perception</b>.'],
+    smell: ['Odor molecules in the air reach the mucous membrane at the top of the nose and dissolve in the mucus.',
+      'The molecules bind to receptors on the hair-like extensions of olfactory receptor cells. Detection by a receptor is <b>sensation</b>.',
+      'Binding causes chemical changes in the cell that produce neural signals. This conversion is <b>transduction</b>.',
+      'Signals go to the olfactory bulb, at the tip of the frontal lobe, where the olfactory nerves begin.',
+      'From the bulb, information reaches the limbic system and the primary olfactory cortex, and you recognize the smell. This is <b>perception</b>.'],
+    touch: ['Pressure, vibration or stretch acts on the skin.',
+      'Skin receptors respond: Meissner’s and Pacinian corpuscles to pressure and vibration, Merkel’s disks to light touch, Ruffini corpuscles to stretch. Detection by a receptor is <b>sensation</b>.',
+      'The receptor converts the mechanical energy into action potentials. This conversion is <b>transduction</b>.',
+      'Signals travel up the spinal cord to the medulla and the thalamus.',
+      'The somatosensory cortex, in the parietal lobe, processes them, and you feel the touch. This is <b>perception</b>.']
+  };
+  var NAMES = ['Stimulus energy', 'Sensory receptor', 'Transduction', 'Action potentials', 'Brain'];
+  Array.prototype.forEach.call(document.querySelectorAll('.s2p'), function (box) {
+    var items = Array.prototype.slice.call(box.querySelectorAll('.s2p-track li'));
+    var say = box.querySelector('.s2p-say'), fill = box.querySelector('.s2p-rail');
+    var senseBtns = Array.prototype.slice.call(box.querySelectorAll('.pill-row button[data-sense]'));
+    var btnPlay = box.querySelector('.ch-play'), btnPrev = box.querySelector('.ch-prev'), btnNext = box.querySelector('.ch-next');
+    var i = 0, timer = null;
+    function show(k) {
+      i = (k + items.length) % items.length;
+      items.forEach(function (li, n) {
+        li.classList.toggle('on', n === i); li.classList.toggle('done', n < i);
+        li.querySelector('.stn').setAttribute('aria-current', n === i ? 'step' : 'false');
+      });
+      fill.style.setProperty('--p', i / (items.length - 1));
+      say.classList.toggle('last', i === items.length - 1);
+      say.innerHTML = '<b>' + (i + 1) + ' · ' + NAMES[i] + '.</b> ' + TEXT[box.getAttribute('data-sense')][i];
+    }
+    function stop() { clearInterval(timer); timer = null; btnPlay.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(function () { show(i + 1); }, 3200); btnPlay.textContent = 'Pause'; }
+    btnPlay.addEventListener('click', function () { timer ? stop() : play(); });
+    btnPrev.addEventListener('click', function () { stop(); show(i - 1); });
+    btnNext.addEventListener('click', function () { stop(); show(i + 1); });
+    items.forEach(function (li, n) { li.querySelector('.stn').addEventListener('click', function () { stop(); show(n); }); });
+    senseBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        box.setAttribute('data-sense', b.getAttribute('data-sense'));
+        senseBtns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        show(i);
+      });
+    });
+    show(0);
+    if (!reduce && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { play(); io.disconnect(); } }, { threshold: .5 });
+      io.observe(box);
+    }
+  });
+})();
