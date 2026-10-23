@@ -1009,3 +1009,323 @@
     }
   });
 })();
+
+/* ---- Unit 6 components ---- */
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function mk(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function clear(g) { while (g.firstChild) g.removeChild(g.firstChild); }
+  function seeded(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+  function setPressed(btns, attr, v) { btns.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute(attr) === v ? 'true' : 'false'); }); }
+
+  /* Decoder table (.decoder): hide answers until asked */
+  $$('.decoder').forEach(function (box) {
+    var btn = $('.dec-toggle', box);
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var on = !box.classList.contains('show');
+      box.classList.toggle('show', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.textContent = on ? 'Hide answers' : 'Show answers';
+    });
+  });
+
+  /* Conditioning lab (.clab): acquisition, extinction, spontaneous recovery */
+  $$('.clab').forEach(function (box) {
+    var svg = $('svg', box), gGrid = $('.clab-grid', svg), gBands = $('.clab-bands', svg), gBars = $('.clab-bars', svg), gAxes = $('.clab-axes', svg);
+    var read = $('.fig-read', box);
+    var X0 = 52, X1 = 588, Y0 = 34, Y1 = 232, UNITS = 40, REST_U = 2;
+    var defs = mk('defs', {}, svg);
+    var pat = mk('pattern', { id: 'clabHatch', width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
+    mk('line', { x1: 0, y1: 0, x2: 0, y2: 8, 'class': 'clab-hatch-line' }, pat);
+    svg.insertBefore(defs, svg.firstChild);
+    [0, .25, .5, .75, 1].forEach(function (v) {
+      var y = Y1 - v * (Y1 - Y0);
+      mk('line', { x1: X0, x2: X1, y1: y, y2: y }, gGrid);
+    });
+    mk('path', { d: 'M' + X0 + ' ' + (Y0 - 6) + 'V' + Y1 + 'H' + X1 }, gAxes);
+    mk('text', { x: X0 - 8, y: Y0 + 4, 'text-anchor': 'end' }, gAxes, 'Strong');
+    mk('text', { x: X0 - 8, y: Y1, 'text-anchor': 'end' }, gAxes, 'None');
+    mk('text', { x: 14, y: (Y0 + Y1) / 2, transform: 'rotate(-90 14 ' + (Y0 + Y1) / 2 + ')', 'text-anchor': 'middle' }, gAxes, 'Strength of CR');
+    mk('text', { x: X1, y: Y1 + 22, 'text-anchor': 'end' }, gAxes, 'Trials →');
+
+    var ev, V, peak, used, last;
+    var PH = { acq: 'Acquisition (CS + UCS)', ext: 'Extinction (CS alone)', rest: 'Pause', rec: 'Spontaneous recovery' };
+    function reset() { ev = []; V = 0; peak = 0; used = 0; last = null; }
+    function add(type) {
+      if (type === 'rest') {
+        if (last === 'rest' || !ev.length || used + REST_U > UNITS) return false;
+        if (V < peak - .02) V = V + .55 * (peak - V); /* part of the extinguished response returns */
+        ev.push({ t: 'rest' }); used += REST_U; last = 'rest';
+        return true;
+      }
+      if (used + 1 > UNITS) return false;
+      var ph, h;
+      if (type === 'pair') { V = V + .3 * (1 - V); peak = Math.max(peak, V); h = V; ph = 'acq'; }
+      else { h = V; ph = last === 'rest' && h > .05 ? 'rec' : 'ext'; V = V * .55; }
+      ev.push({ t: type, h: h, ph: ph }); used += 1; last = type;
+      return true;
+    }
+    function draw(fresh) {
+      clear(gBars); clear(gBands);
+      var w = (X1 - X0 - 8) / UNITS, x = X0 + 6, runs = [];
+      ev.forEach(function (e, i) {
+        var r = runs[runs.length - 1];
+        var cls = e.t === 'rest' ? 'rest' : (e.ph === 'rec' ? 'ext' : e.ph);
+        if (!r || r.cls !== cls) runs.push(r = { cls: cls, x: x, w: 0, rec: false });
+        if (e.ph === 'rec') r.rec = true;
+        if (e.t === 'rest') {
+          mk('rect', { x: x + 2, y: Y0, width: REST_U * w - 4, height: Y1 - Y0, 'class': 'rest' }, gBands);
+          x += REST_U * w; r.w += REST_U * w;
+        } else {
+          var hh = Math.max(1.5, e.h * (Y1 - Y0));
+          var rc = mk('rect', { x: x + w * .14, y: Y1 - hh, width: w * .72, height: hh, rx: 2, 'class': 'ph-' + e.ph + (fresh && i === ev.length - 1 ? ' ph-new' : '') }, gBars);
+          mk('title', {}, rc, PH[e.ph] + ': trial ' + (i + 1));
+          x += w; r.w += w;
+        }
+      });
+      var NAMES = { acq: ['Acquisition (CS + UCS)', 'Acquisition', 'Acq.'], ext: ['Extinction (CS alone)', 'Extinction', 'Ext.'], rec: ['Spontaneous recovery', 'Recovery', 'Rec.'], rest: ['Pause', 'Rest', ''] };
+      runs.forEach(function (r) {
+        var opts = NAMES[r.rec ? 'rec' : r.cls], name = '';
+        for (var i = 0; i < opts.length; i++) { if (opts[i].length * 6.4 <= r.w) { name = opts[i]; break; } }
+        if (name) mk('text', { x: r.x + r.w / 2, y: Y0 - 12, 'text-anchor': 'middle' }, gBands, name);
+      });
+      var full = used + 1 > UNITS;
+      $$('.clab-ctl .btn', box).forEach(function (b) {
+        var a = b.getAttribute('data-act');
+        if (a === 'pair' || a === 'alone') b.disabled = full;
+        if (a === 'rest') b.disabled = !ev.length || last === 'rest' || used + REST_U > UNITS;
+      });
+    }
+    function say(type) {
+      var e = ev[ev.length - 1], msg;
+      if (!ev.length) msg = '<b>Ready.</b> Pair the tone with food a few times, then try the tone alone, then rest.';
+      else if (type === 'demo') msg = '<b>The classic curve:</b> the CR rises with pairings (acquisition), fades when the tone comes alone (extinction), then partly returns after a pause (spontaneous recovery) before fading again.';
+      else if (type === 'rest') msg = '<b>Pause.</b> No trials. Pavlov rested his dogs for a couple of hours after extinction. Now present the tone alone and watch the response.';
+      else if (type === 'pair') msg = '<b>Tone + food:</b> each pairing strengthens the CR, quickly at first, then by smaller steps. This is acquisition.';
+      else if (e.ph === 'rec') msg = '<b>Spontaneous recovery:</b> after the pause the tone alone brings back part of the extinguished response. Keep presenting it alone and it fades again.';
+      else msg = '<b>Tone alone:</b> without the UCS the CR weakens trial by trial. This is extinction.';
+      if (used + 1 > UNITS && type !== 'demo') msg += ' The chart is full; press Clear to start again.';
+      read.innerHTML = msg;
+    }
+    function demo() {
+      reset();
+      var seq = 'PPPPPPPPP' + 'AAAAAAA' + 'R' + 'AAAAA';
+      seq.split('').forEach(function (c) { add(c === 'P' ? 'pair' : c === 'A' ? 'alone' : 'rest'); });
+      draw(false); say('demo');
+    }
+    $$('.clab-ctl .btn', box).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var a = b.getAttribute('data-act');
+        if (a === 'demo') return demo();
+        if (a === 'clear') { reset(); draw(false); return say(); }
+        if (add(a)) { draw(true); say(a); }
+      });
+    });
+    demo();
+  });
+
+  /* Generalization gradient (.gengrad) */
+  $$('.gengrad').forEach(function (box) {
+    var svg = $('svg', box), area = $('.gg-area', svg), line = $('.gg-line', svg), axes = $('.gg-axes', svg), marks = $('.gg-marks', svg);
+    var probeL = $('.gg-probe-l', svg), probeC = $('.gg-probe-c', svg);
+    var input = $('input', box), out = $('output', box), read = $('.fig-read', box);
+    var btns = $$('.pill-row button', box);
+    var X0 = 60, X1 = 560, Y0 = 28, Y1 = 196;
+    var mode = box.getAttribute('data-mode') || 'gen';
+    function sx(s) { return X0 + (s / 100) * (X1 - X0); }
+    function sy(v) { return Y1 - v * (Y1 - Y0); }
+    function f(s) { var sd = mode === 'gen' ? 34 : 7; var d = 100 - s; return Math.exp(-(d * d) / (2 * sd * sd)); }
+    mk('path', { d: 'M' + X0 + ' ' + (Y0 - 8) + 'V' + Y1 + 'H' + (X1 + 10) }, axes);
+    mk('text', { x: X0 - 8, y: Y0 + 4, 'text-anchor': 'end' }, axes, 'Likely');
+    mk('text', { x: X0 - 8, y: Y1, 'text-anchor': 'end' }, axes, 'Unlikely');
+    mk('text', { x: 16, y: (Y0 + Y1) / 2, transform: 'rotate(-90 16 ' + (Y0 + Y1) / 2 + ')', 'text-anchor': 'middle' }, axes, 'Tiger comes running');
+    mk('text', { x: X0, y: Y1 + 20 }, axes, 'Very different sound');
+    mk('text', { x: X1, y: Y1 + 20, 'text-anchor': 'end' }, axes, 'Identical to the can opener');
+    mk('text', { x: (X0 + X1) / 2, y: Y1 + 38, 'text-anchor': 'middle' }, axes, 'Similarity to the conditioned stimulus →');
+    [[100, 'Can opener (CS)'], [78, 'Electric mixer']].forEach(function (m) {
+      mk('line', { x1: sx(m[0]), x2: sx(m[0]), y1: Y0 - 6, y2: Y1 }, marks);
+      mk('text', { x: sx(m[0]) - 4, y: Y0 - 10, 'text-anchor': 'end' }, marks, m[1]);
+    });
+    function paint() {
+      var d = '', i;
+      for (i = 0; i <= 100; i += 2) d += (i ? 'L' : 'M') + sx(i).toFixed(1) + ' ' + sy(f(i) * .92).toFixed(1);
+      line.setAttribute('d', d);
+      area.setAttribute('d', d + 'L' + sx(100) + ' ' + Y1 + 'L' + sx(0) + ' ' + Y1 + 'Z');
+      var s = +input.value, v = f(s) * .92, px = sx(s), py = sy(v);
+      probeL.setAttribute('x1', px); probeL.setAttribute('x2', px); probeL.setAttribute('y1', Y1); probeL.setAttribute('y2', py);
+      probeC.setAttribute('cx', px); probeC.setAttribute('cy', py);
+      out.textContent = s >= 97 ? 'The can opener itself' : s >= 65 ? 'Very similar' : s >= 35 ? 'Somewhat similar' : 'Very different';
+      var lik = v > .7 ? 'very likely' : v > .4 ? 'fairly likely' : v > .12 ? 'unlikely' : 'very unlikely';
+      read.innerHTML = (mode === 'gen'
+        ? '<b>Generalization:</b> the response spreads to similar sounds. For this sound, coming running is <b>' + lik + '</b>.'
+        : '<b>Discrimination:</b> only the can opener is followed by food, so the response narrows to it. For this sound, coming running is <b>' + lik + '</b>.');
+    }
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () { mode = b.getAttribute('data-g'); box.setAttribute('data-mode', mode); setPressed(btns, 'data-g', mode); paint(); });
+    });
+    input.addEventListener('input', paint);
+    paint();
+  });
+
+  /* Reinforcement schedule explorer (.sched): one cumulative record at a time, with each
+     reinforcement projected onto the axis the schedule counts (time for interval, responses for ratio).
+     Interval times are the book's Table 6.3 examples; response rates and ratio counts are schematic. */
+  $$('.sched').forEach(function (box) {
+    var svg = $('svg', box), plot = $('.sched-plot', svg), info = $('.sched-info', box), read = $('.sched-read', box);
+    var btns = $$('.sched-pick button', box);
+    var T = 24, X0 = 104, X1 = 560, Y0 = 62, Y1 = 286;
+    var INFO = {
+      fi: ['Fixed interval', 'interval', true, 'Moderate rate, significant pauses after each reinforcement (a “scallop”)', 'June’s hourly pain relief', 'Least productive; easiest to extinguish'],
+      vi: ['Variable interval', 'interval', false, 'Moderate yet steady rate', 'Checking social media; Manuel’s surprise inspections', 'May come quickly once reinforcement stops'],
+      fr: ['Fixed ratio', 'ratio', true, 'High rate, with a short pause after reinforcement', 'Piecework; Carla’s commission', 'May come quickly once reinforcement stops'],
+      vr: ['Variable ratio', 'ratio', false, 'High and steady rate, little if any pause', 'Gambling; Sarah’s slot machine', 'Most productive; most resistant to extinction']
+    };
+    /* each curve: pts = [minutes, cumulative responses]; rf = reinforcement points */
+    function build() {
+      var C = {};
+      (function () { var rate = 9, gaps = [8, 30, 14, 22, 6, 34, 18, 26, 12, 28, 10], y = 0, rf = [];
+        gaps.forEach(function (g) { if (y + g <= rate * T - 4) { y += g; rf.push([y / rate, y]); } });
+        C.vr = { pts: [[0, 0], [T, rate * T]], rf: rf }; })();
+      (function () { var rate = 10, every = 20, pause = .7, t = 0, y = 0, pts = [[0, 0]], rf = [];
+        while (t < T) { var run = every / rate;
+          if (t + run >= T) { pts.push([T, y + rate * (T - t)]); break; }
+          t += run; y += every; pts.push([t, y]); rf.push([t, y]);
+          var p = Math.min(pause, T - t); t += p; pts.push([t, y]); }
+        C.fr = { pts: pts, rf: rf }; })();
+      (function () { var rate = 4.5;
+        C.vi = { pts: [[0, 0], [T, rate * T]], rf: [5, 7, 10, 20].map(function (t) { return [t, rate * t]; }) }; })();
+      (function () { var times = [5, 10, 15, 20], last = 0, y = 0, dt = .1, pts = [[0, 0]], rf = [], t;
+        for (t = dt; t <= T + 1e-9; t += dt) {
+          var u = Math.min(1, (t - last) / 5); y += 12 * u * u * dt; pts.push([t, y]);
+          if (times.length && t >= times[0] - 1e-9) { rf.push([times[0], y]); last = times.shift(); } }
+        C.fi = { pts: pts, rf: rf }; })();
+      return C;
+    }
+    var C = build(), YMAX = 0;
+    Object.keys(C).forEach(function (k) { C[k].pts.forEach(function (p) { YMAX = Math.max(YMAX, p[1]); }); });
+    YMAX *= 1.06;
+    function px(t) { return X0 + t / T * (X1 - X0); }
+    function py(v) { return Y1 - v / YMAX * (Y1 - Y0); }
+    function r1(v) { return Math.round(v); }
+    function list(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+
+    function draw(k) {
+      clear(plot);
+      var I = INFO[k], interval = I[1] === 'interval', fixed = I[2], c = C[k];
+      /* grid and axes */
+      [50, 100, 150, 200].forEach(function (v) { if (v < YMAX) mk('line', { x1: X0, x2: X1, y1: py(v), y2: py(v), 'class': 'grid' }, plot); });
+      mk('path', { d: 'M' + X0 + ' ' + Y1 + 'H' + (X1 + 6), 'class': 'axis' + (interval ? ' def' : '') }, plot);
+      mk('path', { d: 'M' + X0 + ' ' + (Y0 - 6) + 'V' + Y1, 'class': 'axis' + (interval ? '' : ' def') }, plot);
+      var tickY = interval ? Y1 + 38 : Y1 + 15;
+      [0, 5, 10, 15, 20].forEach(function (m) {
+        if (!interval) mk('line', { x1: px(m), x2: px(m), y1: Y1, y2: Y1 + 4, 'class': 'axis' }, plot);
+        mk('text', { x: px(m), y: tickY, 'text-anchor': 'middle' }, plot, String(m));
+      });
+      if (interval) [50, 100, 150, 200].forEach(function (v) { if (v < YMAX) mk('text', { x: X0 - 6, y: py(v) + 4, 'text-anchor': 'end' }, plot, String(v)); });
+      mk('text', { x: (X0 + X1) / 2, y: tickY + 20, 'text-anchor': 'middle', 'class': 'ax-t' + (interval ? ' def' : '') }, plot, 'Time (minutes)');
+      var ty = (Y0 + Y1) / 2;
+      mk('text', { x: 16, y: ty, transform: 'rotate(-90 16 ' + ty + ')', 'text-anchor': 'middle', 'class': 'ax-t' + (interval ? '' : ' def') }, plot, 'Cumulative responses');
+
+      /* projections and the gap ruler on the counted axis */
+      var gaps = [], prev = 0;
+      c.rf.forEach(function (p, i) {
+        var x = px(p[0]), y = py(p[1]);
+        if (interval) {
+          mk('line', { x1: x, x2: x, y1: y, y2: Y1 + 6, 'class': 'proj' }, plot);
+          var g = p[0] - prev, x0 = px(prev);
+          mk('rect', { x: x0, y: Y1 + 6, width: x - x0, height: 16, 'class': 'seg ' + (i % 2 ? 'b' : 'a') }, plot);
+          mk('text', { x: (x0 + x) / 2, y: Y1 + 18, 'text-anchor': 'middle', 'class': 'seg-l' }, plot, r1(g) + (x - x0 > 60 ? ' min' : ''));
+          gaps.push(r1(g)); prev = p[0];
+        } else {
+          mk('line', { x1: X0 - 18, x2: x, y1: y, y2: y, 'class': 'proj' }, plot);
+          var gy = p[1] - prev, y0 = py(prev);
+          mk('rect', { x: X0 - 16, y: y, width: 12, height: y0 - y, 'class': 'seg ' + (i % 2 ? 'b' : 'a') }, plot);
+          if (y0 - y >= 11) mk('text', { x: X0 - 21, y: (y + y0) / 2 + 4, 'text-anchor': 'end', 'class': 'seg-l' }, plot, String(r1(gy)));
+          gaps.push(r1(gy)); prev = p[1];
+        }
+      });
+
+      /* the curve and its reinforcements */
+      var d = c.pts.map(function (p, i) { return (i ? 'L' : 'M') + px(p[0]).toFixed(1) + ' ' + py(p[1]).toFixed(1); }).join('');
+      var ln = mk('path', { d: d, 'class': 'ln' }, plot);
+      try { ln.style.setProperty('--len', Math.ceil(ln.getTotalLength())); } catch (e) {}
+      c.rf.forEach(function (p) { mk('circle', { cx: px(p[0]), cy: py(p[1]), r: 5, 'class': 'rf' }, plot); });
+
+      /* legend and verdict, top left of the plot */
+      var lx = X0 - 16;
+      mk('text', { x: lx, y: 20, 'class': 'verdict' }, plot, (fixed ? 'Equal' : 'Uneven') + ' gaps in ' + (interval ? 'time' : 'responses') + ' → ' + (fixed ? 'fixed' : 'variable') + ' ' + (interval ? 'interval' : 'ratio'));
+      mk('circle', { cx: lx + 5, cy: 38, r: 5, 'class': 'rf' }, plot);
+      mk('text', { x: lx + 15, y: 42, 'class': 'lg' }, plot, 'Reinforcement');
+      mk('line', { x1: lx + 118, x2: lx + 142, y1: 38, y2: 38, 'class': 'proj' }, plot);
+      mk('text', { x: lx + 148, y: 42, 'class': 'lg' }, plot, 'Projected onto the ' + (interval ? 'time' : 'response') + ' axis, the one ' + (interval ? 'interval' : 'ratio') + ' schedules count');
+
+      /* read-out */
+      var unit = interval ? 'minutes' : 'responses', msg;
+      if (k === 'fi') msg = 'Reinforcement after ' + list(c.rf.map(function (p) { return r1(p[0]); })) + ' minutes: always <b>5 minutes apart</b>. Responding early earns nothing, so there is a significant pause after each reinforcement.';
+      else if (k === 'vi') msg = 'Reinforcement after ' + list(c.rf.map(function (p) { return r1(p[0]); })) + ' minutes: gaps of <b>' + list(gaps) + ' minutes</b>. The next one could come at any time, so responding stays moderate and steady.';
+      else if (k === 'fr') msg = 'Reinforcement after <b>every ' + gaps[0] + ' responses</b>. Responding is fast, with a short pause after each reinforcement.';
+      else { var avg = Math.round(gaps.reduce(function (a, b) { return a + b; }, 0) / gaps.length);
+        msg = 'Reinforcement after gaps of <b>' + gaps.slice(0, 6).join(', ') + '…</b> responses (about ' + avg + ' on average). The next win is never predictable, so responding stays high and steady.'; }
+      read.innerHTML = '<b>' + I[0] + ':</b> ' + msg;
+      info.innerHTML = '<div><small>Response pattern</small><span>' + I[3] + '</span></div><div><small>Example</small><span>' + I[4] + '</span></div><div><small>Extinction</small><span>' + I[5] + '</span></div>';
+    }
+    function pick(k) { box.setAttribute('data-s', k); setPressed(btns, 'data-s', k); draw(k); }
+    btns.forEach(function (b) { b.addEventListener('click', function () { pick(b.getAttribute('data-s')); }); });
+    pick(box.getAttribute('data-s') || 'vr');
+  });
+
+  /* Tolman's latent learning (.tolman) */
+  $$('.tolman').forEach(function (box) {
+    var svg = $('svg', box), axes = $('.tol-axes', svg), lines = $('.tol-lines', svg), read = $('.fig-read', box);
+    var btns = $$('.pill-row button', box);
+    var X0 = 60, X1 = 500, Y0 = 24, Y1 = 220, N = 17;
+    function px(s) { return X0 + (s - 1) / (N - 1) * (X1 - X0); }
+    function py(v) { return Y1 - v / 110 * (Y1 - Y0); }
+    function rew(s) { return 18 + 82 * Math.exp(-(s - 1) / 3.4); }
+    function unrew(s) { if (s <= 10) return 100 - 2.4 * (s - 1); if (s === 11) return 52; return rew(s) + 1; }
+    mk('path', { d: 'M' + X0 + ' ' + (Y0 - 6) + 'V' + Y1 + 'H' + (X1 + 6) }, axes);
+    for (var s = 1; s <= N; s += 2) { mk('text', { x: px(s), y: Y1 + 18, 'text-anchor': 'middle' }, axes, String(s)); }
+    mk('text', { x: (X0 + X1) / 2, y: Y1 + 38, 'text-anchor': 'middle' }, axes, 'Session');
+    mk('text', { x: 18, y: (Y0 + Y1) / 2, transform: 'rotate(-90 18 ' + (Y0 + Y1) / 2 + ')', 'text-anchor': 'middle' }, axes, 'Time to reach the goal');
+    mk('text', { x: X0 - 8, y: Y0 + 6, 'text-anchor': 'end' }, axes, 'Slow');
+    mk('text', { x: X0 - 8, y: Y1, 'text-anchor': 'end' }, axes, 'Fast');
+    function series(fn, from, to, cls) {
+      var d = '', g = mk('g', {}, lines);
+      for (var s = from; s <= to; s++) d += (s === from ? 'M' : 'L') + px(s).toFixed(1) + ' ' + py(fn(s)).toFixed(1);
+      mk('path', { d: d, 'class': cls }, g);
+      for (s = from; s <= to; s++) mk('circle', { cx: px(s), cy: py(fn(s)), r: 3.4, 'class': cls }, g);
+      return g;
+    }
+    function draw(food) {
+      clear(lines);
+      series(rew, 1, N, 'rew');
+      series(unrew, 1, food ? N : 10, 'unrew');
+      mk('text', { x: X1 + 10, y: py(rew(N)) - 4, 'class': 'lbl rew' }, lines, 'Rewarded');
+      mk('text', { x: X1 + 10, y: py(rew(N)) + 12, 'class': 'lbl rew' }, lines, 'from the start');
+      if (food) {
+        var fx = (px(10) + px(11)) / 2, g = mk('g', { 'class': 'food' }, lines);
+        mk('line', { x1: fx, x2: fx, y1: Y0 - 4, y2: Y1 }, g);
+        mk('text', { x: fx + 6, y: Y0 + 4 }, g, 'Food added to the goal box');
+        mk('text', { x: X1 + 10, y: py(unrew(N)) + 30, 'class': 'lbl unrew' }, lines, 'Unrewarded');
+        mk('text', { x: X1 + 10, y: py(unrew(N)) + 46, 'class': 'lbl unrew' }, lines, 'at first');
+        read.innerHTML = '<b>Food appears:</b> the moment the unrewarded rats have a reason to reach the goal, they run the maze as fast as the rats rewarded all along. They had been learning the layout, a <b>cognitive map</b>, the whole time.';
+      } else {
+        mk('text', { x: px(10) + 8, y: py(unrew(10)) + 4, 'class': 'lbl unrew' }, lines, 'Unrewarded');
+        read.innerHTML = '<b>Sessions 1–10:</b> without a reward, the unrewarded rats show little sign of learning the maze. Judged by behavior alone, you might think they learned nothing.';
+      }
+    }
+    function set(v) { box.setAttribute('data-food', v); setPressed(btns, 'data-food', v); draw(v === 'on'); }
+    btns.forEach(function (b) { b.addEventListener('click', function () { set(b.getAttribute('data-food')); }); });
+    set(box.getAttribute('data-food') || 'on');
+  });
+})();

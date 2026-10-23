@@ -1187,3 +1187,232 @@ tbody tr:last-child th{border-bottom:0}
 .sk-merk .merk-br{fill:none;stroke:var(--good);stroke-width:1.8}
 .sk-ruff .ruff-br{fill:none;stroke:var(--note);stroke-width:1.2}
 .sk-pac ellipse{stroke:var(--bad);stroke-width:1.3}
+
+/* ---- Unit 6 components (reusable) ---- */
+/* Shared: icon sprite (stroke icons that take the current text colour) */
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.ico{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.ico{overflow:visible}
+.ico .fillc{fill:currentColor;stroke:none}
+.fig-panel .mode-state,.vic .mode-state,.bobo .mode-state{margin:.8rem 0 0;font-family:var(--font-body);font-size:.95rem;color:var(--muted);text-align:left}
+.vic .mode-state b,.bobo .mode-state b{font-family:var(--font-ui);color:var(--fg)}
+
+/* Figure: association flow (three forms of learning) */
+.assoc-wrap{display:grid;gap:.8rem}
+.assoc{list-style:none;margin:.2rem 0 0;padding:0;display:flex;flex-wrap:wrap;align-items:flex-start;gap:.6rem .5rem;font-family:var(--font-ui)}
+.assoc li{margin:0;display:grid;justify-items:center;text-align:center;gap:.2rem;flex:1 1 7.5rem;min-width:0}
+.assoc li b{font-size:.9rem;line-height:1.25}
+.assoc li small{font-size:.76rem;color:var(--muted);line-height:1.3}
+.assoc .disc{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+.assoc .out .disc{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.assoc li.plus,.assoc li.arrow{flex:0 0 auto;align-self:flex-start;height:58px;min-width:3.6rem;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:.1rem;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;line-height:1}
+.assoc li.plus::after,.assoc li.arrow::after{content:"→";display:block;font-size:1.2rem;line-height:1;letter-spacing:0}
+.assoc li.plus::after{color:var(--muted)}
+.assoc li.arrow::after{color:var(--accent)}
+.assoc-say{margin:0;font-size:.95rem;text-align:left}
+.assoc-say b{font-family:var(--font-ui)}
+@media (prefers-reduced-motion:no-preference){.assoc-wrap:not([hidden]) .assoc li{animation:rise .45s ease-out both}.assoc li:nth-child(3){animation-delay:.1s}.assoc li:nth-child(5){animation-delay:.2s}}
+@media (max-width:520px){.assoc li.plus,.assoc li.arrow{flex-basis:100%;height:auto;flex-direction:row;gap:.4rem}.assoc li.plus::after,.assoc li.arrow::after{content:"↓"}}
+
+/* Figure: stimulus "equations" (UCS + NS -> response) with role tags */
+.eqn-stack{display:grid;gap:.75rem;min-width:min(100%, 30rem)}
+.eqn{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-family:var(--font-ui)}
+.eqn + .eqn{margin-top:.6rem}
+.eqn-stack .eqn + .eqn{margin-top:0;padding-top:.75rem;border-top:1px dashed var(--line)}
+.eqn .op{font-size:1.25rem;font-weight:600;color:var(--muted);min-width:1rem;text-align:center}
+.eqn .rowlab{flex:0 0 5.4rem;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tok{position:relative;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:.55rem;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:.45rem .7rem .45rem .55rem;background:var(--surface);min-width:0;color:var(--fg)}
+.tok .ico{grid-row:1/3}
+.tok b{font-size:.92rem;line-height:1.2}
+.tok i{font-style:normal;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.2}
+.tok.ucs{border-color:var(--note);background:var(--note-bg)} .tok.ucs .ico,.tok.ucs i{color:var(--note)}
+.tok.ucr{border-color:color-mix(in srgb, var(--note) 55%, var(--line))} .tok.ucr i{color:var(--note)}
+.tok.ns{border-style:dashed} .tok.ns .ico{color:var(--muted)}
+.tok.ns2{border-style:dashed;border-color:var(--accent)} .tok.ns2 i{color:var(--accent)}
+.tok.cs{border-color:var(--accent);background:var(--accent-soft)} .tok.cs .ico,.tok.cs i{color:var(--accent)}
+.tok.cr{border-color:color-mix(in srgb, var(--accent) 55%, var(--line))} .tok.cr i{color:var(--accent)}
+.tok.none{opacity:.7;border-style:dotted}
+.tok.yes{border-color:var(--good);background:var(--good-bg)} .tok.yes .ico,.tok.yes i{color:var(--good)}
+.tok.no{border-color:var(--bad);background:var(--bad-bg)} .tok.no .ico,.tok.no i{color:var(--bad)}
+.eqn.faint{opacity:.75}
+.tok .drop{position:absolute;left:.55rem;top:.45rem;color:var(--accent)}
+.tok.ucr .drop{color:var(--note)}
+.tok:not(.drool) .drop{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .tok.drool .drop{animation:drip 1.6s ease-in infinite}
+  .stage [data-for]:not([hidden]) .tok{animation:rise .4s ease-out both}
+  .stage [data-for]:not([hidden]) .tok:nth-of-type(2){animation-delay:.12s}
+  .stage [data-for]:not([hidden]) .tok:nth-of-type(3){animation-delay:.24s}
+}
+@keyframes drip{0%{transform:translateY(-2px);opacity:0}25%{opacity:1}100%{transform:translateY(10px);opacity:0}}
+@media (max-width:560px){.eqn .rowlab{flex-basis:100%}}
+
+/* Table: decoder with hidden answers */
+.decoder caption .btn{margin-left:.4rem;padding:.35rem .75rem;font-size:.8rem;vertical-align:baseline}
+.try{display:inline-block;font-family:var(--font-ui);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--note);background:var(--note-bg);border:1px solid var(--note-line);border-radius:999px;padding:.05rem .45rem;margin-left:.25rem;vertical-align:.1em;white-space:nowrap}
+.decoder .rv{transition:color .2s, background .2s;border-radius:4px}
+.decoder:not(.show) .rv{color:transparent;background:repeating-linear-gradient(135deg, var(--line) 0 6px, var(--bg) 6px 12px);user-select:none}
+.decoder.show .rv{background:var(--note-bg);color:var(--fg);padding:0 .2rem}
+
+/* Figure: conditioning lab (bars per trial) */
+.clab-svg text{font-size:11px;fill:var(--muted)}
+.clab-grid line{stroke:var(--line);stroke-width:1}
+.clab-axes path{stroke:var(--muted);stroke-width:1.2;fill:none}
+.clab-bars rect{transition:height .25s, y .25s}
+.clab-bars .ph-acq{fill:var(--accent)}
+.clab-bars .ph-ext{fill:color-mix(in srgb, var(--bad) 70%, var(--surface))}
+.clab-bars .ph-rec{fill:var(--note)}
+.clab-bars .ph-new{stroke:var(--fg);stroke-width:1.5}
+.clab-bands rect{fill:var(--bg)}
+.clab-bands .rest{fill:url(#clabHatch)}
+.clab-bands text{font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;fill:var(--muted)}
+.clab-hatch-line{stroke:var(--line);stroke-width:2}
+.clab-ctl{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.clab-ctl .btn[data-act="pair"]{background:var(--accent);color:var(--accent-ink)}
+.clab-ctl .btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Figure: generalization gradient */
+.gengrad .pill-row{margin-bottom:.6rem}
+.gg-svg text{font-size:11px;fill:var(--muted)}
+.gg-axes path{stroke:var(--muted);stroke-width:1.2;fill:none}
+.gg-axes line{stroke:var(--line)}
+.gg-area{fill:var(--accent-soft);transition:d .35s}
+.gg-line{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;transition:d .35s}
+.gg-marks line{stroke:var(--muted);stroke-dasharray:3 4}
+.gg-marks text{font-size:11px;font-weight:600;fill:var(--fg)}
+.gg-probe-l{stroke:var(--note);stroke-width:1.5;stroke-dasharray:4 3}
+.gg-probe-c{fill:var(--note);stroke:var(--surface);stroke-width:2}
+
+/* Figure: Skinner box (uses the .brainmap behaviour) */
+.sbx-wall{fill:color-mix(in srgb, var(--accent) 7%, var(--surface));stroke:var(--muted);stroke-width:2}
+.sbx-floor{fill:var(--bg);stroke:var(--muted);stroke-width:1.2}
+.sbx-grid path{stroke:var(--line);stroke-width:2}
+.sbx-rat path,.sbx-rat circle{fill:color-mix(in srgb, var(--muted) 30%, var(--surface));stroke:var(--fg);stroke-width:1.6}
+.sbx-rat .sbx-eye{fill:var(--fg);stroke:none}
+.sbx-pellet circle{fill:var(--note)}
+.sbx-lights circle{fill:color-mix(in srgb, var(--note) 45%, var(--surface));stroke:var(--note);stroke-width:2}
+.sbx-speaker rect{fill:color-mix(in srgb, var(--muted) 30%, var(--surface));stroke:var(--fg);stroke-width:1.5}
+.sbx-speaker .sbx-sw{fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.sbx-lever rect,.sbx-lever path{fill:color-mix(in srgb, var(--accent) 40%, var(--surface));stroke:var(--accent);stroke-width:1.6}
+.sbx-disp path{fill:none;stroke:var(--note);stroke-width:2.4;stroke-linejoin:round}
+.sbx-disp path:first-child{fill:color-mix(in srgb, var(--note) 25%, var(--surface))}
+.sbx-disp rect{fill:color-mix(in srgb, var(--note) 25%, var(--surface));stroke:var(--note);stroke-width:1.6}
+.sbx-rec rect{fill:var(--surface);stroke:var(--fg);stroke-width:1.6}
+.sbx-rec .sbx-trace{fill:none;stroke:var(--accent);stroke-width:2}
+.sbx-rec path:last-child{fill:none;stroke:var(--muted);stroke-width:1.5;stroke-dasharray:3 3}
+.sbx svg .bm-hit{transition:opacity .2s}
+.sbx svg.has-pick .bm-hit{opacity:.45}
+.sbx svg.has-pick .bm-hit.is-on{opacity:1;filter:drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 60%, transparent))}
+@media (prefers-reduced-motion:no-preference){.sbx-pellet circle{animation:pellet 3s ease-in-out infinite}.sbx-pellet circle:nth-child(2){animation-delay:.4s}}
+@keyframes pellet{0%,60%{opacity:0;transform:translateY(-14px)}75%,100%{opacity:1;transform:none}}
+
+/* Table: the 2x2 of reinforcement and punishment */
+.quad td{width:42%}
+.quad .eg{display:block;margin-top:.3rem;color:var(--muted);font-style:italic}
+
+/* Figure: consequence sorter (uses the quiz behaviour) */
+.sorter .q{padding:.85rem 0}
+.sorter .q-stem{margin-bottom:.2rem}
+.sorter .opts{grid-template-columns:repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));gap:.35rem}
+.sorter .opts button{font-family:var(--font-ui);font-size:.86rem;padding:.45rem .65rem}
+
+/* Figure: reinforcement schedule explorer */
+.sched{display:grid;gap:.9rem}
+.sched-pick{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:.4rem;align-items:center;font-family:var(--font-ui);max-width:30rem}
+.sp-h{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.sp-r{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-right:.3rem}
+.sched-pick button{font:600 .85rem/1.2 var(--font-ui);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:.55rem .6rem;cursor:pointer}
+.sched-pick button:hover{border-color:var(--accent)}
+.sched-pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.sched-svg text{font-size:11px;fill:var(--muted)}
+.sched-svg .grid{stroke:var(--line);stroke-width:1}
+.sched-svg .axis{stroke:var(--muted);stroke-width:1.2;fill:none}
+.sched-svg .axis.def{stroke:var(--accent);stroke-width:2.6}
+.sched-svg .ax-t{font-size:11.5px;font-weight:600}
+.sched-svg .ax-t.def{fill:var(--accent);font-weight:700}
+.sched-svg .ln{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.sched-svg .rf{fill:var(--note);stroke:var(--surface);stroke-width:1.5}
+.sched-svg .proj{stroke:var(--note);stroke-width:1.2;stroke-dasharray:3 3;opacity:.8}
+.sched-svg .seg{stroke:var(--surface);stroke-width:1.5}
+.sched-svg .seg.a{fill:color-mix(in srgb, var(--note) 45%, var(--surface))}
+.sched-svg .seg.b{fill:color-mix(in srgb, var(--note) 22%, var(--surface))}
+.sched-svg .seg-l{font-size:10.5px;font-weight:700;fill:var(--fg)}
+.sched-svg .verdict{font-size:13px;font-weight:700;fill:var(--note)}
+.sched-svg .lg{font-size:11px;fill:var(--fg)}
+.sched-read{font-family:var(--font-body);font-size:.95rem;margin:0;text-align:left}
+.sched-read b{font-family:var(--font-ui)}
+@media (prefers-reduced-motion:no-preference){
+  .sched-svg .ln{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1s ease-out forwards}
+  .sched-svg .proj,.sched-svg .seg,.sched-svg .seg-l,.sched-svg .verdict{animation:fadein .4s ease-out 1s both}
+  .sched-svg .rf{animation:fadein .3s ease-out .8s both}
+}
+@keyframes fadein{from{opacity:0}}
+.sched-info{font-family:var(--font-ui);font-size:.9rem;display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 14rem), 1fr));gap:.5rem .9rem}
+.sched-info div{border-top:2px solid var(--line);padding-top:.35rem;min-width:0}
+.sched-info small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sched-info span{display:block;font-family:var(--font-body);font-size:.93rem;line-height:1.4;text-align:left}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* Figure: Tolman's latent learning */
+.tolman .pill-row{margin-bottom:.6rem}
+.tol-svg text{font-size:11px;fill:var(--muted)}
+.tol-axes path{stroke:var(--muted);stroke-width:1.2;fill:none}
+.tol-axes line{stroke:var(--line)}
+.tol-lines .rew{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round}
+.tol-lines .unrew{fill:none;stroke:var(--note);stroke-width:3;stroke-linejoin:round}
+.tol-lines .after{stroke-dasharray:none}
+.tol-lines circle.rew{fill:var(--accent);stroke:var(--surface);stroke-width:1.5}
+.tol-lines circle.unrew{fill:var(--note);stroke:var(--surface);stroke-width:1.5}
+.tol-lines .food line{stroke:var(--good);stroke-width:1.5;stroke-dasharray:5 4}
+.tol-lines .food text{fill:var(--good);font-weight:700}
+.tol-lines .lbl{font-size:11.5px;font-weight:700}
+.tol-lines .lbl.rew{fill:var(--accent);stroke:none} .tol-lines .lbl.unrew{fill:var(--note);stroke:none}
+
+/* Figure: three kinds of models */
+.models{margin:0;grid-template-columns:repeat(auto-fit, minmax(min(100%, 11rem), 1fr))}
+.models .card{display:grid;gap:.15rem}
+.models .m-ico{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);margin-bottom:.4rem}
+.models .card p{text-align:left}
+
+/* Figure: vicarious reinforcement / punishment */
+.vic{margin-top:1.1rem;padding-top:1rem;border-top:1px dashed var(--line)}
+.vic-row{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-top:.8rem;font-family:var(--font-ui)}
+.vic-row .op{font-size:1.2rem;color:var(--muted)}
+.vic-tok{display:grid;grid-template-columns:auto auto;column-gap:.5rem;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:.45rem .7rem;background:var(--surface)}
+.vic-tok .ico{grid-row:1/3}
+.vic-tok b{font-size:.92rem}
+.vic-tok i{font-style:normal;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vic[data-mode="rein"] .v-p,.vic[data-mode="pun"] .v-r{display:none}
+.vic[data-mode="rein"] .vic-out{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.vic[data-mode="pun"] .vic-out{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.vic[data-mode="rein"] .vic-tok:first-child i.v-r{color:var(--good)}
+.vic[data-mode="pun"] .vic-tok:first-child i.v-p{color:var(--bad)}
+
+/* Figure: Bobo doll */
+.bobo .pill-row{margin-bottom:.6rem}
+.bobo-svg{width:100%;max-width:520px;height:auto;display:block;margin:0 auto}
+.bb-floor{fill:var(--bg)}
+.bb-doll ellipse,.bb-doll path:not(.bb-mouth){fill:color-mix(in srgb, var(--bad) 30%, var(--surface));stroke:var(--fg);stroke-width:1.8}
+.bb-doll circle{fill:var(--surface);stroke:var(--fg);stroke-width:1.8}
+.bb-doll .bb-ink{fill:var(--fg);stroke:none}
+.bb-doll .bb-nose{fill:var(--bad);stroke:none}
+.bb-mouth{fill:none;stroke:var(--fg);stroke-width:2;stroke-linecap:round}
+.bb-doll{transform-box:fill-box;transform-origin:50% 100%;transition:transform .4s}
+.bb-child circle,.bb-child path{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.bb-child circle{fill:var(--accent-soft)}
+.bb-child{transition:transform .5s}
+.bb-hits path{stroke:var(--note);stroke-width:3;stroke-linecap:round}
+.bb-lbl{font-size:13px;font-weight:700}
+.bobo[data-mode="ok"] .bb-child{transform:translate(230px,104px)}
+.bobo[data-mode="pun"] .bb-child{transform:translate(110px,104px)}
+.bobo[data-mode="pun"] .bb-hits,.bobo[data-mode="pun"] .bb-l-ok,.bobo[data-mode="ok"] .bb-l-pun{display:none}
+.bobo[data-mode="ok"] .bb-lbl{fill:var(--bad)} .bobo[data-mode="pun"] .bb-lbl{fill:var(--good)}
+.bobo[data-mode="pun"] .bb-arm{d:path("M10 24l12 22")}
+@media (prefers-reduced-motion:no-preference){
+  .bobo[data-mode="ok"] .bb-doll{animation:rock 1.4s ease-in-out infinite}
+  .bobo[data-mode="ok"] .bb-arm{animation:punch 1.4s ease-in-out infinite}
+  .bobo[data-mode="ok"] .bb-hits{animation:hit 1.4s ease-out infinite}
+}
+@keyframes rock{0%,100%{transform:rotate(0)}30%{transform:rotate(9deg)}60%{transform:rotate(-4deg)}}
+@keyframes punch{0%,100%{transform:none}20%{transform:translateX(10px)}}
+@keyframes hit{0%,15%{opacity:0}25%{opacity:1}60%,100%{opacity:0}}
