@@ -1329,3 +1329,264 @@
     set(box.getAttribute('data-food') || 'on');
   });
 })();
+
+/* ---- Unit 7 components ---- */
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function mk(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+
+  /* Working-backwards planner (.u7-plan): the wedding example from Section 7.3 */
+  $$('.u7-plan').forEach(function (box) {
+    var slider = $('input', box), out = $('.buf', box);
+    var tLeave = $('.t-leave', box), tRoad = $('.t-road', box), sayLeave = $('.say-leave', box);
+    var ARRIVE = 15 * 60 + 30, DRIVE = 150;
+    function fmt(m) {
+      var h = Math.floor(m / 60), mm = m % 60, ap = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return h + ':' + (mm < 10 ? '0' : '') + mm + ' ' + ap;
+    }
+    function draw() {
+      var b = +slider.value;
+      out.textContent = b === 0 ? 'none' : b + ' min';
+      var road = ARRIVE - DRIVE;
+      tRoad.textContent = fmt(road);
+      tLeave.textContent = fmt(road - b);
+      sayLeave.textContent = b === 0 ? 'Leave with no room for traffic: any backup on I-95 makes you late.' : 'Leave ' + b + ' minutes early to absorb traffic around Washington, D.C.';
+    }
+    slider.addEventListener('input', draw);
+    draw();
+  });
+
+  /* 4 x 4 sudoku (.u7-sudoku): solution from OpenStax Figure 7.11 */
+  $$('.u7-sudoku').forEach(function (box) {
+    var sol = box.getAttribute('data-sol').replace(/\s/g, '');
+    var inputs = $$('input', box), msg = $('.u7-sud-msg', box);
+    var t0 = null, timer = null;
+    function clock() {
+      if (!t0) return '';
+      var s = Math.round((Date.now() - t0) / 1000);
+      return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
+    }
+    inputs.forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        inp.value = inp.value.replace(/[^1-4]/g, '').slice(-1);
+        inp.classList.remove('bad', 'ok');
+        if (!t0) { t0 = Date.now(); timer = setInterval(function () { msg.innerHTML = 'Timer: <b>' + clock() + '</b>'; }, 1000); }
+        var done = inputs.every(function (x) { return x.value; });
+        if (done) check(true);
+      });
+    });
+    function check(auto) {
+      var wrong = 0, empty = 0;
+      inputs.forEach(function (x) {
+        var want = sol.charAt(+x.getAttribute('data-i'));
+        x.classList.remove('bad', 'ok');
+        if (!x.value) { empty++; return; }
+        if (x.value === want) x.classList.add('ok'); else { x.classList.add('bad'); wrong++; }
+      });
+      if (!wrong && !empty) { clearInterval(timer); msg.innerHTML = '<b>Solved' + (t0 ? ' in ' + clock() : '') + '.</b> Every row, column and box sums to 10.'; }
+      else if (!auto || wrong) msg.innerHTML = '<b>' + wrong + ' wrong</b>, ' + empty + ' still empty. Each digit 1–4 appears once per row, column and bold box.';
+    }
+    $('.sud-check', box).addEventListener('click', function () { check(false); });
+    $('.sud-show', box).addEventListener('click', function () {
+      clearInterval(timer);
+      inputs.forEach(function (x) { x.value = sol.charAt(+x.getAttribute('data-i')); x.classList.remove('bad'); x.classList.add('ok'); });
+      msg.innerHTML = 'Solution shown (OpenStax Figure 7.11).';
+    });
+    $('.sud-reset', box).addEventListener('click', function () {
+      clearInterval(timer); t0 = null;
+      inputs.forEach(function (x) { x.value = ''; x.classList.remove('bad', 'ok'); });
+      msg.textContent = 'The timer starts with your first digit.';
+    });
+  });
+
+  /* Solution lines that draw themselves: measure their length once */
+  $$('.u7-sol.draw').forEach(function (p) {
+    try { p.style.setProperty('--len', Math.ceil(p.getTotalLength())); } catch (e) {}
+  });
+  /* restart the drawing each time the solution is opened */
+  $$('.u7-puzzle').forEach(function (box) {
+    $$('.pill-row button[data-mode]', box).forEach(function (b) {
+      b.addEventListener('click', function () {
+        $$('.u7-sol.draw', box).forEach(function (p) { p.style.animation = 'none'; p.getBoundingClientRect(); p.style.animation = ''; });
+      });
+    });
+  });
+
+  /* Bell-curve explorer (.u7-bell): mean 100, SD 15 */
+  function erf(x) {
+    var s = x < 0 ? -1 : 1; x = Math.abs(x);
+    var t = 1 / (1 + .3275911 * x);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - .284496736) * t + .254829592) * t * Math.exp(-x * x);
+    return s * y;
+  }
+  function cdf(z) { return .5 * (1 + erf(z / Math.SQRT2)); }
+  $$('.u7-bell').forEach(function (box) {
+    var svg = $('svg', box), slider = $('input', box);
+    var X0 = 30, X1 = 610, BASE = 190, TOP = 30, LO = 40, HI = 160;
+    function X(v) { return X0 + (v - LO) / (HI - LO) * (X1 - X0); }
+    function pdf(v) { var z = (v - 100) / 15; return Math.exp(-z * z / 2); }
+    function Y(v) { return BASE - pdf(v) * (BASE - TOP); }
+    var gBand = mk('g', {}, svg), gArea = mk('g', {}, svg), gCurve = mk('g', {}, svg), gAx = mk('g', {}, svg), gMark = mk('g', {}, svg);
+    mk('rect', { x: X(85), y: TOP - 14, width: X(115) - X(85), height: BASE - TOP + 14, 'class': 'band' }, gBand);
+    mk('text', { x: X(100), y: TOP - 20, 'text-anchor': 'middle', 'class': 'blab' }, gBand, 'Average range 85–115 · about 68%');
+    var d = '';
+    for (var v = LO; v <= HI; v += 1) d += (v === LO ? 'M' : 'L') + X(v).toFixed(1) + ' ' + Y(v).toFixed(1);
+    mk('path', { d: d, 'class': 'curve' }, gCurve);
+    mk('line', { x1: X0, x2: X1, y1: BASE, y2: BASE, 'class': 'tick' }, gAx);
+    [55, 70, 85, 100, 115, 130, 145].forEach(function (v) {
+      mk('line', { x1: X(v), x2: X(v), y1: BASE, y2: BASE + 6, 'class': 'tick' }, gAx);
+      mk('text', { x: X(v), y: BASE + 22, 'text-anchor': 'middle', 'class': 'tlab' }, gAx, v);
+      var sd = (v - 100) / 15;
+      mk('text', { x: X(v), y: BASE + 38, 'text-anchor': 'middle', 'class': 'tlab' }, gAx, sd === 0 ? 'mean' : (sd > 0 ? '+' : '−') + Math.abs(sd) + ' SD');
+    });
+    var area = mk('path', { 'class': 'area' }, gArea);
+    var line = mk('line', { y2: BASE, 'class': 'mark' }, gMark);
+    var dot = mk('circle', { r: 5, 'class': 'mdot' }, gMark);
+    var rScore = $('.r-score', box), rSd = $('.r-sd', box), rPct = $('.r-pct', box), say = $('.u7-bell-say', box), out = $('.score-out', box);
+    function band(v) {
+      if (v < 70) return 'More than two standard deviations below the mean. An IQ around 70 or below is one of the three criteria for an <strong>intellectual disability</strong>, together with major deficits in adaptive functioning and onset before age 18. Only about 2.2% of people score below 70.';
+      if (v < 85) return 'Between one and two standard deviations below the mean: below the average range.';
+      if (v <= 115) return 'Within one standard deviation of the mean: the <strong>average range</strong>, where about 68% of people score.';
+      if (v < 130) return 'Between one and two standard deviations above the mean: above the average range.';
+      return 'Two or more standard deviations above the mean: the <strong>superior</strong> range (about 2% of people). Schools may use 130 or higher to classify a student as gifted, and Mensa admits people in the top 2%.';
+    }
+    function draw() {
+      var s = +slider.value;
+      var p = '';
+      for (var v = LO; v <= s; v += 1) p += (v === LO ? 'M' : 'L') + X(v).toFixed(1) + ' ' + Y(v).toFixed(1);
+      p += 'L' + X(s).toFixed(1) + ' ' + Y(s).toFixed(1) + 'L' + X(s).toFixed(1) + ' ' + BASE + 'L' + X(LO) + ' ' + BASE + 'Z';
+      area.setAttribute('d', p);
+      line.setAttribute('x1', X(s)); line.setAttribute('x2', X(s)); line.setAttribute('y1', Y(s));
+      dot.setAttribute('cx', X(s)); dot.setAttribute('cy', Y(s));
+      var z = (s - 100) / 15, pct = cdf(z) * 100;
+      out.textContent = s;
+      rScore.textContent = s;
+      rSd.textContent = (z > 0 ? '+' : z < 0 ? '−' : '') + Math.abs(z).toFixed(2);
+      rPct.textContent = (pct < 1 ? pct.toFixed(2) : pct < 99 ? pct.toFixed(0) : pct.toFixed(1)) + '%';
+      say.innerHTML = band(s);
+    }
+    slider.addEventListener('input', draw);
+    draw();
+  });
+
+  /* Letter reversals (.u7-tea): variants drawn for this guide after OpenStax Figure 7.17 */
+  $$('.u7-tea').forEach(function (box) {
+    var w = $('.word', box);
+    /* each variant: letters, with flags f = mirrored, s = moved */
+    var V = [
+      [['t'], ['e'], ['a'], ['p'], ['o'], ['t']],
+      [['t'], ['a', 's'], ['e', 's'], ['p'], ['o'], ['t']],
+      [['t'], ['e'], ['a'], ['p', 'f'], ['o'], ['t']],
+      [['t'], ['e'], ['p', 's'], ['a', 's'], ['o'], ['t']],
+      [['t'], ['e'], ['a'], ['o', 's'], ['p', 'fs'], ['t']],
+      [['t'], ['e'], ['a'], ['p'], ['t', 's'], ['o', 's']]
+    ];
+    var i = 0, timer = null;
+    function paint() {
+      w.innerHTML = '';
+      V[i].forEach(function (L) {
+        var e = document.createElement('i');
+        e.textContent = L[0];
+        if (L[1] && L[1].indexOf('f') >= 0) e.className = 'flip';
+        else if (L[1] && L[1].indexOf('s') >= 0) e.className = 'swap';
+        w.appendChild(e);
+      });
+      w.setAttribute('aria-label', V[i].map(function (L) { return L[0]; }).join(''));
+    }
+    var btn = $('.btn', box);
+    function stop() { clearInterval(timer); timer = null; btn.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(function () { i = (i + 1) % V.length; paint(); }, 1400); btn.textContent = 'Pause'; }
+    btn.addEventListener('click', function () { timer ? stop() : play(); });
+    paint();
+    if (!reduce) play();
+  });
+
+  /* Dysgraphia (.u7-gr): a sentence "written" letter by letter with uneven size, slant and spacing */
+  $$('.u7-gr').forEach(function (box) {
+    var svg = $('svg', box), btn = $('.btn', box), TXT = 'The dog ran home fast.';
+    var timer = null, k = 0, rnd = (function (s) { return function () { s = (s * 16807) % 2147483647; return s / 2147483647; }; })(7);
+    var glyphs = [], x = 6;
+    TXT.split('').forEach(function (ch) {
+      var size = 22 + rnd() * 16, rot = (rnd() - .5) * 28, y = 46 + (rnd() - .5) * 18;
+      var w = ch === ' ' ? 6 + rnd() * 18 : size * .5 + rnd() * 6;
+      glyphs.push({ ch: ch, x: x, y: y, size: size, rot: rot });
+      x += w;
+    });
+    svg.setAttribute('viewBox', '0 0 ' + Math.ceil(x + 10) + ' 76');
+    var pen = mk('circle', { r: 4, 'class': 'pen' }, null);
+    function draw(n) {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      glyphs.slice(0, n).forEach(function (g) {
+        if (g.ch === ' ') return;
+        mk('text', { x: g.x.toFixed(1), y: g.y.toFixed(1), 'font-size': g.size.toFixed(1), transform: 'rotate(' + g.rot.toFixed(1) + ' ' + g.x.toFixed(1) + ' ' + g.y.toFixed(1) + ')' }, svg, g.ch);
+      });
+      var g = glyphs[Math.min(n, glyphs.length - 1)];
+      if (n < glyphs.length) { pen.setAttribute('cx', g.x + 4); pen.setAttribute('cy', g.y + 4); svg.appendChild(pen); }
+    }
+    function tick() { k = k >= glyphs.length + 8 ? 0 : k + 1; draw(Math.min(k, glyphs.length)); }
+    function stop() { clearInterval(timer); timer = null; btn.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(tick, 260); btn.textContent = 'Pause'; }
+    btn.addEventListener('click', function () { timer ? stop() : play(); });
+    draw(glyphs.length);
+    if (!reduce) play(); else btn.textContent = 'Play';
+    /* restart from the first letter whenever this tab is opened */
+    var fig = box.closest('figure');
+    if (fig) $$('.pill-row button[data-k="graph"]', fig).forEach(function (t) {
+      t.addEventListener('click', function () { k = 0; draw(0); if (!reduce) play(); });
+    });
+  });
+
+  /* Dyscalculia (.u7-sub): the same small group seen at once vs counted one by one */
+  $$('.u7-sub').forEach(function (box) {
+    var sa = $('.u7-sub-a', box), sb = $('.u7-sub-b', box), ra = $('.u7-sub-ra', box), rb = $('.u7-sub-rb', box), btn = $('.btn', box);
+    var LAYOUTS = {
+      3: [[40, 40], [110, 50], [70, 92]],
+      4: [[38, 36], [118, 40], [46, 92], [112, 88]],
+      5: [[34, 34], [120, 34], [78, 62], [36, 94], [118, 94]]
+    };
+    var seq = [4, 3, 5], si = 0, step = 0, n = 4, timer = null, da = [], db = [];
+    function build() {
+      n = seq[si];
+      [sa, sb].forEach(function (s) { while (s.firstChild) s.removeChild(s.firstChild); });
+      da = LAYOUTS[n].map(function (p) { return mk('circle', { cx: p[0], cy: p[1], r: 14, 'class': 'd on' }, sa); });
+      db = LAYOUTS[n].map(function (p, i) {
+        var g = mk('g', {}, sb);
+        var c = mk('circle', { cx: p[0], cy: p[1], r: 14, 'class': 'd' }, g);
+        var t = mk('text', { x: p[0], y: p[1] + 4.5, 'text-anchor': 'middle', 'class': 'n' }, g, '');
+        return { c: c, t: t, i: i };
+      });
+      ra.textContent = n + '!';
+      rb.textContent = '…';
+      step = 0;
+    }
+    function tick() {
+      if (step < n) {
+        var d = db[step]; d.c.setAttribute('class', 'd on'); d.t.textContent = step + 1;
+        rb.textContent = (step + 1) + '…';
+        step++;
+      } else if (step === n) { rb.textContent = n; step++; }
+      else if (step < n + 3) step++;
+      else { si = (si + 1) % seq.length; build(); }
+    }
+    function stop() { clearInterval(timer); timer = null; btn.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(tick, 750); btn.textContent = 'Pause'; }
+    btn.addEventListener('click', function () { timer ? stop() : play(); });
+    build();
+    if (!reduce) play();
+    else { while (step <= n) tick(); btn.textContent = 'Play'; }
+    var fig = box.closest('figure');
+    if (fig) $$('.pill-row button[data-k="calc"]', fig).forEach(function (t) {
+      t.addEventListener('click', function () { si = 0; build(); if (!reduce) play(); });
+    });
+  });
+})();

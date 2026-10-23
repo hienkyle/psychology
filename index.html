@@ -32,8 +32,12 @@
 .filter-count{font-size:.88rem;color:var(--muted)}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.unit-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr))}
-.unit-card{display:grid;grid-template-columns:2.6rem minmax(0,1fr);gap:.85rem;scroll-margin-top:5rem;transition:border-color .15s}
+.unit-grid{display:flex;flex-direction:column;gap:.75rem}
+.unit-card{display:grid;grid-template-columns:2.6rem minmax(0,1fr) auto;grid-template-areas:"num body actions";align-items:start;column-gap:1rem;row-gap:.6rem;border-radius:8px;padding:1rem 1.2rem;scroll-margin-top:5rem;transition:border-color .15s}
+.unit-card .unit-num{grid-area:num}
+.unit-card .unit-body{grid-area:body;min-width:0}
+.unit-card .unit-actions{grid-area:actions;align-self:center;justify-content:flex-end}
+.unit-card.is-ready{border-left:4px solid var(--accent)}
 .unit-card:hover{border-color:var(--accent)}
 .unit-card.flash{animation:flash 1.2s ease}
 @keyframes flash{0%,40%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:none}}
@@ -43,7 +47,14 @@
 .unit-meta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;font-family:var(--font-ui);font-size:.82rem;color:var(--muted);margin:0 0 .6rem;text-align:left}
 .badge{font-weight:600;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;border-radius:999px;padding:.15rem .55rem;border:1px solid var(--line)}
 .badge-ready{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-.unit-card details{margin:0 0 .75rem;font-family:var(--font-ui)}
+.unit-card .unit-meta{margin:0 0 .35rem}
+.unit-card details{margin:0;font-family:var(--font-ui)}
+.unit-card ol{columns:2 16rem;column-gap:1.5rem}
+.unit-card ol li{break-inside:avoid}
+@media (max-width:640px){
+  .unit-card{grid-template-columns:2.4rem minmax(0,1fr);grid-template-areas:"num body" "actions actions";padding:.9rem 1rem}
+  .unit-card .unit-actions{justify-content:flex-start}
+}
 .unit-card summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.88rem}
 .unit-card ol{margin:.4rem 0 0;padding:0;list-style:none;font-size:.88rem}
 .unit-card ol li{padding:.2rem 0;margin:0;border-bottom:1px dashed var(--line);text-align:left}
@@ -86,7 +97,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 <p class="toc-title">Contents</p>
 <ol>
 <li class="toc-part"><a href="#overview">Overview</a></li>
-<li class="toc-part"><a href="#units">Units</a><ol class="toc-sub" id="toc-units"></ol></li>
+<li class="toc-part"><a href="#units">Units</a></li>
 <li class="toc-part"><a href="#at-a-glance">Book at a glance</a></li>
 <li class="toc-part"><a href="#how-it-works">How each guide works</a></li>
 <li class="toc-part"><a href="#key-terms">Key terms</a></li>
@@ -234,7 +245,7 @@ var UNITS = [
     sections: ["Sensation versus Perception", "Waves and Wavelengths", "Vision", "Hearing", "The Other Senses", "Gestalt Principles of Perception"] },
   { n: 6,  ready: true,  title: "Learning",
     sections: ["What Is Learning?", "Classical Conditioning", "Operant Conditioning", "Observational Learning (Modeling)"] },
-  { n: 7,  ready: false, title: "Thinking and Intelligence",
+  { n: 7,  ready: true,  title: "Thinking and Intelligence",
     sections: ["What Is Cognition?", "Language", "Problem Solving", "What Are Intelligence and Creativity?", "Measures of Intelligence", "The Source of Intelligence"] },
   { n: 8,  ready: false, title: "Memory",
     sections: ["How Memory Functions", "Parts of the Brain Involved with Memory", "Problems with Memory", "Ways to Enhance Memory"] },
@@ -268,7 +279,6 @@ var UNITS = [
     return e;
   }
   var grid = document.getElementById('unit-grid');
-  var tocUnits = document.getElementById('toc-units');
   var bars = document.getElementById('fig-bars');
   var totalSections = 0, ready = 0;
   var max = Math.max.apply(null, UNITS.map(function (u) { return u.sections.length; }));
@@ -285,19 +295,15 @@ var UNITS = [
       : '<span class="btn btn-disabled" aria-disabled="true">Guide not built yet</span>';
     card.innerHTML =
       '<div class="unit-num" aria-hidden="true">' + u.n + '</div>' +
-      '<div>' +
+      '<div class="unit-body">' +
         '<h3 id="unit-' + u.n + '-h">' + u.title + '</h3>' +
         '<p class="unit-meta"><span>Unit ' + u.n + ' · ' + u.sections.length + ' sections</span>' +
           (u.ready ? '<span class="badge badge-ready">Guide ready</span>' : '<span class="badge">Coming soon</span>') + '</p>' +
         '<details><summary>Sections</summary><ol>' + list + '</ol></details>' +
-        '<div class="unit-actions">' + open + '<a class="btn" href="' + BASE + u.n + '-introduction">Read chapter</a></div>' +
-      '</div>';
+      '</div>' +
+      '<div class="unit-actions">' + open + '<a class="btn" href="' + BASE + u.n + '-introduction">Read chapter</a></div>';
     card.dataset.search = (u.n + ' ' + u.title + ' ' + u.sections.join(' ')).toLowerCase();
     grid.appendChild(card);
-
-    var li = el('li', { 'data-unit': u.n });
-    li.innerHTML = '<a href="#unit-' + u.n + '">' + u.n + '. ' + u.title + '</a>';
-    tocUnits.appendChild(li);
 
     var bar = el('li', { 'class': u.sections.length === max ? 'peak' : '' });
     bar.innerHTML = '<a href="#unit-' + u.n + '" title="' + u.title + '">Ch. ' + u.n + '</a>' +
@@ -345,8 +351,6 @@ var UNITS = [
     Array.prototype.forEach.call(cards, function (c) {
       var hit = !q || c.dataset.search.indexOf(q) !== -1;
       c.hidden = !hit;
-      var tocItem = tocUnits.querySelector('[data-unit="' + c.id.slice(5) + '"]');
-      if (tocItem) tocItem.hidden = !hit;
       if (hit) {
         shown++;
         var title = c.querySelector('h3').textContent.toLowerCase();
