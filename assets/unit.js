@@ -1971,3 +1971,262 @@
     go();
   });
 })();
+
+/* ---- Unit 12 components (reusable) ---- */
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function mk(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function onVisible(el, fn) {
+    if (!('IntersectionObserver' in window)) { fn(); return; }
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { fn(); io.disconnect(); } }, { threshold: .35 });
+    io.observe(el);
+  }
+
+  /* Asch line-judgment demo (.u12-asch). Lengths are drawn for this guide; the confederates give the same
+     wrong answer, as in Asch's critical trials. Three conditions, one factor each (Section 12.4):
+     std = unanimous public majority; dis = one confederate gives the right answer;
+     priv = the group still answers aloud, but the participant writes their answer down privately. */
+  $$('.u12-asch').forEach(function (box) {
+    var TRIALS = [
+      { x: 120, L: { a: 88, b: 120, c: 150 }, right: 'b', group: 'a' },
+      { x: 92, L: { a: 92, b: 132, c: 66 }, right: 'a', group: 'c' },
+      { x: 140, L: { a: 108, b: 172, c: 140 }, right: 'c', group: 'a' }
+    ];
+    var NOTES = {
+      std: '<b>Standard trial:</b> all six others agree on a wrong line, and you answer aloud after them.',
+      dis: '<b>One dissenter:</b> seat 3 breaks from the majority and gives the correct answer.',
+      priv: '<b>Private answer:</b> the others still answer aloud, but you write your answer down where no one can see it.'
+    };
+    var N = 6;
+    var svgL = $('.ln-x', box), lines = { a: $('.ln-a', box), b: $('.ln-b', box), c: $('.ln-c', box) };
+    var seats = $$('.u12-seat', box), you = $('.u12-seat.you', box);
+    var startBtn = $('.u12-start', box), choose = $$('.choose button[data-k]', box), read = $('.u12-read', box);
+    var trialNo = $('.u12-trial', box), note = $('.u12-cond-note', box), conds = $$('.pill-row button[data-cond]', box);
+    var cond = 'std', t = 0, timer = null, tally = { conf: 0, ind: 0 };
+    function draw() {
+      var tr = TRIALS[t];
+      svgL.setAttribute('y1', 200 - tr.x);
+      ['a', 'b', 'c'].forEach(function (k) { lines[k].setAttribute('y1', 200 - tr.L[k]); });
+      trialNo.textContent = 'Trial ' + (t + 1) + ' of ' + TRIALS.length;
+    }
+    function clear() {
+      clearTimeout(timer);
+      seats.forEach(function (s) { s.classList.remove('on', 'dis'); var y = $('.say', s); y.textContent = ''; y.classList.remove('secret'); });
+      choose.forEach(function (b) { b.disabled = true; });
+    }
+    function reset() {
+      clear(); t = 0; tally = { conf: 0, ind: 0 }; draw();
+      startBtn.textContent = 'Start trial';
+      note.innerHTML = NOTES[cond];
+      read.innerHTML = 'Press <b>Start trial</b>. You are seat 7.';
+    }
+    function run() {
+      clear(); draw();
+      var tr = TRIALS[t], i = 0;
+      read.innerHTML = 'The other six answer aloud, one at a time…';
+      function next() {
+        if (i > 0) seats[i - 1].classList.remove('on');
+        if (i >= N) {
+          you.classList.add('on');
+          choose.forEach(function (b) { b.disabled = false; });
+          read.innerHTML = cond === 'priv' ? '<b>Your turn.</b> Write down your answer privately: which line matches x?' : '<b>Your turn.</b> Say your answer aloud: which line matches x?';
+          choose[0].focus({ preventScroll: true });
+          return;
+        }
+        var s = seats[i], d = cond === 'dis' && i === 2;
+        s.classList.add('on'); if (d) s.classList.add('dis');
+        $('.say', s).textContent = d ? tr.right : tr.group;
+        i++;
+        timer = setTimeout(next, reduce ? 150 : 650);
+      }
+      next();
+    }
+    choose.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var tr = TRIALS[t], k = b.getAttribute('data-k'), say = $('.say', you);
+        choose.forEach(function (x) { x.disabled = true; });
+        if (cond === 'priv') { say.textContent = 'written: ' + k; say.classList.add('secret'); } else say.textContent = k;
+        var msg, research = {
+          std: 'In Asch’s study, 76% of participants gave the group’s wrong answer at least once.',
+          dis: 'With at least one dissenter, Asch found conformity dropped to near zero.',
+          priv: 'When responses are private, conformity is less likely (Deutsch &amp; Gerard, 1955), which is why elections use secret ballots.'
+        }[cond];
+        if (k === tr.group) { tally.conf++; msg = '<b>You matched the group’s wrong answer.</b> Line ' + tr.right + ' is the match. '; }
+        else if (k === tr.right) { tally.ind++; msg = '<b>You gave the correct answer.</b> '; }
+        else { msg = '<b>Not the group’s answer, and not the match.</b> Line ' + tr.right + ' is the same length as x. '; }
+        read.innerHTML = msg + research + ' <span class="muted">(' + tally.ind + ' correct, ' + tally.conf + ' with the group in this condition.)</span>';
+        t = (t + 1) % TRIALS.length;
+        startBtn.textContent = 'Next trial';
+      });
+    });
+    conds.forEach(function (b) {
+      b.addEventListener('click', function () {
+        cond = b.getAttribute('data-cond'); box.setAttribute('data-cond', cond);
+        conds.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        reset();
+      });
+    });
+    startBtn.addEventListener('click', run);
+    reset();
+  });
+
+  /* Schematic curves: draw the line when scrolled into view */
+  $$('.u12-curve').forEach(function (box) {
+    var ln = $('.ln', box);
+    if (!ln || !ln.getTotalLength) return;
+    var len = Math.ceil(ln.getTotalLength());
+    ln.style.setProperty('--len', len); ln.style.strokeDasharray = len;
+    onVisible(box, function () { box.classList.add('drawn'); });
+  });
+
+  /* Group polarization (.u12-pol): members' starting views; discussion pushes them further the same way */
+  $$('.u12-pol').forEach(function (box) {
+    var svg = $('svg', box), g = $('.people', svg), mean = $('.mean', svg);
+    var input = $('input[type=range]', box), out = $('output', box), read = $('.u12-read', box);
+    var btns = $$('.pill-row button', box), dir = 1;
+    var START = [0.04, 0.1, 0.16, 0.22, 0.28, 0.34, 0.4];   /* positions on a -1..1 scale, all leaning one way */
+    var X0 = 40, X1 = 560, Y = 70;
+    function px(v) { return X0 + (v + 1) / 2 * (X1 - X0); }
+    var dots = START.map(function (v, i) { return mk('circle', { r: 11, cy: Y + [-18, 0, 18][i % 3], cx: px(v), class: 'person' }, g); });
+    function run() {
+      var k = +input.value / 100, sum = 0;
+      dots.forEach(function (d, i) {
+        var v = (START[i] + 0.55 * k) * dir;               /* each view moves further toward the side it already leans to */
+        sum += v;
+        d.setAttribute('cx', px(v));
+      });
+      var m = sum / dots.length;
+      mean.setAttribute('transform', 'translate(' + px(m) + ' 0)');
+      out.textContent = k === 0 ? 'Before discussion' : k < .6 ? 'During discussion' : 'After discussion';
+      var side = dir > 0 ? 'favor' : 'opposition';
+      read.innerHTML = k === 0 ? '<b>Before:</b> the group leans slightly toward ' + side + '.'
+        : '<b>After talking it over:</b> the group’s ' + side + ' is ' + (k < .6 ? 'growing stronger' : 'much stronger than any member started with') + '. Discussion strengthened the original attitude rather than moderating it.';
+      input.setAttribute('aria-valuetext', out.textContent);
+    }
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        dir = b.getAttribute('data-dir') === 'against' ? -1 : 1;
+        btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        run();
+      });
+    });
+    input.addEventListener('input', run);
+    run();
+  });
+
+  /* Bystanders (.u12-bys): responsibility to act shared across everyone who sees the emergency */
+  $$('.u12-bys').forEach(function (box) {
+    var g = $('.crowd', box), input = $('input', box), out = $('.u12-n', box), share = $('.u12-share', box), read = $('.u12-read', box);
+    var MAX = 20, figs = [], pos = [];
+    /* two arcs around the person in distress; the inner arc fills first, from the middle outward */
+    for (var i = 0; i < MAX; i++) {
+      var row = i < 8 ? 0 : 1, j = row ? i - 8 : i, cnt = row ? 12 : 8, f = j / (cnt - 1);
+      var ang = Math.PI * (1.1 + .8 * f), r = row ? 182 : 112;
+      pos.push({ row: row, d: Math.abs(f - .5), x: 300 + Math.cos(ang) * r * 1.3, y: 205 + Math.sin(ang) * r * .8 });
+    }
+    pos.sort(function (a, b) { return a.row - b.row || a.d - b.d; });
+    pos.forEach(function (q) {
+      var g1 = mk('g', { class: 'by', transform: 'translate(' + q.x.toFixed(1) + ' ' + q.y.toFixed(1) + ')' }, g);
+      mk('circle', { cx: 0, cy: -16, r: 7 }, g1);
+      mk('path', { d: 'M-9 10 Q-9 -6 0 -6 Q9 -6 9 10 Z' }, g1);
+      figs.push(g1);
+    });
+    function run() {
+      var n = +input.value;
+      figs.forEach(function (f, i) { f.style.opacity = i < n ? 1 : 0; });
+      out.textContent = n === 1 ? '1 witness' : n + ' witnesses';
+      var pct = 100 / n;
+      share.style.setProperty('--w', pct + '%');
+      $('output', share).textContent = (pct >= 10 ? Math.round(pct) : pct.toFixed(1)) + '%';
+      read.innerHTML = n === 1 ? '<b>Alone:</b> all of the responsibility to help falls on you.'
+        : '<b>' + n + ' witnesses:</b> each may assume someone else has already called for help, so each feels only about 1/' + n + ' of the responsibility.';
+      input.setAttribute('aria-valuetext', out.textContent);
+    }
+    input.addEventListener('input', run);
+    run();
+  });
+
+  /* Sternberg's triangular theory (.u12-love): pick components, see the type of love */
+  $$('.u12-love').forEach(function (box) {
+    var TYPES = {
+      '': ['No love', 'None of the three components is present.'],
+      'i': ['Liking', 'Intimacy, but no passion or commitment.'],
+      'p': ['Infatuation', 'Passion without intimacy or commitment.'],
+      'c': ['Empty love', 'Commitment without intimacy or passion.'],
+      'ip': ['Romantic love', 'Passion and intimacy, but no commitment.'],
+      'ic': ['Companionate love', 'Intimacy and commitment but no passion: characteristic of close friendships and family relationships.'],
+      'pc': ['Fatuous love', 'Passion and commitment, but no intimacy, such as a long-term sexual love affair.'],
+      'ipc': ['Consummate love', 'All three components. Sternberg describes this as a healthy relationship.']
+    };
+    var btns = $$('.u12-comp button', box), h = $('.res h4', box), p = $('.res p', box);
+    var parts = $$('[data-on]', box), labels = $$('[data-type]', box);
+    var on = { i: true, p: true, c: true };
+    function key() { return ['i', 'p', 'c'].filter(function (k) { return on[k]; }).join(''); }
+    function run() {
+      var k = key();
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', on[b.getAttribute('data-c')] ? 'true' : 'false'); });
+      /* light every part whose components are all switched on: corners, sides, then the fill */
+      parts.forEach(function (el) {
+        var need = el.getAttribute('data-on').split('');
+        el.classList.toggle('on', need.every(function (x) { return on[x]; }));
+      });
+      labels.forEach(function (el) { el.classList.toggle('is-type', el.getAttribute('data-type') === k); });
+      h.textContent = TYPES[k][0]; p.textContent = TYPES[k][1];
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { var c = b.getAttribute('data-c'); on[c] = !on[c]; run(); }); });
+    $$('[data-pick]', box).forEach(function (el) {
+      function pick() { var k = el.getAttribute('data-pick'); on = { i: k.indexOf('i') > -1, p: k.indexOf('p') > -1, c: k.indexOf('c') > -1 }; run(); }
+      el.addEventListener('click', pick);
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+    });
+    run();
+  });
+
+  /* Social exchange balance (.u12-scale) */
+  $$('.u12-scale').forEach(function (box) {
+    var b = $('.in-b', box), c = $('.in-c', box), ob = $('.out-b', box), oc = $('.out-c', box);
+    var beam = $('.beam', box), panL = $('.pan-l', box), panR = $('.pan-r', box), wL = $('.w-l', box), wR = $('.w-r', box), read = $('.u12-read', box);
+    var CX = 260, CY = 70, ARM = 170;
+    function weights(g, n, cls) {
+      while (g.firstChild) g.removeChild(g.firstChild);
+      for (var i = 0; i < n; i++) mk('rect', { x: -44 + (i % 5) * 18, y: -14 - Math.floor(i / 5) * 14, width: 15, height: 12, rx: 2, class: cls }, g);
+    }
+    var cur = null, raf = null;
+    function place(ang) {                                   /* beam and pans move as one; pans hang straight down */
+      var rad = ang * Math.PI / 180;
+      beam.setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + CX + ' ' + CY + ')');
+      panL.setAttribute('transform', 'translate(' + (CX - ARM * Math.cos(rad)).toFixed(1) + ' ' + (CY - ARM * Math.sin(rad)).toFixed(1) + ')');
+      panR.setAttribute('transform', 'translate(' + (CX + ARM * Math.cos(rad)).toFixed(1) + ' ' + (CY + ARM * Math.sin(rad)).toFixed(1) + ')');
+    }
+    function run() {
+      var vb = +b.value, vc = +c.value, diff = vb - vc;
+      var target = Math.max(-14, Math.min(14, -diff * 2.4));  /* heavier side goes down */
+      weights(wL, vb, 'w-b'); weights(wR, vc, 'w-c');
+      ob.textContent = vb; oc.textContent = vc;
+      read.innerHTML = diff > 1 ? '<b>Benefits outweigh costs:</b> the kind of relationship people typically maintain.'
+        : diff >= -1 ? '<b>Costs and benefits are nearly equal:</b> people prefer more benefits than costs, or nearly equal ones, so this is usually acceptable.'
+        : '<b>Costs outweigh benefits:</b> most people are dissatisfied with a social exchange like this.';
+      if (raf) cancelAnimationFrame(raf);
+      if (cur === null || reduce) { cur = target; place(cur); return; }
+      var from = cur, t0 = null;
+      function step(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / 450), e = 1 - Math.pow(1 - p, 3);
+        cur = from + (target - from) * e; place(cur);
+        raf = p < 1 ? requestAnimationFrame(step) : null;
+      }
+      raf = requestAnimationFrame(step);
+    }
+    [b, c].forEach(function (x) { x.addEventListener('input', run); });
+    run();
+  });
+})();
