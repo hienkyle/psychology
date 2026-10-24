@@ -1719,3 +1719,122 @@
     pick(4);
   });
 })();
+
+/* ---- Unit 9 components (reusable) ---- */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function onVisible(el, fn) {
+    if (!('IntersectionObserver' in window)) { fn(); return; }
+    var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { fn(); io.disconnect(); } }, { threshold: .35 });
+    io.observe(el);
+  }
+
+  /* Lifespan explorer (.u9-life): Erikson (Table 9.2), Piaget (Table 9.3) and the periods of Section 9.3 */
+  $$('.u9-life').forEach(function (box) {
+    var P = [
+      [0, 1, 'Infancy', 'Newborns weigh about 7.5 pounds; reflexes fade by 4–5 months; weight doubles by 6 months and triples by 1 year; object permanence by about 8 months; first word around 12 months. Attachment is the major social milestone.'],
+      [1, 3, 'Toddlerhood', 'Combines words at about 18 months; recognizes self in the mirror at 18 months; 50–200 words at 2. Weight has quadrupled by 2, and the brain is 55% of adult size.'],
+      [3, 6, 'Early childhood (preschool)', 'Theory of mind develops between 3 and 5; vocabulary up to 1,000 words at 3. The frontal lobes grow rapidly, and by 6 the brain is about 90% of adult size.'],
+      [6, 12, 'Middle and late childhood', 'Logical thinking about concrete information; understands past, present and future; follows game rules. Girls’ growth spurt starts at 8–9. Attention spans stay limited until about 11.'],
+      [12, 18, 'Adolescence', 'Puberty: menarche around 12–13, spermarche around 13–14. Formal operational thought; cognitive empathy rises (girls ≈13, boys ≈15). The frontal lobes are still maturing.'],
+      [18, 26, 'Emerging adulthood', 'From 18 to the mid-20s: an in-between time of identity exploration focused on work and love. It overlaps early adulthood, which the chapter dates from about 20.'],
+      [26, 40, 'Early adulthood', 'Physical abilities peak (strength, reaction time, senses, heart). Cognitive abilities stay steady through early and middle adulthood.'],
+      [40, 60, 'Middle adulthood', 'Gradual physical decline: skin elasticity, visual acuity and fertility drop; menopause around 50. Crystallized intelligence holds steady or improves.'],
+      [60, 86, 'Late adulthood', 'Reaction time, strength and the senses decline; fluid intelligence slows. Friendships fewer but as close or closer (socioemotional selectivity theory).']
+    ];
+    var E = [[0, 1, 'Trust vs. mistrust'], [1, 3, 'Autonomy vs. shame/doubt'], [3, 7, 'Initiative vs. guilt'], [7, 12, 'Industry vs. inferiority'], [12, 19, 'Identity vs. role confusion'], [19, 30, 'Intimacy vs. isolation'], [30, 65, 'Generativity vs. stagnation'], [65, 200, 'Integrity vs. despair']];
+    var G = [[0, 2, 'Sensorimotor'], [2, 7, 'Preoperational'], [7, 11, 'Concrete operational'], [11, 200, 'Formal operational']];
+    var mixes = ['42%', '34%', '27%', '21%', '16%', '12%', '9%', '13%', '20%'];
+    var band = $('.u9-life-band', box), input = $('input', box), out = $('output', box);
+    var segs = P.map(function (p, i) {
+      var s = document.createElement('span');
+      s.style.flex = (p[1] - p[0]) + ' 1 0';
+      s.style.setProperty('--mix', mixes[i]);
+      s.textContent = p[1] - p[0] >= 14 ? p[2] : '';
+      s.title = p[2];
+      band.appendChild(s);
+      return s;
+    });
+    var ticks = document.createElement('div'); ticks.className = 'u9-life-ticks'; ticks.setAttribute('aria-hidden', 'true');
+    [0, 6, 12, 18, 40, 60, 85].forEach(function (t) { var s = document.createElement('span'); s.style.left = (t / 86 * 100) + '%'; s.textContent = t === 85 ? '85+' : t; ticks.appendChild(s); });
+    band.after(ticks);
+    function find(list, a) { for (var i = 0; i < list.length; i++) if (a >= list[i][0] && a < list[i][1]) return i; return list.length - 1; }
+    function run() {
+      var a = +input.value, pi = find(P, a);
+      out.textContent = a === 0 ? 'Birth' : a + (a === 1 ? ' year' : ' years') + (a === 85 ? '+' : '');
+      segs.forEach(function (s, i) { s.classList.toggle('on', i === pi); });
+      $('.u9-lc-period', box).textContent = P[pi][2];
+      $('.u9-lc-erik', box).textContent = E[find(E, a)][2];
+      var g = G[find(G, a)][2];
+      $('.u9-lc-piag', box).textContent = a >= 20 ? g + ' (postformal stage proposed)' : g;
+      $('.u9-lc-note', box).innerHTML = '<b>' + P[pi][2] + ':</b> ' + P[pi][3];
+    }
+    input.addEventListener('input', run);
+    run();
+  });
+
+  /* Prenatal timeline (.u9-pre): stage descriptions and OpenStax Figure 9.8 labels */
+  $$('.u9-pre').forEach(function (box) {
+    var M = [
+      [1, 1, 'Germinal stage', 'Conception: a sperm fertilizes an egg, forming a one-cell zygote. Its genetic makeup and sex are set. The zygote divides by mitosis: about 100 cells after 5 days.'],
+      [2, 2, 'Germinal stage', 'Cells keep dividing and specializing. Fewer than half of zygotes survive the first two weeks. After about 7–10 days (≈150 cells) the mass travels down the fallopian tube toward the uterus.'],
+      [3, 8, 'Embryonic stage', 'Implanted in the uterine lining, the organism is an embryo. The placenta forms; head, chest and abdomen take shape; the heart begins to beat; the neural tube forms the brain and spinal cord.'],
+      [9, 11, 'Fetal stage', 'At about 9 weeks the embryo becomes a fetus, the size of a kidney bean, and its “tail” disappears. From 9–12 weeks the sex organs begin to differentiate.'],
+      [12, 15, 'Fetal stage', 'Week 12: sex organs differentiate (Figure 9.8 label).'],
+      [16, 19, 'Fetal stage', 'Week 16: about 4.5 inches long; fingers and toes fully developed; fingerprints visible. The brain nearly doubles in size between weeks 16 and 28.'],
+      [20, 23, 'Fetal stage', 'Week 20: hearing begins (Figure 9.8 label).'],
+      [24, 27, 'Fetal stage', 'Week 24 (sixth month): up to 1.4 pounds; responds to sounds; lungs begin to develop. Organs have formed enough that a premature baby has a chance to survive.'],
+      [28, 31, 'Fetal stage', 'Week 28: the brain grows rapidly (Figure 9.8 label).'],
+      [32, 35, 'Fetal stage', 'Week 32: bones fully develop (Figure 9.8 label).'],
+      [36, 36, 'Fetal stage', 'Week 36: almost ready for birth, about 6 pounds and 18.5 inches; muscles fully develop.'],
+      [37, 39, 'Fetal stage', 'Week 37: all organ systems are developed enough to survive outside the uterus without many of the risks of premature birth. The fetus keeps gaining weight and length.'],
+      [40, 40, 'Fetal stage', 'Week 40: full-term development. Very little room to move, and birth is imminent.']
+    ];
+    var input = $('input', box), out = $('output', box), mark = $('.u9-pre-mark', box);
+    var spans = $$('.u9-pre-band span', box);
+    function run() {
+      var w = +input.value, m = M.filter(function (r) { return w >= r[0] && w <= r[1]; })[0];
+      out.textContent = w;
+      mark.style.left = ((w - .5) / 40 * 100) + '%';
+      spans.forEach(function (s, i) { s.classList.toggle('on', (i === 0 && w <= 2) || (i === 1 && w > 2 && w <= 8) || (i === 2 && w > 8)); });
+      $('.u9-pre-stage', box).textContent = m[2] + (w <= 2 ? ' · weeks 1–2' : w <= 8 ? ' · weeks 3–8' : ' · weeks 9–40');
+      $('.u9-pre-text', box).textContent = m[3];
+    }
+    input.addEventListener('input', run);
+    run();
+  });
+
+  /* Baillargeon's truck (.u9-truck): the truck rolls along the track in a loop */
+  $$('.u9-truck').forEach(function (box) {
+    var g = $('.u9-truck-g', box);
+    var A = [20, 62], B = [170, 122], C = [560, 122];
+    var L1 = Math.hypot(B[0] - A[0], B[1] - A[1]), L2 = C[0] - B[0], L = L1 + L2;
+    var ang = Math.atan2(B[1] - A[1], B[0] - A[0]) * 180 / Math.PI;
+    function place(d) {
+      var x, y, r = 0;
+      if (d < L1) { x = A[0] + (B[0] - A[0]) * d / L1; y = A[1] + (B[1] - A[1]) * d / L1; r = ang; }
+      else { x = B[0] + (d - L1); y = B[1]; }
+      g.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + r.toFixed(1) + ')');
+    }
+    if (reduce) { place(L1 + 90); return; }
+    var t0 = null, DUR = 3600, PAUSE = 900, raf = null;
+    function frame(t) {
+      if (!t0) t0 = t;
+      var e = (t - t0) % (DUR + PAUSE);
+      place(Math.min(e / DUR, 1) * L);
+      raf = requestAnimationFrame(frame);
+    }
+    place(0);
+    onVisible(box, function () { raf = requestAnimationFrame(frame); });
+    $$('.pill-row button', box).forEach(function (b) { b.addEventListener('click', function () { t0 = null; }); });
+  });
+
+  /* Adult trends (.u9-ages): lines draw when scrolled into view */
+  $$('.u9-ages').forEach(function (box) {
+    if (reduce) return;
+    box.classList.add('wait');
+    onVisible(box, function () { setTimeout(function () { box.classList.remove('wait'); }, 150); });
+  });
+})();

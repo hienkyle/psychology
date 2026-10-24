@@ -1796,3 +1796,245 @@ svg.ico{overflow:visible}
 /* Brain figure at full column width */
 .brainmap.u8-wide{grid-template-columns:minmax(0,1fr)}
 .brainmap.u8-wide svg{max-width:560px;margin:0 auto}
+
+/* ---- Unit 9 components (reusable) ---- */
+/* Shared SVG text and axes for unit 9 diagrams */
+.u9-lt{font-size:12px;font-weight:500;fill:var(--muted)}
+.u9-bt{font-size:12.5px;font-weight:600;fill:var(--fg);pointer-events:none}
+.u9-st{font-size:11px;font-weight:500;fill:var(--muted);pointer-events:none}
+.u9-axis{fill:none;stroke:var(--muted);stroke-width:1.4}
+.u9-sub{font-family:var(--font-ui);font-size:.8rem;font-weight:600;color:var(--muted);margin:0 0 .5rem;text-align:left}
+.bar .fill.alt{background:var(--note)}
+.u9-bars .bar{grid-template-columns:minmax(0,11rem) minmax(0,1fr)}
+.u9-bars .bar .track{margin-right:7.5rem}
+.u9-bars .bar .val{white-space:nowrap}
+.u9-stack{display:grid;gap:1.4rem}
+.u9-stack .u9-sub{margin-left:11.8rem}
+@media (max-width:520px){.u9-stack .u9-sub{margin-left:0}}
+@media (max-width:520px){.u9-bars .bar{grid-template-columns:minmax(0,1fr)}}
+.u9-two{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 16rem), 1fr));gap:1.2rem 1.6rem;margin:1rem 0}
+.u9-two .card p{text-align:left}
+
+/* Figure: three developmental domains */
+.u9-domains{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;font-family:var(--font-ui)}
+.u9-dom{display:grid;justify-items:center;gap:.35rem;text-align:center;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:1rem .8rem}
+.u9-dom svg{width:52px;height:52px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;background:var(--accent-soft);border-radius:50%;padding:7px}
+.u9-dom b{font-size:1rem;color:var(--fg)}
+.u9-dom span{font-size:.84rem;color:var(--muted);line-height:1.45}
+@media (prefers-reduced-motion:no-preference){.u9-dom{animation:rise .5s ease-out both;animation-delay:calc(var(--i) * .12s)}}
+@media (max-width:620px){.u9-domains{grid-template-columns:minmax(0,1fr)}.u9-dom{grid-template-columns:auto minmax(0,1fr);justify-items:start;text-align:left;column-gap:.9rem}.u9-dom svg{grid-row:span 2}}
+
+/* Figure: walking age against the norm (axis 8 to 18 months) */
+.u9-walk{font-family:var(--font-ui);font-size:.85rem}
+.u9-walk-axis{display:flex;justify-content:space-between;margin-left:9.5rem;color:var(--muted);font-size:.75rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-bottom:.5rem}
+.u9-walk-row{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:.5rem;align-items:center;margin:.55rem 0}
+.u9-walk-row .lab{text-align:right;color:var(--fg)}
+.u9-walk-row .track{position:relative;height:2rem;background:var(--bg);border-radius:6px}
+.u9-walk-row .avg{position:absolute;top:-.3rem;bottom:-.3rem;left:40%;border-left:2px dashed var(--muted)}
+.u9-walk-row .dot{position:absolute;top:50%;left:calc((var(--m) - 8) * 10%);transform:translate(-.5rem,-50%);display:flex;align-items:center;gap:.4rem;white-space:nowrap;font-weight:600;font-size:.8rem;color:var(--fg)}
+.u9-walk-row .dot::before{content:"";width:1rem;height:1rem;border-radius:50%;background:var(--accent);flex:none}
+.u9-walk-row .dot.late::before{background:var(--note)}
+.u9-walk-row .avg{z-index:0}
+.u9-walk-row .dot{z-index:1;background:var(--bg);padding:.15rem .5rem .15rem 0;border-radius:999px}
+@media (prefers-reduced-motion:no-preference){.u9-walk-row .dot{animation:u9-slide .9s ease-out both}}
+@keyframes u9-slide{from{left:0;opacity:0}}
+@media (max-width:560px){.u9-walk-axis{margin-left:0}.u9-walk-row{grid-template-columns:minmax(0,1fr)}.u9-walk-row .lab{text-align:left}.u9-walk-row .dot.late{transform:translate(calc(-100% + .5rem),-50%);flex-direction:row-reverse}}
+
+/* Figure: continuous vs discontinuous (data-modes) */
+.u9-c-line,.u9-d-line{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:800;stroke-dashoffset:0;transition:opacity .3s}
+.u9-c-line{stroke:var(--accent)}
+.u9-d-line{stroke:var(--note)}
+.u9-c-lab{fill:var(--accent);font-weight:600}
+.u9-d-lab{fill:var(--note);font-weight:600}
+.u9-cont[data-mode="cont"] .u9-d-line,.u9-cont[data-mode="cont"] .u9-d-lab{opacity:.12}
+.u9-cont[data-mode="disc"] .u9-c-line,.u9-cont[data-mode="disc"] .u9-c-lab{opacity:.12}
+@media (prefers-reduced-motion:no-preference){
+  .u9-cont[data-mode="cont"] .u9-c-line,.u9-cont[data-mode="disc"] .u9-d-line,.u9-cont[data-mode="both"] .u9-c-line,.u9-cont[data-mode="both"] .u9-d-line{animation:u9-draw 1.4s ease-out both}
+}
+@keyframes u9-draw{from{stroke-dashoffset:800}to{stroke-dashoffset:0}}
+.u9-cont .mode-state{margin:.6rem 0 0;font-size:.95rem;color:var(--muted);text-align:left}
+
+/* Figure: stat tiles */
+.u9-gap-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));gap:.7rem;font-family:var(--font-ui)}
+.u9-gap-grid div{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:.75rem .8rem}
+.u9-gap-grid b{display:block;font-size:1.5rem;line-height:1.15;color:var(--accent);font-variant-numeric:tabular-nums}
+.u9-gap-grid span{display:block;font-size:.82rem;color:var(--muted);line-height:1.4;margin-top:.25rem}
+
+/* Freud stage chips */
+ol.u9-chips{counter-reset:none}
+
+/* Figure: Erikson's eight steps (uses the .brainmap behaviour) */
+.u9-step{--glow:var(--accent)}
+.u9-step rect{fill:color-mix(in srgb, var(--accent) 10%, var(--surface));stroke:var(--accent);stroke-width:1.5;transition:fill .25s}
+.u9-step.is-on rect{fill:var(--accent-soft);stroke-width:3}
+.u9-erik svg.has-pick .bm-hit{opacity:1}
+.u9-erik svg.has-pick .bm-hit:not(.is-on) rect{fill:var(--surface)}
+.u9-erik .fig-panel{min-height:9.5rem}
+@media (prefers-reduced-motion:no-preference){.u9-step{animation:rise .45s ease-out both}.u9-step:nth-of-type(2){animation-delay:.06s}.u9-step:nth-of-type(3){animation-delay:.12s}.u9-step:nth-of-type(4){animation-delay:.18s}.u9-step:nth-of-type(5){animation-delay:.24s}.u9-step:nth-of-type(6){animation-delay:.3s}.u9-step:nth-of-type(7){animation-delay:.36s}.u9-step:nth-of-type(8){animation-delay:.42s}}
+
+/* Piaget stage list */
+.u9-stages{padding-left:1.3em}
+.u9-stages li{margin:.55rem 0}
+.u9-stages b{font-family:var(--font-ui)}
+
+/* Figure: conservation of liquid (data-modes) */
+.u9-glasses{display:block;width:100%;max-width:420px;height:auto;margin:.6rem auto 0}
+.u9-glass{fill:none;stroke:var(--muted);stroke-width:3;stroke-linejoin:round}
+.u9-water{fill:var(--accent);opacity:.55;transform-box:fill-box;transform-origin:50% 100%}
+.u9-g-wide{display:none}
+.u9-cons[data-mode="pour"] .u9-g-tall{display:none}
+.u9-cons[data-mode="pour"] .u9-g-wide{display:inline}
+@media (prefers-reduced-motion:no-preference){
+  .u9-cons[data-mode="pour"] .u9-g-wide .u9-water,.u9-cons[data-mode="back"] .u9-g-tall .u9-water{animation:u9-fill 1.2s ease-out both}
+}
+@keyframes u9-fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+/* Neuroconstructivism levels */
+.u9-levels{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:.6rem 0 .9rem;font-family:var(--font-ui);font-size:.85rem}
+.u9-levels span{border:1px solid var(--accent);background:var(--accent-soft);border-radius:999px;padding:.2rem .7rem}
+.u9-levels i{font-style:normal;color:var(--accent);font-weight:700}
+
+/* Heinz dilemma */
+.u9-heinz{margin:1rem 0;padding:.9rem 1.2rem;border-left:4px solid var(--note);background:var(--note-bg);border-radius:0 var(--radius) var(--radius) 0}
+.u9-heinz p{margin:0 0 .4rem;font-style:italic}
+.u9-heinz cite{display:block;font-family:var(--font-ui);font-size:.8rem;font-style:normal;color:var(--muted)}
+
+/* Figure: Kohlberg levels and stages (uses the .brainmap behaviour) */
+.brainmap.u9-kohl{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}
+.u9-kgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:.45rem;font-family:var(--font-ui)}
+.u9-klev{display:grid;align-content:center;border-radius:8px;padding:.5rem .6rem;background:color-mix(in srgb, var(--accent) 16%, var(--surface));font-size:.8rem;line-height:1.3}
+.u9-klev b{color:var(--accent)}
+.u9-klev small{color:var(--muted)}
+.u9-kgrid button{font:600 .82rem/1.3 var(--font-ui);text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:.5rem .6rem;cursor:pointer;transition:background .2s,border-color .2s}
+.u9-kgrid button small{display:block;font-weight:500;font-size:.72rem;color:var(--muted)}
+.u9-kgrid button:hover{border-color:var(--accent)}
+.u9-kgrid button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:760px){.brainmap.u9-kohl{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:460px){.u9-kgrid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.u9-klev{grid-column:1/-1}}
+
+/* Figure: lifespan explorer */
+.u9-life{font-family:var(--font-ui)}
+.u9-life-band{display:flex;height:1.9rem;border-radius:6px;overflow:hidden;margin-bottom:.8rem;font-size:.68rem;font-weight:600}
+.u9-life-band span{display:grid;place-items:center;min-width:0;overflow:hidden;white-space:nowrap;color:var(--fg);background:color-mix(in srgb, var(--accent) var(--mix), var(--surface));border-right:1px solid var(--surface);transition:outline .2s}
+.u9-life-band span.on{outline:2.5px solid var(--fg);outline-offset:-2.5px}
+.u9-life-in{width:100%;accent-color:var(--accent);margin:.2rem 0 .8rem}
+.u9-life-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.u9-lc{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:.6rem .75rem}
+.u9-lc .kicker{display:block;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.u9-lc b{display:block;font-size:.95rem;color:var(--accent);line-height:1.3;margin-top:.15rem}
+@media (max-width:560px){.u9-life-cards{grid-template-columns:minmax(0,1fr)}.u9-life-band{font-size:0}}
+
+/* Figure: prenatal timeline */
+.u9-pre{font-family:var(--font-ui)}
+.u9-pre-band{position:relative;display:block;height:2rem;border-radius:6px;background:var(--bg);margin-bottom:.8rem;font-size:.72rem;font-weight:600}
+.u9-pre-band span{position:absolute;top:0;bottom:0;left:calc(var(--a) / 40 * 100%);width:calc((var(--b) - var(--a)) / 40 * 100%);display:grid;place-items:center;overflow:hidden;white-space:nowrap;border-right:2px solid var(--surface);transition:filter .2s}
+.u9-pre-band .g{background:color-mix(in srgb, var(--note) 45%, var(--surface));font-size:0}
+.u9-pre-band .e{background:color-mix(in srgb, var(--note) 25%, var(--surface))}
+.u9-pre-band .f{background:color-mix(in srgb, var(--accent) 22%, var(--surface))}
+.u9-pre-band span.on{outline:2.5px solid var(--fg);outline-offset:-2.5px}
+.u9-pre-mark{position:absolute;top:-.35rem;bottom:-.35rem;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--fg);left:calc((var(--w, 1) - .5) / 40 * 100%);transition:left .15s}
+.u9-pre-in{width:100%;accent-color:var(--accent);margin:.2rem 0 .7rem}
+.u9-pre-info{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:.7rem .9rem;min-height:5.5rem}
+.u9-pre-info .kicker{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.u9-pre-info p{font-family:var(--font-body);font-size:.95rem;margin:.25rem 0 0;text-align:left}
+
+/* Card grids */
+.u9-terato,.u9-reflex,.u9-why,.u9-vs{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 14rem), 1fr));gap:.8rem;margin:1rem 0 1.4rem}
+.u9-reflex{grid-template-columns:repeat(auto-fit, minmax(min(100%, 10rem), 1fr))}
+.u9-terato .card p,.u9-reflex .card p,.u9-why .card p,.u9-vs .card p{text-align:left;font-size:.95rem}
+.u9-vs-both{border-color:var(--accent);background:var(--accent-soft)}
+
+/* Figure: Baillargeon's truck (data-modes + JS) */
+.u9-track{fill:none;stroke:var(--muted);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.u9-box{fill:var(--note-bg);stroke:var(--note);stroke-width:2;opacity:0;transition:opacity .3s}
+.u9-truck[data-mode="b"] .u9-box-b,.u9-truck[data-mode="c"] .u9-box-c{opacity:1}
+.u9-truck-g rect,.u9-truck-g circle{fill:var(--accent);stroke:var(--surface);stroke-width:1.5}
+.u9-truck-g circle{fill:var(--fg)}
+.u9-c-only{opacity:0;transition:opacity .3s;fill:var(--note);font-weight:600}
+.u9-truck[data-mode="c"] .u9-c-only{opacity:1}
+.u9-truck .mode-state{margin:.6rem 0 0;font-size:.95rem;color:var(--muted);text-align:left}
+
+/* Timelines with wider labels */
+.timeline.u9-tl::before{left:6.1rem}
+.timeline.u9-tl li{grid-template-columns:5.5rem minmax(0,1fr)}
+.timeline.u9-tl li::before{left:calc(6.1rem - 4px)}
+.timeline.u9-tl .yr{font-size:.92rem}
+@media (max-width:420px){.timeline.u9-tl::before{left:4.6rem}.timeline.u9-tl li{grid-template-columns:4rem minmax(0,1fr)}.timeline.u9-tl li::before{left:calc(4.6rem - 4px)}.timeline.u9-tl .yr{font-size:.8rem}}
+
+/* Figure: Harlow's surrogates */
+.u9-harlow svg{max-width:520px;margin:0 auto;display:block}
+.u9-wire path{fill:none;stroke:var(--muted);stroke-width:2.2}
+.u9-wire circle{fill:none;stroke:var(--muted);stroke-width:2.2}
+.u9-bottle{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.u9-cloth path,.u9-cloth circle{fill:color-mix(in srgb, var(--note) 30%, var(--surface));stroke:var(--note);stroke-width:2.2}
+.u9-baby circle{fill:var(--accent)}
+.u9-baby path{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.u9-baby{transform:translate(372px,108px)}
+@media (prefers-reduced-motion:no-preference){.u9-baby{animation:u9-cling 9s ease-in-out infinite}}
+@keyframes u9-cling{0%,58%{transform:translate(372px,108px)}66%,76%{transform:translate(180px,112px)}84%,100%{transform:translate(372px,108px)}}
+
+/* Figure: attachment types */
+.u9-att-info{border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:.8rem .9rem}
+.u9-att-info p{font-family:var(--font-body);font-size:.95rem;margin:.6rem 0 0;text-align:left}
+.u9-att-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.u9-att-row span{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:.45rem .6rem;font-size:.85rem;line-height:1.35}
+.u9-att-row small{display:block;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:560px){.u9-att-row{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: parenting styles grid (uses the .brainmap behaviour) */
+.brainmap.u9-par{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)}
+.u9-pgrid{display:grid;grid-template-columns:1.6rem minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(4.6rem,auto) minmax(4.6rem,auto) 1.6rem;gap:.45rem;font-family:var(--font-ui)}
+.u9-pax{font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.u9-pax.y{grid-column:1;grid-row:1/3;writing-mode:vertical-rl;transform:rotate(180deg);text-align:center}
+.u9-pax.x{grid-column:2/4;grid-row:3;text-align:center;align-self:center}
+.u9-pgrid button{font:600 .9rem/1.25 var(--font-ui);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--fg);transition:background .2s,border-color .2s}
+.u9-pgrid .tl{grid-column:2;grid-row:1;background:color-mix(in srgb, var(--note) 14%, var(--surface))}
+.u9-pgrid .tr{grid-column:3;grid-row:1;background:color-mix(in srgb, var(--accent) 22%, var(--surface))}
+.u9-pgrid .bl{grid-column:2;grid-row:2;background:var(--bg)}
+.u9-pgrid .br{grid-column:3;grid-row:2;background:color-mix(in srgb, var(--accent) 9%, var(--surface))}
+.u9-pgrid button:hover{border-color:var(--accent)}
+.u9-pgrid button[aria-pressed="true"]{border:2.5px solid var(--accent)}
+@media (max-width:700px){.brainmap.u9-par{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: puberty age ranges (axis 8 to 18) */
+.u9-pub{font-family:var(--font-ui);font-size:.85rem}
+.u9-pub-axis{display:flex;justify-content:space-between;margin-left:11.5rem;color:var(--muted);font-size:.75rem;border-bottom:1px solid var(--line);padding-bottom:.2rem;margin-bottom:.4rem}
+.u9-pub-row{display:grid;grid-template-columns:11rem minmax(0,1fr);gap:.5rem;align-items:center;margin:.5rem 0}
+.u9-pub-row .lab{text-align:right;color:var(--fg)}
+.u9-pub-row .track{position:relative;height:3.1rem;background:var(--bg);border-radius:6px}
+.u9-pub-row i{min-width:max-content!important;position:absolute;left:calc((var(--a) - 8) * 10%);width:calc((var(--b) - var(--a)) * 10%);min-width:5.6rem;height:1.3rem;font-style:normal;font-size:.72rem;font-weight:600;display:flex;align-items:center;padding:0 .4rem;white-space:nowrap;border-radius:4px;color:var(--fg)}
+.u9-pub-row i.f{top:.2rem;background:color-mix(in srgb, var(--note) 38%, var(--surface));border:1px solid var(--note)}
+.u9-pub-row i.m{bottom:.2rem;background:color-mix(in srgb, var(--accent) 30%, var(--surface));border:1px solid var(--accent)}
+@media (prefers-reduced-motion:no-preference){.u9-pub-row i{animation:u9-grow .8s ease-out both}}
+@keyframes u9-grow{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.db-key .k-f{background:color-mix(in srgb, var(--note) 38%, var(--surface));border-color:var(--note)} .db-key .k-m{background:color-mix(in srgb, var(--accent) 30%, var(--surface));border-color:var(--accent)}
+@media (max-width:560px){.u9-pub-axis{margin-left:0}.u9-pub-row{grid-template-columns:minmax(0,1fr)}.u9-pub-row .lab{text-align:left}}
+
+/* Figure: adult trends (schematic) */
+.u9-tr{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-dasharray:700;stroke-dashoffset:0}
+.u9-tr.phys{stroke:var(--muted);stroke-dasharray:7 6}
+.u9-tr.crys{stroke:var(--accent)}
+.u9-tr.flu{stroke:var(--note)}
+.crys-l{fill:var(--accent);font-weight:600}.flu-l{fill:var(--note);font-weight:600}.phys-l{font-weight:600}
+@media (prefers-reduced-motion:no-preference){
+  .u9-ages.wait .u9-tr.crys,.u9-ages.wait .u9-tr.flu{stroke-dashoffset:700}
+  .u9-ages.wait .u9-tr.phys{opacity:0}
+  .u9-ages .u9-tr{transition:stroke-dashoffset 1.6s ease-out, opacity 1s}
+}
+
+.u9-erik .u9-bt{font-size:11.5px}
+.db-key .k-phys{background:transparent;border:2px dashed var(--muted)} .db-key .k-crys{background:var(--accent);border-color:var(--accent)} .db-key .k-flu{background:var(--note);border-color:var(--note)}
+.u9-life-ticks{position:relative;height:1.1rem;margin:-.55rem 0 .6rem;font-size:.7rem;color:var(--muted)}
+.u9-life-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.u9-life-ticks span:first-child{transform:none}.u9-life-ticks span:last-child{transform:translateX(-100%)}
+/* Kübler-Ross chain */
+.u9-grief li.on .st{background:color-mix(in srgb, var(--note) 20%, var(--surface));border-color:var(--note)}
+/* Exact tick positions for the HTML axes (8→18 months, 8→18 years) */
+.u9-walk-axis,.u9-pub-axis{position:relative;display:block;height:1.35rem}
+.u9-walk-axis span,.u9-pub-axis span{position:absolute;top:0;transform:translateX(-50%)}
+.u9-walk-axis span:nth-child(1),.u9-pub-axis span:nth-child(1){left:0;transform:none}
+.u9-walk-axis span:nth-child(2),.u9-pub-axis span:nth-child(2){left:20%}
+.u9-walk-axis span:nth-child(3),.u9-pub-axis span:nth-child(3){left:40%}
+.u9-walk-axis span:nth-child(4),.u9-pub-axis span:nth-child(4){left:60%}
+.u9-walk-axis span:nth-child(5),.u9-pub-axis span:nth-child(5){left:80%}
+.u9-walk-axis span:nth-child(6),.u9-pub-axis span:nth-child(6){left:100%;transform:translateX(-100%)}
