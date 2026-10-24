@@ -1838,3 +1838,69 @@
     onVisible(box, function () { setTimeout(function () { box.classList.remove('wait'); }, 150); });
   });
 })();
+
+/* ---- Unit 10 components (reusable) ---- */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+
+  /* Arousal and performance (.u10-ar): schematic inverted-U curves, OpenStax Figures 10.6 and 10.7 */
+  $$('.u10-ar').forEach(function (box) {
+    var X0 = 64, X1 = 530, Y0 = 203, H = 160, SD = 22;
+    var MU = { opt: 50, easy: 62, hard: 38 };
+    function perf(a, mu) { return Math.exp(-Math.pow(a - mu, 2) / (2 * SD * SD)); }
+    function X(a) { return X0 + (X1 - X0) * a / 100; }
+    function Y(p) { return Y0 - H * p; }
+    function path(mu) {
+      var d = '';
+      for (var a = 0; a <= 100; a += 2) d += (a ? ' L' : 'M') + X(a).toFixed(1) + ' ' + Y(perf(a, mu)).toFixed(1);
+      return d;
+    }
+    ['opt', 'easy', 'hard'].forEach(function (k) { $('.c-' + k, box).setAttribute('d', path(MU[k])); });
+    var le = $('.l-easy', box), lh = $('.l-hard', box);
+    le.setAttribute('x', X(MU.easy) + 6); le.setAttribute('y', Y(1) - 8);
+    lh.setAttribute('x', X(MU.hard) - 6); lh.setAttribute('y', Y(1) - 8); lh.setAttribute('text-anchor', 'end');
+    var input = $('input', box), out = $('output', box), read = $('.u10-ar-read', box), xl = $('.u10-ar-x', box);
+    function dot(k, a) { var c = $('.d-' + k, box); c.setAttribute('cx', X(a)); c.setAttribute('cy', Y(perf(a, MU[k]))); }
+    function run() {
+      var a = +input.value, mode = box.getAttribute('data-mode');
+      out.textContent = a;
+      xl.setAttribute('x1', X(a)); xl.setAttribute('x2', X(a));
+      dot('opt', a); dot('easy', a); dot('hard', a);
+      var t;
+      if (mode === 'opt') {
+        t = a <= 30 ? '<b>Underaroused:</b> boredom or apathy, so performance is low. We look for stimulation.'
+          : a < 70 ? '<b>Near the optimal level:</b> moderate arousal, the best performance.'
+          : '<b>Overaroused:</b> high anxiety, so performance drops. We try to reduce arousal.';
+      } else {
+        var e = perf(a, MU.easy), h = perf(a, MU.hard);
+        t = Math.abs(e - h) < 0.12 ? '<b>Here the two curves cross:</b> both tasks are performed about equally well.'
+          : e > h ? '<b>Higher arousal:</b> the easy task is now performed better than the difficult one.'
+          : '<b>Lower arousal:</b> the difficult task is performed better here than at high arousal.';
+      }
+      read.innerHTML = t;
+    }
+    input.addEventListener('input', run);
+    $$('.pill-row button', box).forEach(function (b) { b.addEventListener('click', function () { setTimeout(run, 0); }); });
+    run();
+  });
+
+  /* BMI calculator (.u10-bmi): BMI = kg / m^2; categories from Section 10.2 plus the CDC's underweight and healthy ranges */
+  $$('.u10-bmi').forEach(function (box) {
+    var h = $('.bmi-h', box), w = $('.bmi-w', box), ho = $('.bmi-ho', box), wo = $('.bmi-wo', box);
+    var v = $('.bmi-v', box), c = $('.bmi-c', box), mark = $('.bmi-mark', box);
+    function run() {
+      var cm = +h.value, kg = +w.value, bmi = kg / Math.pow(cm / 100, 2);
+      var inch = Math.round(cm / 2.54), ft = Math.floor(inch / 12);
+      ho.textContent = cm + ' cm (' + ft + '′' + (inch - ft * 12) + '″)';
+      wo.textContent = kg + ' kg (' + Math.round(kg * 2.20462) + ' lb)';
+      var r = Math.round(bmi * 10) / 10;
+      v.textContent = r.toFixed(1);
+      c.textContent = r < 18.5 ? 'Underweight' : r < 25 ? 'Healthy weight' : r < 30 ? 'Overweight' : r < 40 ? 'Obese' : 'Severe obesity';
+      mark.style.left = (Math.max(15, Math.min(45, bmi)) - 15) / 30 * 100 + '%';
+    }
+    h.addEventListener('input', run); w.addEventListener('input', run);
+    run();
+  });
+})();
