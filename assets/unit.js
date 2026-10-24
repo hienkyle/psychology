@@ -2249,3 +2249,71 @@
     run();
   });
 })();
+
+/* ---- Unit 15 components (reusable) ---- */
+/* Diathesis-stress explorer (.u15-ds): schematic. Stress needed = K / diathesis, so the two are inversely
+   proportional (Zuckerman, 1999, as described in Section 15.3); with no diathesis, no stress is enough. */
+(function () {
+  var K = 20, X0 = 44, X1 = 304, Y0 = 204, Y1 = 20; /* plot box: diathesis 0..10 across, stress 0..10 up */
+  function px(d) { return X0 + (X1 - X0) * d / 10; }
+  function py(s) { return Y0 - (Y0 - Y1) * s / 10; }
+  Array.prototype.forEach.call(document.querySelectorAll('.u15-ds'), function (box) {
+    var dIn = box.querySelector('input[name="d"]'), sIn = box.querySelector('input[name="s"]');
+    var dOut = box.querySelector('output[for="' + dIn.id + '"]'), sOut = box.querySelector('output[for="' + sIn.id + '"]');
+    var me = box.querySelector('.me'), out = box.querySelector('.u15-ds-out');
+    var crv = box.querySelector('.crv'), zone = box.querySelector('.zone');
+    /* draw the threshold curve and the shaded "disorder" zone above it */
+    var pts = [];
+    for (var d = 2; d <= 10.001; d += 0.25) pts.push([px(d), py(K / d)]);
+    var line = 'M' + pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' L');
+    crv.setAttribute('d', line);
+    zone.setAttribute('d', line + ' L' + px(10) + ' ' + py(10) + ' L' + px(2) + ' ' + py(10) + ' Z');
+    var words = ['none', 'very low', 'very low', 'low', 'low', 'moderate', 'moderate', 'high', 'high', 'very high', 'very high'];
+    function run() {
+      var d = +dIn.value, s = +sIn.value;
+      var need = d > 0 ? K / d : Infinity;
+      var hit = s >= need - 1e-9;
+      dOut.textContent = words[d]; sOut.textContent = words[s];
+      me.setAttribute('cx', px(d)); me.setAttribute('cy', py(s));
+      me.classList.toggle('hit', hit); out.classList.toggle('hit', hit);
+      var needTxt = need > 10 ? 'more stress than this scale shows' : (Math.round(need * 10) / 10) + ' on the stress scale';
+      if (d === 0) out.innerHTML = '<b>No diathesis:</b> in this model, no amount of stress produces the disorder. Both ingredients are necessary.';
+      else if (hit) out.innerHTML = '<b>Disorder likely.</b> With this predisposition, about ' + needTxt + ' is enough, and the stress present meets it.';
+      else out.innerHTML = '<b>Disorder unlikely for now.</b> This predisposition needs about ' + needTxt + '; raise the diathesis and less stress is needed.';
+    }
+    [dIn, sIn].forEach(function (x) { x.addEventListener('input', run); });
+    run();
+  });
+})();
+
+/* Four-step cycle (.u15-cyc): one node lit at a time, with play / pause / step; the arc leaving it is lit */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call(document.querySelectorAll('.u15-cyc'), function (box) {
+    var nodes = Array.prototype.slice.call(box.querySelectorAll('.cy-node'));
+    var arcs = Array.prototype.slice.call(box.querySelectorAll('.cy-arc'));
+    var say = box.querySelector('.chain-say');
+    var bPlay = box.querySelector('.ch-play'), bPrev = box.querySelector('.ch-prev'), bNext = box.querySelector('.ch-next');
+    var i = 0, timer = null;
+    function show(k) {
+      i = (k + nodes.length) % nodes.length;
+      nodes.forEach(function (n, j) { n.classList.toggle('on', j === i); n.classList.toggle('done', j < i); });
+      arcs.forEach(function (a, j) { a.classList.toggle('on', j === i); });
+      if (say) say.innerHTML = '<b>Step ' + (i + 1) + ' of ' + nodes.length + ':</b> ' + nodes[i].getAttribute('data-say');
+    }
+    function stop() { clearInterval(timer); timer = null; if (bPlay) bPlay.textContent = 'Play'; }
+    function play() { stop(); timer = setInterval(function () { show(i + 1); }, 2800); if (bPlay) bPlay.textContent = 'Pause'; }
+    if (bPlay) bPlay.addEventListener('click', function () { timer ? stop() : play(); });
+    if (bPrev) bPrev.addEventListener('click', function () { stop(); show(i - 1); });
+    if (bNext) bNext.addEventListener('click', function () { stop(); show(i + 1); });
+    nodes.forEach(function (n, j) {
+      n.addEventListener('click', function () { stop(); show(j); });
+      n.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stop(); show(j); } });
+    });
+    show(0);
+    if (!reduce && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { play(); io.disconnect(); } }, { threshold: .4 });
+      io.observe(box);
+    }
+  });
+})();

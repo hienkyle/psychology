@@ -3341,3 +3341,167 @@ tr.u13-row-hl th,tr.u13-row-hl td{background:var(--accent-soft)}
 .u14-flowch .walker{fill:var(--accent);stroke:var(--surface);stroke-width:2}
 @media (prefers-reduced-motion:no-preference){.u14-flowch .walker{animation:u14-climb 6s ease-in-out infinite}}
 @keyframes u14-climb{0%{transform:translate(0,0)}50%{transform:translate(209px,-150px)}100%{transform:translate(0,0)}}
+
+/* ---- Unit 15 components (reusable) ---- */
+/* Shared: unit 15 figures reuse the unit 13/14 read-outs (.u13 .mode-state, .u13-out, .u14-lt/.u14-bt) */
+.u15-lt{font-size:12px;font-weight:500;fill:var(--muted)}
+.u15-bt{font-size:13px;font-weight:600;fill:var(--fg)}
+.u15-at{font-size:12.5px;font-weight:700;fill:var(--accent)}
+.u15-nt{font-size:12.5px;font-weight:700;fill:var(--note)}
+.u15-svg{display:block;width:100%;height:auto}
+.u15-ax{fill:none;stroke:var(--muted);stroke-width:1.4}
+.u15-grid{stroke:var(--line);stroke-width:1}
+
+/* Figure: is it a disorder? four criteria against four cases (data-modes) */
+.u15-crit{list-style:none;margin:0;padding:0;display:grid;gap:.45rem;font-family:var(--font-ui);font-size:.9rem}
+.u15-crit li{margin:0;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.6rem;align-items:center;border:1px solid var(--line);border-radius:8px;padding:.5rem .7rem;background:var(--bg);text-align:left;transition:background .25s, border-color .25s}
+.u15-crit .mk{width:1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;border:1.5px solid var(--line);color:var(--muted)}
+.u15-crit .mk::before{content:"–"}
+.u15-crit small{display:block;font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+[data-mode="janet"] .u15-crit li.m-janet,[data-mode="hair"] .u15-crit li.m-hair,[data-mode="grief"] .u15-crit li.m-grief,[data-mode="home"] .u15-crit li.m-home{border-color:var(--accent);background:var(--accent-soft)}
+[data-mode="janet"] .u15-crit li.m-janet .mk,[data-mode="hair"] .u15-crit li.m-hair .mk,[data-mode="grief"] .u15-crit li.m-grief .mk,[data-mode="home"] .u15-crit li.m-home .mk{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+[data-mode="janet"] .u15-crit li.m-janet .mk::before,[data-mode="hair"] .u15-crit li.m-hair .mk::before,[data-mode="grief"] .u15-crit li.m-grief .mk::before,[data-mode="home"] .u15-crit li.m-home .mk::before{content:"✓"}
+.u15-verdict{margin-top:.8rem}
+.u15-verdict > div{display:none}
+[data-mode="janet"] .u15-verdict .v-janet,[data-mode="hair"] .u15-verdict .v-hair,[data-mode="grief"] .u15-verdict .v-grief,[data-mode="home"] .u15-verdict .v-home{display:block}
+
+/* Figure: bars that switch between series (data-modes: a / b / c). Each .track carries --a, --b, --c */
+.u15-mb .track{--w:var(--a)}
+[data-mode="b"] .u15-mb .track{--w:var(--b)}
+[data-mode="c"] .u15-mb .track{--w:var(--c)}
+.u15-mb .fill{width:var(--w);transition:width .55s cubic-bezier(.2,.7,.2,1)}
+.u15-mb .val{transition:left .55s cubic-bezier(.2,.7,.2,1)}
+.u15-mb .val i{font-style:normal;display:none}
+.u15-mb .val .v-a{display:inline}
+[data-mode="b"] .u15-mb .val .v-a,[data-mode="c"] .u15-mb .val .v-a{display:none}
+[data-mode="b"] .u15-mb .val .v-b,[data-mode="c"] .u15-mb .val .v-c{display:inline}
+[data-mode="b"] .u15-mb .fill{background:var(--note)}
+.u15-mb.c-same[data-x] .fill{background:var(--accent)}
+.u15-mb .bar.u15-ref .fill{background:var(--muted)}
+
+/* Figure: Venn diagram (comorbidity) */
+.u15-venn svg{max-width:460px;margin:0 auto}
+.u15-venn .ring{stroke-width:2}
+.u15-venn .r1{fill:color-mix(in srgb, var(--accent) 16%, transparent);stroke:var(--accent)}
+.u15-venn .r2{fill:color-mix(in srgb, var(--note) 16%, transparent);stroke:var(--note)}
+.u15-venn .lens{fill:color-mix(in srgb, var(--accent) 30%, var(--note-bg));stroke:none}
+@media (prefers-reduced-motion:no-preference){.u15-venn .lens{animation:u15-breathe 3.2s ease-in-out infinite}}
+@keyframes u15-breathe{50%{opacity:.6}}
+
+/* Figure: diathesis-stress explorer (JS) */
+.u15-ds{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:1.2rem;align-items:center}
+.u15-ds svg{background:var(--bg);border:1px solid var(--line);border-radius:8px}
+.u15-ds .zone{fill:color-mix(in srgb, var(--accent) 18%, transparent)}
+.u15-ds .crv{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.u15-ds .me{fill:var(--note);stroke:var(--surface);stroke-width:2.5;transition:cx .25s, cy .25s}
+.u15-ds .me.hit{fill:var(--accent)}
+.u15-ds-panel{display:grid;gap:.75rem;font-family:var(--font-ui);min-width:0}
+.u15-ds-panel label{display:grid;gap:.25rem;font-size:.85rem;font-weight:600}
+.u15-ds-panel label span{display:flex;justify-content:space-between;gap:.5rem}
+.u15-ds-panel output{font-variant-numeric:tabular-nums;color:var(--accent)}
+.u15-ds-panel input[type=range]{width:100%;accent-color:var(--accent)}
+.u15-ds-out{border:1px solid var(--line);border-radius:8px;padding:.65rem .8rem;background:var(--bg);font-family:var(--font-body);font-size:.95rem;text-align:left;min-height:4.6em;margin:0}
+.u15-ds-out b{font-family:var(--font-ui)}
+.u15-ds-out.hit{border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:700px){.u15-ds{grid-template-columns:minmax(0,1fr)}}
+
+/* Figure: prevalence ranges (low to high estimate on one axis) */
+.u15-range{display:grid;gap:.7rem;font-family:var(--font-ui);font-size:.88rem}
+.u15-range .row{display:grid;grid-template-columns:minmax(0,11rem) minmax(0,1fr);gap:.8rem;align-items:center}
+.u15-range .lab{text-align:right;line-height:1.3}
+.u15-range .track{position:relative;height:1.5rem;background:var(--bg);border-radius:4px}
+.u15-range .band{position:absolute;top:0;bottom:0;left:var(--lo);width:calc(var(--hi) - var(--lo));background:var(--accent);border-radius:4px;min-width:4px}
+.u15-range .pt .band{width:4px;margin-left:-2px;background:var(--note)}
+.u15-range .val{position:absolute;left:calc(var(--hi) + .45rem);top:50%;transform:translateY(-50%);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.u15-range .scale{display:grid;grid-template-columns:minmax(0,11rem) minmax(0,1fr);gap:.8rem;font-size:.75rem;color:var(--muted)}
+.u15-range .scale div{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:no-preference){.u15-range .band{animation:u15-band .8s ease-out both}}
+@keyframes u15-band{from{transform:scaleX(0);transform-origin:left}}
+@media (max-width:520px){.u15-range .row,.u15-range .scale{grid-template-columns:minmax(0,1fr)}.u15-range .lab{text-align:left}.u15-range .scale > span{display:none}}
+
+/* Figure: simple sagittal brain with clickable spots (uses the .brainmap behaviour) */
+.u15-brain .ctx{fill:color-mix(in srgb, var(--accent) 14%, var(--surface));stroke:var(--accent);stroke-width:1.6}
+.u15-brain .cb{fill:color-mix(in srgb, var(--muted) 22%, var(--surface));stroke:var(--muted);stroke-width:1.2}
+.u15-brain .cc{fill:none;stroke:var(--muted);stroke-width:1.4;opacity:.6}
+.u15-brain .lm{fill:none;stroke:var(--muted);stroke-width:1.3;stroke-dasharray:4 4;opacity:.8}
+.u15-brain .lm-t{font-size:11px;font-style:italic;fill:var(--muted);pointer-events:none}
+.u15-brain .bm-spot{r:11px}
+.u15-brain .bm-info h4{margin:0 0 .3rem;color:var(--accent)}
+.u15-brain .bm-info p{margin:0;font-size:.95rem;text-align:left}
+
+/* Figure: activity meters, two conditions (data-modes) */
+.u15-meters{display:grid;gap:.7rem;font-family:var(--font-ui);font-size:.88rem}
+.u15-meters .m{display:grid;grid-template-columns:minmax(0,10rem) minmax(0,1fr);gap:.8rem;align-items:center}
+.u15-meters .lab{text-align:right}
+.u15-meters .track{position:relative;height:1.1rem;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.u15-meters .fill{position:absolute;inset:0 auto 0 0;width:var(--w,50%);background:var(--accent);border-radius:999px;transition:width .55s ease}
+[data-mode="dep"] .u15-meters .m-amy .fill{--w:86%;background:var(--note)}
+[data-mode="dep"] .u15-meters .m-pfc .fill{--w:24%}
+@media (max-width:520px){.u15-meters .m{grid-template-columns:minmax(0,1fr)}.u15-meters .lab{text-align:left}}
+
+/* Figure: attribution grid for hopelessness theory (data-modes) */
+.u15-attr{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:.4rem;font-family:var(--font-ui);font-size:.85rem;align-items:stretch}
+.u15-attr .h{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:.2rem}
+.u15-attr .cell{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:.55rem .65rem;min-height:4.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.35;transition:background .25s, border-color .25s}
+.u15-attr .cell small{display:block;color:var(--muted);font-size:.72rem;margin-bottom:.15rem}
+[data-mode="sick"] .u15-attr .c-us,[data-mode="dumb"] .u15-attr .c-sg{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--accent) inset}
+@media (max-width:520px){.u15-attr{font-size:.8rem}.u15-attr .cell{min-height:5.5rem}}
+
+/* Figure: 2 x 2 outcome grid (Tienari et al.) */
+.u15-2x2{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:.45rem;font-family:var(--font-ui);font-size:.86rem;align-items:stretch}
+.u15-2x2 .h{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;justify-content:center;text-align:center;padding:.25rem}
+.u15-2x2 .cell{border-radius:8px;padding:.7rem;text-align:center;border:1px solid var(--line);background:color-mix(in srgb, var(--accent) var(--mix,6%), var(--surface))}
+.u15-2x2 .cell b{display:block;font-size:1.45rem;font-variant-numeric:tabular-nums;color:var(--fg);line-height:1.1}
+.u15-2x2 .cell span{color:var(--muted);font-size:.78rem}
+.u15-2x2 .cell.hot{border-color:var(--accent);--mix:34%}
+.u15-2x2 .cell.hot span{color:var(--fg)}
+
+/* Table: dot matrix (risk factor by age) */
+.u15-matrix td.dot{text-align:center;width:4.2rem}
+.u15-matrix td.dot.on::before{content:"";display:inline-block;width:.85rem;height:.85rem;border-radius:50%;background:var(--accent);vertical-align:middle}
+.u15-matrix td.dot.off::before{content:"";display:inline-block;width:.85rem;height:.85rem;border-radius:50%;border:1.5px solid var(--line);vertical-align:middle;box-sizing:border-box}
+.u15-matrix th.grp{background:var(--accent-soft);color:var(--fg);font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
+.u15-matrix thead th.dot{text-align:center}
+
+/* Figure: symptom clusters as tag groups */
+.u15-sym{display:grid;grid-template-columns:repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));gap:.7rem;margin:0}
+.u15-sym .card h4{margin:0 0 .35rem;font-size:.98rem}
+.u15-sym .card p,.u15-sym .card li{text-align:left;font-size:.93rem}
+.u15-sym .card ul{margin:0;padding-left:1.05em}
+
+/* Callouts: help resources (uses the note colour so it stands apart from the reading text) */
+.callout.u15-help{border-color:var(--note-line);background:var(--note-bg)}
+.callout.u15-help h4{color:var(--note)}
+.callout.u15-help ul{margin:.3rem 0 0}
+.callout.u15-help li{text-align:left}
+.callout.u15-upd{border-left:4px solid var(--note)}
+.callout.u15-upd h4{color:var(--note)}
+
+/* Panic attack body: reuses .u14-body shapes; the heart beats faster while the figure is in view */
+@media (prefers-reduced-motion:no-preference){
+  .u15-panic .heart{transform-box:fill-box;transform-origin:center;animation:u15-beat .55s ease-in-out infinite}
+  .u15-panic .lung{transform-box:fill-box;transform-origin:center;animation:u15-breath 1.1s ease-in-out infinite}
+}
+@keyframes u15-beat{0%,100%{transform:scale(1)}30%{transform:scale(1.18)}}
+@keyframes u15-breath{50%{transform:scale(1.08,1.04)}}
+
+/* Figure: four-step cycle (JS: one step lit at a time; the arc leaving it carries moving dashes) */
+.u15-cyc-body svg{max-width:480px;margin:0 auto}
+.u15-cyc .cy-node{cursor:pointer}
+.u15-cyc .cy-node rect{fill:var(--surface);stroke:var(--line);stroke-width:1.4;transition:fill .25s, stroke .25s}
+.u15-cyc .cy-node.done rect{stroke:color-mix(in srgb, var(--accent) 45%, var(--line))}
+.u15-cyc .cy-node.on rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.2}
+.u15-cyc .cy-node:focus{outline:none}
+.u15-cyc .cy-node:focus-visible rect{stroke:var(--fg);stroke-width:2.4}
+.u15-cyc .cy-sm{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;fill:var(--muted);pointer-events:none}
+.u15-cyc .cy-t{font-size:14.5px;font-weight:600;fill:var(--fg);pointer-events:none}
+.u15-cyc .cy-arc{fill:none;stroke:var(--muted);stroke-width:2;transition:stroke .25s}
+.u15-cyc .cy-arc.on{stroke:var(--accent);stroke-width:3;stroke-dasharray:6 5}
+.u15-cyc .cy-head{fill:var(--muted);fill:context-stroke}
+.u15-cyc .cy-ret{font-size:12.5px;font-weight:600;font-style:italic;fill:var(--note)}
+@media (prefers-reduced-motion:no-preference){.u15-cyc .cy-arc.on{animation:u15-flow .7s linear infinite}}
+@keyframes u15-flow{to{stroke-dashoffset:-11}}
+
+/* ASD prevalence bars: narrower label column so long read-outs stay inside the figure */
+.u15-asd .bar{grid-template-columns:minmax(0,7rem) minmax(0,1fr)}
+@media (max-width:520px){.u15-asd .bar{grid-template-columns:minmax(0,1fr)}}
