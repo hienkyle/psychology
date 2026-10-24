@@ -2230,3 +2230,22 @@
     run();
   });
 })();
+
+/* ---- Unit 14 components (reusable) ---- */
+/* Checklist total (.u14-srrs-fig): sums data-lcu of the ticked boxes */
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll('.u14-srrs-fig'), function (box) {
+    var boxes = Array.prototype.slice.call(box.querySelectorAll('input[type="checkbox"][data-lcu]'));
+    var out = box.querySelector('.u14-srrs-sum'), cnt = box.querySelector('.u14-srrs-cnt');
+    var reset = box.querySelector('.u14-srrs-reset');
+    function run() {
+      var sum = 0, n = 0;
+      boxes.forEach(function (b) { if (b.checked) { sum += +b.getAttribute('data-lcu'); n++; } });
+      if (out) out.textContent = sum;
+      if (cnt) cnt.textContent = n + (n === 1 ? ' event' : ' events');
+    }
+    boxes.forEach(function (b) { b.addEventListener('change', run); });
+    if (reset) reset.addEventListener('click', function () { boxes.forEach(function (b) { b.checked = false; }); run(); });
+    run();
+  });
+})();
