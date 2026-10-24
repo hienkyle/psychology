@@ -192,7 +192,8 @@
   tabs.forEach(function (t) {
     t.addEventListener('click', function () { mode = t.getAttribute('data-scope'); render(); });
   });
-  box.querySelector('.ktw-more').addEventListener('click', function () { setOpen(false); });
+  var more = box.querySelector('.ktw-more');
+  if (more) more.addEventListener('click', function () { setOpen(false); });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); }
   });

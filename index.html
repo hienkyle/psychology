@@ -13,7 +13,6 @@
 <style>
 /* ----- Index-only styles, built from the unit tokens ----- */
 .content > section.hero{border-top:0;padding-top:0;padding-bottom:2rem}
-.content > section#key-terms{border-top:1px solid var(--line);padding-block:2.2rem}
 .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));gap:.75rem;margin:1.4rem 0 0;padding:0}
 .facts div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.65rem .85rem;min-width:0}
 .facts dt{font-family:var(--font-ui);font-size:.74rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
@@ -67,15 +66,6 @@
 .btn-disabled{border-color:var(--line);color:var(--muted);cursor:default}
 .btn-disabled:hover{background:transparent}
 
-.chbars{list-style:none;margin:0;padding:0;display:grid;gap:.4rem;font-family:var(--font-ui)}
-.chbars li{display:grid;grid-template-columns:3.4rem minmax(0,1fr) 1.6rem;gap:.6rem;align-items:center;margin:0;text-align:left}
-.chbars a{color:var(--muted);text-decoration:none;font-size:.84rem;font-weight:600;white-space:nowrap}
-.chbars a:hover{color:var(--accent)}
-.chbar-track{height:1.1rem;background:var(--bg);border-radius:4px;overflow:hidden}
-.chbar-fill{display:block;height:100%;width:0;border-radius:4px;background:color-mix(in srgb, var(--accent) 55%, var(--surface));transition:width .8s cubic-bezier(.2,.7,.2,1)}
-.chbars li.peak .chbar-fill{background:var(--accent)}
-.chbar-val{font-size:.84rem;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
-.chbars-axis{display:flex;justify-content:space-between;margin:.5rem 2.2rem 0 4rem;font-family:var(--font-ui);font-size:.75rem;color:var(--muted)}
 
 .anatomy{display:grid;gap:.6rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,9.5rem),1fr));margin:0;padding:0;list-style:none;counter-reset:step;font-family:var(--font-ui)}
 .anatomy li{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.7rem .8rem;margin:0;font-size:.86rem;text-align:left;color:var(--muted)}
@@ -83,7 +73,7 @@
 .anatomy b{display:block;color:var(--fg);margin-bottom:.15rem}
 .res-src{font-family:var(--font-ui);font-size:.78rem;color:var(--muted)}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:.05em .35em;overflow-wrap:anywhere}
-@media (prefers-reduced-motion:reduce){.meter > span,.chbar-fill{transition:none}}
+@media (prefers-reduced-motion:reduce){.meter > span{transition:none}}
 </style>
 </head>
 <body>
@@ -98,9 +88,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 <ol>
 <li class="toc-part"><a href="#overview">Overview</a></li>
 <li class="toc-part"><a href="#units">Units</a></li>
-<li class="toc-part"><a href="#at-a-glance">Book at a glance</a></li>
 <li class="toc-part"><a href="#how-it-works">How each guide works</a></li>
-<li class="toc-part"><a href="#key-terms">Key terms</a></li>
 <li class="toc-part"><a href="#resources">Resources</a></li>
 <li class="toc-part"><a href="#credits">Credits &amp; license</a></li>
 </ol>
@@ -111,7 +99,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 <p class="eyebrow">Introductory Psychology</p>
 <h1 id="overview-h">Psychology 2e Study Guide</h1>
 <p class="lede">Concise, unit-by-unit study guides for <cite>Psychology 2e</cite> by Rose M. Spielman, William J. Jenkins and Marilyn D. Lovett (OpenStax, 2020).</p>
-<p>The textbook is written for a one-semester introduction to psychology course. It grounds core concepts in both classic studies and current research, and its coverage of psychological disorders follows the DSM-5-TR. Each unit below matches one chapter of the book. Open a unit’s guide for condensed notes, key terms, numbered figures and tables, and a review quiz, or jump to the original chapter on OpenStax.</p>
+<p>The textbook is written for a one-semester introduction to psychology course. It grounds core concepts in both classic studies and current research, and its coverage of psychological disorders follows the DSM-5-TR. Each unit below matches one chapter of the book. Open a unit’s guide for condensed notes, key terms, numbered figures and tables, and a review quiz.</p>
 <dl class="facts">
 <div><dt>Authors</dt><dd>Spielman, Jenkins &amp; Lovett</dd></div>
 <div><dt>Publisher</dt><dd>OpenStax, Rice University</dd></div>
@@ -126,7 +114,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 
 <section id="units" aria-labelledby="units-h">
 <h2 id="units-h">Units</h2>
-<p>Units with a built guide open straight into it. Every card also lists the chapter’s sections, each linked to its page in the textbook.</p>
+<p>Units with a built guide open straight into it. Expand a card’s section list to see what the chapter covers.</p>
 <div class="filter-row">
 <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="visually-hidden">Filter units</span><input id="unit-filter" type="search" placeholder="Filter by chapter or section, e.g. “memory”, “sleep”" autocomplete="off"></label>
 <span class="filter-count" id="filter-count" aria-live="polite"></span>
@@ -135,31 +123,22 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 <p class="muted" id="filter-empty" hidden>No units match that filter.</p>
 </section>
 
-<section id="at-a-glance" aria-labelledby="glance-h">
-<h2 id="glance-h">Book at a glance</h2>
-<p>The sixteen chapters differ a lot in length. Chapter 15, <em>Psychological Disorders</em>, is the longest with eleven sections, followed by Chapter 11, <em>Personality</em>, with nine. Seven chapters have four sections each. Use Figure 1 to budget study time, and select a bar to jump to that unit.</p>
-<figure class="fig" id="figure-1">
-<ul class="chbars" id="fig-bars"></ul>
-<div class="chbars-axis" aria-hidden="true"><span>0</span><span id="axis-max"></span></div>
-<figcaption><span class="fig-no">Figure 1</span>Number of numbered sections in each chapter of <cite>Psychology 2e</cite>, not counting each chapter’s introduction or end-of-chapter review pages. Source: OpenStax table of contents.</figcaption>
-</figure>
-</section>
-
 <section id="how-it-works" aria-labelledby="how-h">
 <h2 id="how-h">How each guide works</h2>
-<p>Every unit is a single page that follows the chapter’s own section order and is laid out the same way, so you always know where to look.</p>
-<figure class="fig" id="figure-2">
+<p>Every unit is a single page that follows the chapter’s own section order and is laid out the same way, so you always know where to look. Each page has its own color palette, a light/dark toggle, a button back to this index and an up-arrow to return to the top.</p>
+<figure class="fig" id="figure-1">
 <ol class="anatomy">
+<li><b>Overview</b>The chapter’s opening example and a map of what the unit covers.</li>
 <li><b>Contents bar</b>Jump between sections; the current one is highlighted as you scroll.</li>
 <li><b>Section notes</b>Brief, justified notes that keep every intermediate term.</li>
 <li><b>Figures &amp; tables</b>Numbered visuals that support, not replace, the text.</li>
-<li><b>Review quiz</b>The chapter’s review questions with instant feedback.</li>
-<li><b>Key terms</b>A shortened Key Terms list, in a card at the end and in the note button at the bottom right.</li>
-<li><b>Resources</b>Links back to the textbook and credited outside sources, gathered at the end.</li>
+<li><b>Review quiz</b>The chapter’s Review Questions with instant feedback and a pointer to where to review.</li>
+<li><b>Key terms</b>A shortened Key Terms list, in a card near the end and in the note button at the bottom right.</li>
+<li><b>Resources</b>The textbook source and credited outside sources, gathered at the end.</li>
 </ol>
-<figcaption><span class="fig-no">Figure 2</span>The parts of a unit study guide, in the order they appear on each page.</figcaption>
+<figcaption><span class="fig-no">Figure 1</span>The parts of a unit study guide, in the order they appear on each page.</figcaption>
 </figure>
-<p>Each chapter of the textbook ends with the same five review pages. The unit guides link to them so you can test yourself after reading.</p>
+<p>Each chapter of the textbook ends with the same five review pages. The unit guides condense the Key Terms and turn the Review Questions into the quiz; the other pages are in the textbook itself.</p>
 <div class="table-wrap"><table>
 <caption><span class="fig-no">Table 1</span>End-of-chapter materials in <cite>Psychology 2e</cite></caption>
 <thead><tr><th scope="col">Material</th><th scope="col">What it offers</th><th scope="col">Answers</th></tr></thead>
@@ -183,23 +162,12 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 </tbody></table></div>
 </section>
 
-<section id="key-terms" class="note-wrap" aria-labelledby="kt-h">
-<h2 id="kt-h">Key terms</h2>
-<aside class="note" aria-label="Key terms for using this guide">
-<details open>
-<summary>Using this guide <span class="count">7 terms</span></summary>
-<dl><div class="kt-row"><dt>Unit</dt><dd>One chapter of the textbook and its study-guide page, <code>unit{n}.html</code>.</dd></div><div class="kt-row"><dt>Section</dt><dd>A numbered part of a chapter, such as 3.2 <em>Cells of the Nervous System</em>.</dd></div><div class="kt-row"><dt>Key-terms widget</dt><dd>The note button at the bottom right of each unit page; it shows shortened key terms for the section you are reading.</dd></div><div class="kt-row"><dt>Review Questions</dt><dd>End-of-chapter multiple-choice items for checking recall.</dd></div><div class="kt-row"><dt>Critical Thinking Questions</dt><dd>End-of-chapter questions that ask you to apply and evaluate ideas.</dd></div><div class="kt-row"><dt>Personal Application Questions</dt><dd>Reflection prompts that connect a topic to your own experience.</dd></div><div class="kt-row"><dt>DSM-5-TR</dt><dd>Text revision of the fifth edition of the American Psychiatric Association’s <em>Diagnostic and Statistical Manual of Mental Disorders</em>; the book’s reference for classifying disorders.</dd></div></dl>
-<p class="note-src">Based on the <a href="https://openstax.org/books/psychology-2e/pages/preface">Psychology 2e preface</a>.</p>
-</details>
-</aside>
-</section>
-
 <section id="resources" aria-labelledby="res-h">
 <h2 id="res-h">Resources</h2>
 <p>Reliable places to read, check and cite the material.</p>
 <ul class="resources">
 <li><a href="https://openstax.org/details/books/psychology-2e">Psychology 2e book page</a><span>Free web view and PDF of the whole textbook, plus student resources such as the Student Solution Guide.</span><span class="res-src">OpenStax</span></li>
-<li><a href="https://openstax.org/books/psychology-2e/pages/1-introduction">Read the textbook online</a><span>Start at Chapter 1, or use the section links on each unit card above.</span><span class="res-src">OpenStax</span></li>
+<li><a href="https://openstax.org/books/psychology-2e/pages/1-introduction">Read the textbook online</a><span>The full text of every chapter, starting at Chapter 1.</span><span class="res-src">OpenStax</span></li>
 <li><a href="https://dictionary.apa.org/">APA Dictionary of Psychology</a><span>Authoritative definitions for checking a term beyond the textbook’s own Key Terms.</span><span class="res-src">American Psychological Association</span></li>
 <li><a href="https://www.lib.ncsu.edu/citationbuilder/#/default/default">Citation Builder</a><span>Builds APA or MLA citations for the book; OpenStax recommends it on every page.</span><span class="res-src">NC State University Libraries</span></li>
 </ul>
@@ -220,7 +188,6 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;bac
 <div class="ktw-panel" id="ktPanel" role="dialog" aria-label="Key terms" hidden>
 <div class="ktw-head"><b>Key terms</b><span class="ktw-scope" id="ktScope">Using this guide</span><button type="button" class="ktw-close" id="ktClose" aria-label="Close key terms">×</button></div>
 <div class="ktw-body"><div class="ktw-group"><dl><div class="kt-row"><dt>Unit</dt><dd>One chapter of the textbook and its study-guide page, <code>unit{n}.html</code>.</dd></div><div class="kt-row"><dt>Section</dt><dd>A numbered part of a chapter, such as 3.2 <em>Cells of the Nervous System</em>.</dd></div><div class="kt-row"><dt>Key-terms widget</dt><dd>The note button at the bottom right of each unit page; it shows shortened key terms for the section you are reading.</dd></div><div class="kt-row"><dt>Review Questions</dt><dd>End-of-chapter multiple-choice items for checking recall.</dd></div><div class="kt-row"><dt>Critical Thinking Questions</dt><dd>End-of-chapter questions that ask you to apply and evaluate ideas.</dd></div><div class="kt-row"><dt>Personal Application Questions</dt><dd>Reflection prompts that connect a topic to your own experience.</dd></div><div class="kt-row"><dt>DSM-5-TR</dt><dd>Text revision of the fifth edition of the American Psychiatric Association’s <em>Diagnostic and Statistical Manual of Mental Disorders</em>; the book’s reference for classifying disorders.</dd></div></dl></div></div>
-<a class="ktw-more" href="#key-terms">Open the full key-terms card</a>
 </div>
 <button type="button" class="ktw-toggle" id="ktToggle" aria-expanded="false" aria-controls="ktPanel" aria-label="Key terms" title="Key terms"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4"/><path d="M8.5 11h7M8.5 14.5h7M8.5 18h4"/></svg></button>
 </div>
@@ -268,10 +235,6 @@ var UNITS = [
 ];
 
 (function () {
-  var BASE = 'https://openstax.org/books/psychology-2e/pages/';
-  function slug(t) {
-    return t.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
-  }
   function el(tag, attrs, html) {
     var e = document.createElement(tag);
     for (var k in attrs) if (Object.prototype.hasOwnProperty.call(attrs, k)) e.setAttribute(k, attrs[k]);
@@ -279,16 +242,14 @@ var UNITS = [
     return e;
   }
   var grid = document.getElementById('unit-grid');
-  var bars = document.getElementById('fig-bars');
   var totalSections = 0, ready = 0;
-  var max = Math.max.apply(null, UNITS.map(function (u) { return u.sections.length; }));
 
   UNITS.forEach(function (u) {
     totalSections += u.sections.length;
     if (u.ready) ready++;
     var card = el('article', { 'class': 'card unit-card' + (u.ready ? ' is-ready' : ''), 'data-pal': 'u' + u.n, 'id': 'unit-' + u.n, 'aria-labelledby': 'unit-' + u.n + '-h' });
     var list = u.sections.map(function (s, i) {
-      return '<li><span class="sec">' + u.n + '.' + (i + 1) + '</span><a href="' + BASE + u.n + '-' + (i + 1) + '-' + slug(s) + '">' + s + '</a></li>';
+      return '<li><span class="sec">' + u.n + '.' + (i + 1) + '</span>' + s + '</li>';
     }).join('');
     var open = u.ready
       ? '<a class="btn btn-primary" href="unit' + u.n + '.html">Open study guide</a>'
@@ -301,18 +262,11 @@ var UNITS = [
           (u.ready ? '<span class="badge badge-ready">Guide ready</span>' : '<span class="badge">Coming soon</span>') + '</p>' +
         '<details><summary>Sections</summary><ol>' + list + '</ol></details>' +
       '</div>' +
-      '<div class="unit-actions">' + open + '<a class="btn" href="' + BASE + u.n + '-introduction">Read chapter</a></div>';
+      '<div class="unit-actions">' + open + '</div>';
     card.dataset.search = (u.n + ' ' + u.title + ' ' + u.sections.join(' ')).toLowerCase();
     grid.appendChild(card);
 
-    var bar = el('li', { 'class': u.sections.length === max ? 'peak' : '' });
-    bar.innerHTML = '<a href="#unit-' + u.n + '" title="' + u.title + '">Ch. ' + u.n + '</a>' +
-      '<span class="chbar-track"><span class="chbar-fill" data-w="' + (u.sections.length / max * 100).toFixed(1) + '%"></span></span>' +
-      '<span class="chbar-val">' + u.sections.length + '</span>';
-    bar.setAttribute('aria-label', 'Chapter ' + u.n + ', ' + u.title + ': ' + u.sections.length + ' sections');
-    bars.appendChild(bar);
   });
-  document.getElementById('axis-max').textContent = max + ' sections';
 
   function setCount(key, val) {
     Array.prototype.forEach.call(document.querySelectorAll('[data-count="' + key + '"]'), function (n) { n.textContent = val; });
@@ -324,22 +278,7 @@ var UNITS = [
   meter.setAttribute('aria-valuemax', UNITS.length);
   meter.setAttribute('aria-valuenow', ready);
   requestAnimationFrame(function () { requestAnimationFrame(function () { meter.firstElementChild.style.width = (ready / UNITS.length * 100) + '%'; }); });
-  var fills = bars.querySelectorAll('.chbar-fill');
-  function fillBars() { Array.prototype.forEach.call(fills, function (f) { f.style.width = f.dataset.w; }); }
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      if (entries.some(function (e) { return e.isIntersecting; })) { fillBars(); io.disconnect(); }
-    }, { threshold: 0.2 });
-    io.observe(bars);
-  } else { fillBars(); }
 
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest('a[href^="#unit-"]');
-    if (!a) return;
-    var card = document.getElementById(a.getAttribute('href').slice(1));
-    if (!card) return;
-    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
-  });
 
   var input = document.getElementById('unit-filter');
   var countEl = document.getElementById('filter-count');
