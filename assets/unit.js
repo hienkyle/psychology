@@ -1904,3 +1904,70 @@
     run();
   });
 })();
+
+/* ---- Unit 11 components (reusable) ---- */
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+
+  /* Rogers's congruence (.u11-cong): the slider sets how much the real and ideal self overlap */
+  $$('.u11-cong').forEach(function (box) {
+    var input = $('input', box), out = $('output', box), read = $('.u11-cong-read', box);
+    var real = $('.u11-c.real', box), ideal = $('.u11-c.ideal', box);
+    var lr = $('.u11-lab-real', box), li = $('.u11-lab-ideal', box);
+    var R = 82, CX = 220;
+    function run() {
+      var v = +input.value, d = (1 - v / 100) * 2 * R;   /* distance between centres: 2R = no overlap, 0 = identical */
+      real.setAttribute('cx', CX - d / 2); ideal.setAttribute('cx', CX + d / 2);
+      var gap = Math.max(d, 70);
+      lr.setAttribute('x', CX - gap / 2 - 10); li.setAttribute('x', CX + gap / 2 + 10);
+      out.textContent = v + '%';
+      read.innerHTML = v >= 70 ? '<b>Congruence:</b> the real self and the ideal self are very similar, so the self-concept is accurate. This brings a greater sense of self-worth and a healthy, productive life.'
+        : v >= 35 ? '<b>Partly overlapping:</b> the person you are and the person you would like to be agree only in part.'
+        : '<b>Incongruence:</b> a great discrepancy between the real and ideal self, which can lead to maladjustment.';
+      input.setAttribute('aria-valuetext', v + '% overlap');
+    }
+    input.addEventListener('input', run);
+    run();
+  });
+
+  /* Inkblot generator (.u11-ink): random blobs mirrored across a vertical axis. Not a Rorschach card. */
+  $$('.u11-ink').forEach(function (box) {
+    var c = $('canvas', box), x = c.getContext('2d'), W = c.width, H = c.height, raf = null;
+    function blobs() {
+      var a = [], n = 16 + Math.floor(Math.random() * 10);
+      for (var i = 0; i < n; i++) {
+        var big = i < 5;
+        a.push({ x: W * (0.04 + Math.random() * (big ? 0.24 : 0.4)), y: H * (0.14 + Math.random() * 0.72),
+                 r: big ? 26 + Math.random() * 34 : 5 + Math.random() * 18, k: Math.random() * 6, w: 2 + Math.floor(Math.random() * 3) });
+      }
+      return a;
+    }
+    function draw(bs, t) {
+      x.fillStyle = '#FBFAF6'; x.fillRect(0, 0, W, H);
+      x.fillStyle = '#1E1A22';
+      bs.forEach(function (p) {
+        var r = p.r * Math.min(1, t * (1.2 - p.r / 120));
+        [p.x, W - p.x].forEach(function (cx, side) {
+          x.beginPath();
+          for (var a = 0; a <= 6.3; a += 0.2) {
+            var ang = side ? Math.PI - a : a;
+            var rr = r * (0.78 + 0.22 * Math.sin(a * p.w + p.k));
+            x.lineTo(cx + Math.cos(ang) * rr, p.y + Math.sin(a) * rr * 0.9);
+          }
+          x.fill();
+        });
+      });
+    }
+    function go() {
+      var bs = blobs(), t0 = null;
+      if (raf) cancelAnimationFrame(raf);
+      if (reduce) { draw(bs, 1); return; }
+      function step(ts) { if (t0 === null) t0 = ts; var t = (ts - t0) / 1100; draw(bs, t); raf = t < 1 ? requestAnimationFrame(step) : null; }
+      raf = requestAnimationFrame(step);
+    }
+    $('.u11-ink-new', box).addEventListener('click', go);
+    go();
+  });
+})();

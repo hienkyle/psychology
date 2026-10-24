@@ -2237,3 +2237,148 @@ ol.u9-chips{counter-reset:none}
 .u10-lead{fill:none;stroke:var(--muted);stroke-width:1;stroke-dasharray:2 3}
 .u10-ar[data-mode="yd"] .u10-lead{display:none}
 .u10-hs-org::before{margin-left:-1px}
+
+/* ---- Unit 11 components (reusable) ---- */
+/* Shared SVG text for unit 11 diagrams */
+.u11-lt{font-size:12px;font-weight:500;fill:var(--muted)}
+.u11-bt{font-size:13px;font-weight:600;fill:var(--fg);pointer-events:none}
+.u11-st{font-size:11.5px;font-weight:500;fill:var(--fg);pointer-events:none}
+.u11-ax{fill:none;stroke:var(--muted);stroke-width:1.4}
+.kicker{font-family:var(--font-ui)}
+.u11-three{grid-template-columns:repeat(auto-fit, minmax(min(100%, 11rem), 1fr));margin:0}
+.u11-three .card p{text-align:left}
+.timeline.u11-tl::before{left:6.1rem}
+.timeline.u11-tl li{grid-template-columns:5.5rem minmax(0,1fr)}
+.timeline.u11-tl li::before{left:calc(6.1rem - 4px)}
+.timeline.u11-tl .yr{font-size:.92rem}
+@media (max-width:420px){.timeline.u11-tl::before{left:4.6rem}.timeline.u11-tl li{grid-template-columns:4rem minmax(0,1fr)}.timeline.u11-tl li::before{left:calc(4.6rem - 4px)}.timeline.u11-tl .yr{font-size:.8rem}}
+
+/* Figure: four temperaments / Eysenck quadrants (data-modes) */
+.u11-quad .fig-body{margin-top:.6rem}
+.u11-quad svg{display:block;width:100%;height:auto}
+.u11-sector{stroke:var(--surface);stroke-width:3}
+.u11-sector.q-tr{fill:color-mix(in srgb, var(--bad) 22%, var(--surface))}
+.u11-sector.q-br{fill:color-mix(in srgb, var(--note) 26%, var(--surface))}
+.u11-sector.q-bl{fill:color-mix(in srgb, var(--good) 22%, var(--surface))}
+.u11-sector.q-tl{fill:color-mix(in srgb, var(--accent) 24%, var(--surface))}
+.u11-axhead{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.u11-axl{font-size:12.5px;font-weight:600;fill:var(--muted)}
+.u11-qn{font-size:14px;font-weight:700;fill:var(--fg)}
+.u11-ql{font-size:11.5px;font-weight:500;fill:var(--fg)}
+.u11-quad[data-mode="kant"] .g-galen,.u11-quad[data-mode="galen"] .g-kant{display:none}
+.u11-quad .mode-state,.u11-loc .mode-state{margin:.7rem 0 0;font-family:var(--font-body);font-size:.95rem;color:var(--muted);text-align:left}
+.u11-quad .mode-state b,.u11-loc .mode-state b{font-family:var(--font-ui);color:var(--fg)}
+@media (prefers-reduced-motion:no-preference){.u11-quad g[class^="g-"]{animation:u11-fade .45s ease-out both}}
+@keyframes u11-fade{from{opacity:0}to{opacity:1}}
+
+/* Figure: Freud's iceberg (uses the .brainmap behaviour) */
+.brainmap.u11-ice{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
+.u11-ice .fig-panel{min-height:9rem}
+@media (max-width:700px){.brainmap.u11-ice,.brainmap.u11-rd{grid-template-columns:minmax(0,1fr)}.u11-ice svg,.u11-rd svg{max-width:420px;margin:0 auto}}
+.u11-sky{fill:var(--bg)}
+.u11-sea{fill:color-mix(in srgb, var(--accent) 30%, var(--surface))}
+.u11-wave{fill:none;stroke:var(--accent);stroke-width:2}
+.u11-tip path,.u11-mass path{fill:var(--surface);stroke:var(--fg);stroke-width:1.4}
+.u11-mass path{fill:color-mix(in srgb, var(--surface) 82%, var(--accent))}
+.u11-layer rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+.u11-ice .bm-hit.is-on path,.u11-ice .bm-hit.is-on rect{stroke:var(--fg);stroke-width:3}
+.u11-ice .u11-tip.is-on path{fill:var(--note-bg)}
+.u11-onsea{fill:var(--fg);opacity:.75}
+@media (prefers-reduced-motion:no-preference){.u11-wave{animation:u11-bob 4s ease-in-out infinite alternate}}
+@keyframes u11-bob{from{transform:translateX(0)}to{transform:translateX(-24px)}}
+
+/* Figure: id, superego and ego in conversation: id → ego ← superego */
+.u11-ego{display:grid;grid-template-columns:minmax(0,1fr) 2.6rem minmax(0,1fr) 2.6rem minmax(0,1fr);gap:.4rem;align-items:center;font-family:var(--font-ui)}
+.u11-say{border:1px solid var(--line);border-radius:12px;padding:.75rem .9rem;background:var(--bg);text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center}
+.u11-say .kicker{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem}
+.u11-say b{font-weight:600}
+.u11-say.id{border-color:color-mix(in srgb, var(--bad) 55%, var(--line))}
+.u11-say.sup{border-color:color-mix(in srgb, var(--note) 60%, var(--line))}
+.u11-say.ego{border-color:var(--accent);background:var(--accent-soft)}
+.u11-arrow svg{display:block;width:100%;height:auto;fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:620px){
+  .u11-ego{grid-template-columns:minmax(0,1fr)}
+  .u11-arrow{width:1.6rem;justify-self:center}
+  .u11-arrow.to-ego svg{transform:rotate(90deg)}
+  .u11-arrow.from-sup svg{transform:rotate(90deg)}
+}
+@media (prefers-reduced-motion:no-preference){.u11-say,.u11-arrow{animation:rise .5s ease-out both}.u11-arrow.to-ego,.u11-arrow.from-sup{animation-delay:.15s}.u11-say.ego{animation-delay:.3s}}
+
+/* Figure: defense mechanisms (uses the .picker behaviour) */
+.u11-dm-card{border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:.9rem 1rem}
+.u11-dm-card h4{margin:0 0 .3rem;color:var(--accent)}
+.u11-dm-card p{font-family:var(--font-body);font-size:.97rem;margin:0;text-align:left}
+.u11-dm-card .u11-eg{margin-top:.6rem;padding-top:.6rem;border-top:1px dashed var(--line);color:var(--muted)}
+.u11-eg .kicker{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--note);margin-bottom:.15rem}
+.card.u11-good{border-color:var(--good);background:var(--good-bg)}
+
+/* Figure: Freud's and Erikson's stages on one age line */
+.u11-seg{stroke:var(--surface);stroke-width:1.5}
+.u11-seg.f{fill:color-mix(in srgb, var(--note) 34%, var(--surface))}
+.u11-seg.f.open{fill:color-mix(in srgb, var(--note) 16%, var(--surface))}
+.u11-seg.e{fill:color-mix(in srgb, var(--accent) 34%, var(--surface))}
+@media (prefers-reduced-motion:no-preference){.u11-seg{animation:u11-fade .4s ease-out both;animation-delay:calc(var(--i) * .08s)}}
+
+/* Figure: reciprocal determinism (uses the .brainmap behaviour) */
+.brainmap.u11-rd{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:center}
+.u11-rd .fig-panel{min-height:8rem}
+.u11-node rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.u11-rd .bm-hit.is-on rect{fill:color-mix(in srgb, var(--accent) 30%, var(--surface));stroke:var(--fg);stroke-width:2.5}
+.u11-link{fill:none;stroke:var(--muted);stroke-width:2}
+.u11-ahead{fill:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.u11-link{stroke-dasharray:4 5;animation:march 1s linear infinite}}
+
+/* Figure: locus of control continuum (data-modes) */
+.u11-loc .pill-row{margin-bottom:.9rem}
+.u11-loc-scale{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) minmax(0,1fr);gap:.9rem;align-items:center;font-family:var(--font-ui)}
+.u11-loc-end{border:1px solid var(--line);border-radius:10px;padding:.65rem .75rem;background:var(--bg);transition:border-color .25s, background .25s}
+.u11-loc-end b{display:block;color:var(--fg)}
+.u11-loc-end span{display:block;font-size:.82rem;color:var(--muted);line-height:1.4;text-align:left}
+.u11-loc[data-mode="int"] .u11-loc-end.int,.u11-loc[data-mode="ext"] .u11-loc-end.ext{border-color:var(--accent);background:var(--accent-soft)}
+.u11-loc-track{position:relative;height:10px;border-radius:999px;background:linear-gradient(90deg, var(--accent), var(--note))}
+.u11-loc-pin{position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:var(--surface);border:3px solid var(--fg);transform:translate(-50%,-50%);left:12%;transition:left .5s cubic-bezier(.3,.8,.3,1)}
+.u11-loc[data-mode="ext"] .u11-loc-pin{left:88%}
+.u11-loc-case{margin:.9rem 0 0;font-size:.95rem;text-align:left}
+.u11-loc-case .kicker{display:block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:560px){.u11-loc-scale{grid-template-columns:minmax(0,1fr)}.u11-loc-track{margin:.3rem 0}}
+
+/* Figure: Rogers's congruence (slider + JS) */
+.u11-cong svg{display:block;width:100%;max-width:460px;height:auto;margin:0 auto}
+.u11-c{stroke-width:2;mix-blend-mode:multiply}
+:root[data-theme="dark"] .u11-c{mix-blend-mode:screen}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .u11-c{mix-blend-mode:screen}}
+.u11-c.real{fill:color-mix(in srgb, var(--accent) 45%, transparent);stroke:var(--accent)}
+.u11-c.ideal{fill:color-mix(in srgb, var(--note) 45%, transparent);stroke:var(--note)}
+.u11-cong .ctl{margin-top:.6rem;max-width:26rem}
+
+/* Figure: three approaches across cultures: 1 and 2 side by side, joined below into 3 */
+.u11-bridge{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:.8rem 1rem;align-items:stretch}
+.u11-bridge .card p{text-align:left}
+.u11-join{grid-column:1/-1;height:1.4rem;margin:-.8rem 25% 0;border:2px solid var(--accent);border-top:0;border-radius:0 0 10px 10px;position:relative}
+.u11-join::after{content:"";position:absolute;left:50%;bottom:-.8rem;width:2px;height:.8rem;background:var(--accent);transform:translateX(-50%)}
+.u11-bridge .u11-mid{grid-column:1/-1;justify-self:center;width:min(100%, 30rem);border-color:var(--accent);background:var(--accent-soft)}
+@media (max-width:560px){.u11-bridge{grid-template-columns:minmax(0,1fr)}.u11-join{margin:-.4rem auto 0;width:2px;height:.9rem;border:0;background:var(--accent);border-radius:0}.u11-join::after{display:none}}
+
+/* Figures: Likert, true/false and sentence-completion items */
+.u11-form{overflow-x:auto}
+.u11-form table{min-width:30rem}
+.u11-form th,.u11-form td{border-bottom:1px solid var(--line)}
+.u11-form thead th{white-space:normal;text-align:center;font-size:.72rem;line-height:1.25}
+.u11-form thead th:first-child,.u11-form tbody th{text-align:left}
+.u11-form tbody th{font-weight:500}
+.u11-form td{text-align:center;vertical-align:middle}
+.u11-form input[type=radio]{width:1.05rem;height:1.05rem;accent-color:var(--accent);cursor:pointer}
+.u11-form table.u11-tf{min-width:0}
+.u11-tf td{width:4.2rem}
+.u11-risb{list-style:none;padding:0;margin:0;display:grid;gap:.55rem;font-family:var(--font-ui)}
+.u11-risb li{margin:0}
+.u11-risb label{display:grid;grid-template-columns:minmax(0,11rem) minmax(0,1fr);gap:.8rem;align-items:center}
+.u11-risb span{font-weight:600;text-align:left}
+.u11-risb input{font:inherit;font-family:var(--font-body);color:var(--fg);background:transparent;border:0;border-bottom:1.5px solid var(--muted);padding:.3rem .1rem;min-width:0}
+.u11-risb input:focus{outline:none;border-bottom-color:var(--accent)}
+@media (max-width:520px){.u11-risb label{grid-template-columns:minmax(0,1fr);gap:.1rem}}
+
+/* Figure: inkblot generator (JS) */
+.u11-ink canvas{display:block;width:100%;max-width:520px;height:auto;margin:0 auto;border-radius:8px;border:1px solid var(--line);background:#FBFAF6}
+.u11-ink .chain-bar{justify-content:center}
+.u11-ink-q{font-family:var(--font-body);font-style:italic;color:var(--muted)}
