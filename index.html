@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-palette="index">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -286,7 +286,7 @@ var UNITS = [
   UNITS.forEach(function (u) {
     totalSections += u.sections.length;
     if (u.ready) ready++;
-    var card = el('article', { 'class': 'card unit-card' + (u.ready ? ' is-ready' : ''), 'id': 'unit-' + u.n, 'aria-labelledby': 'unit-' + u.n + '-h' });
+    var card = el('article', { 'class': 'card unit-card' + (u.ready ? ' is-ready' : ''), 'data-pal': 'u' + u.n, 'id': 'unit-' + u.n, 'aria-labelledby': 'unit-' + u.n + '-h' });
     var list = u.sections.map(function (s, i) {
       return '<li><span class="sec">' + u.n + '.' + (i + 1) + '</span><a href="' + BASE + u.n + '-' + (i + 1) + '-' + slug(s) + '">' + s + '</a></li>';
     }).join('');

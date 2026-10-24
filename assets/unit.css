@@ -28,6 +28,409 @@
   color-scheme:dark;
 }
 
+/* ===== Per-page palettes =====
+   Each page sets <html data-palette="…">; index cards preview a unit with data-pal="uN".
+   Every palette was generated with these minimum WCAG contrast ratios, in light and dark:
+   fg on bg/surface/accent-soft/note-bg ≥ 7 · muted on bg/surface/accent-soft ≥ 4.5 ·
+   accent on bg/surface/accent-soft ≥ 5 · accent-ink on accent ≥ 4.5 (buttons, selection) ·
+   note/good/bad on their tint and on surface ≥ 4.5. Highlighted states only ever pair these tokens. */
+/* Index — slate indigo */
+:root[data-palette="index"],[data-pal="index"]{
+  --bg:#EFF5FE; --surface:#FDFDFE; --fg:#182233; --muted:#535E72; --line:#D2D9E7;
+  --accent:#42619A; --accent-soft:#DEEAFF; --accent-ink:#FFFFFF;
+  --note:#8D5E05; --note-bg:#FFF1DF; --note-line:#ECCB9E;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="index"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="index"]{
+    --bg:#0D1118; --surface:#141A23; --fg:#E3E8F0; --muted:#9EA8BB; --line:#2C3340;
+    --accent:#8EABE1; --accent-soft:#1E2D49; --accent-ink:#080F1C;
+    --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="index"][data-theme="dark"],:root[data-theme="dark"] [data-pal="index"]{
+  --bg:#0D1118; --surface:#141A23; --fg:#E3E8F0; --muted:#9EA8BB; --line:#2C3340;
+  --accent:#8EABE1; --accent-soft:#1E2D49; --accent-ink:#080F1C;
+  --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 1 Introduction — petrol teal */
+:root[data-palette="u1"],[data-pal="u1"]{
+  --bg:#EAF7FA; --surface:#F9FEFF; --fg:#09262B; --muted:#466369; --line:#CBDDE0;
+  --accent:#076D76; --accent-soft:#C8F3F8; --accent-ink:#FFFFFF;
+  --note:#8D5E05; --note-bg:#FFF1DF; --note-line:#ECCB9E;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u1"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u1"]{
+    --bg:#081214; --surface:#0E1C1F; --fg:#DFEAEC; --muted:#93ADB2; --line:#24363A;
+    --accent:#64BBC4; --accent-soft:#00353A; --accent-ink:#011315;
+    --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u1"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u1"]{
+  --bg:#081214; --surface:#0E1C1F; --fg:#DFEAEC; --muted:#93ADB2; --line:#24363A;
+  --accent:#64BBC4; --accent-soft:#00353A; --accent-ink:#011315;
+  --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 2 Research — cobalt blue */
+:root[data-palette="u2"],[data-pal="u2"]{
+  --bg:#EDF6FE; --surface:#FBFDFF; --fg:#132331; --muted:#4D6070; --line:#CFDBE6;
+  --accent:#1464A8; --accent-soft:#DBECFE; --accent-ink:#FFFFFF;
+  --note:#9A5802; --note-bg:#FFF1E5; --note-line:#F3C7A2;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u2"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u2"]{
+    --bg:#0B1117; --surface:#121B22; --fg:#E2E9F0; --muted:#99AABA; --line:#28343F;
+    --accent:#73B0EE; --accent-soft:#162F48; --accent-ink:#05101C;
+    --note:#EAA76B; --note-bg:#2E1E0F; --note-line:#563C26;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u2"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u2"]{
+  --bg:#0B1117; --surface:#121B22; --fg:#E2E9F0; --muted:#99AABA; --line:#28343F;
+  --accent:#73B0EE; --accent-soft:#162F48; --accent-ink:#05101C;
+  --note:#EAA76B; --note-bg:#2E1E0F; --note-line:#563C26;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 3 Biopsychology — orchid */
+:root[data-palette="u3"],[data-pal="u3"]{
+  --bg:#FAF2F9; --surface:#FFFCFF; --fg:#2A1C29; --muted:#685766; --line:#E0D5DF;
+  --accent:#8A488E; --accent-soft:#FAE0FA; --accent-ink:#FFFFFF;
+  --note:#896105; --note-bg:#FEF2DD; --note-line:#E9CD9D;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u3"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u3"]{
+    --bg:#140E14; --surface:#1E161D; --fg:#ECE5EB; --muted:#B2A2B0; --line:#3A2F38;
+    --accent:#CE92D1; --accent-soft:#3C243D; --accent-ink:#160B17;
+    --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u3"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u3"]{
+  --bg:#140E14; --surface:#1E161D; --fg:#ECE5EB; --muted:#B2A2B0; --line:#3A2F38;
+  --accent:#CE92D1; --accent-soft:#3C243D; --accent-ink:#160B17;
+  --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 4 Consciousness — night violet */
+:root[data-palette="u4"],[data-pal="u4"]{
+  --bg:#F2F4FE; --surface:#FDFDFE; --fg:#1E1F34; --muted:#595C73; --line:#D6D8E8;
+  --accent:#5B58AC; --accent-soft:#E6E8FE; --accent-ink:#FFFFFF;
+  --note:#856302; --note-bg:#FFF2D9; --note-line:#E6CE9D;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u4"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u4"]{
+    --bg:#0F1018; --surface:#171824; --fg:#E6E7F1; --muted:#A3A6BD; --line:#303141;
+    --accent:#A0A2EF; --accent-soft:#2A2A49; --accent-ink:#0D0E1C;
+    --note:#D8B260; --note-bg:#29200D; --note-line:#4F4022;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u4"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u4"]{
+  --bg:#0F1018; --surface:#171824; --fg:#E6E7F1; --muted:#A3A6BD; --line:#303141;
+  --accent:#A0A2EF; --accent-soft:#2A2A49; --accent-ink:#0D0E1C;
+  --note:#D8B260; --note-bg:#29200D; --note-line:#4F4022;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 5 Sensation & Perception — amber */
+:root[data-palette="u5"],[data-pal="u5"]{
+  --bg:#FBF3EC; --surface:#FEFDFB; --fg:#2D1E12; --muted:#6B5A4C; --line:#E2D7CE;
+  --accent:#965002; --accent-soft:#FEE4D1; --accent-ink:#FFFFFF;
+  --note:#276AA9; --note-bg:#ECF5FE; --note-line:#AFD5FE;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u5"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u5"]{
+    --bg:#150F0A; --surface:#201811; --fg:#EEE6E1; --muted:#B5A497; --line:#3C3027;
+    --accent:#DF9962; --accent-soft:#42260F; --accent-ink:#190C03;
+    --note:#80BDFB; --note-bg:#142332; --note-line:#2D445C;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u5"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u5"]{
+  --bg:#150F0A; --surface:#201811; --fg:#EEE6E1; --muted:#B5A497; --line:#3C3027;
+  --accent:#DF9962; --accent-soft:#42260F; --accent-ink:#190C03;
+  --note:#80BDFB; --note-bg:#142332; --note-line:#2D445C;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 6 Learning — jade */
+:root[data-palette="u6"],[data-pal="u6"]{
+  --bg:#ECF8F3; --surface:#FAFEFC; --fg:#0E271F; --muted:#4A645B; --line:#CDDED7;
+  --accent:#04715A; --accent-soft:#CCF4E6; --accent-ink:#FFFFFF;
+  --note:#915B02; --note-bg:#FEF1E3; --note-line:#EFCA9F;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u6"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u6"]{
+    --bg:#09130F; --surface:#101C18; --fg:#E1EBE6; --muted:#96AEA5; --line:#263731;
+    --accent:#6FBDA5; --accent-soft:#05372B; --accent-ink:#01140E;
+    --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u6"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u6"]{
+  --bg:#09130F; --surface:#101C18; --fg:#E1EBE6; --muted:#96AEA5; --line:#263731;
+  --accent:#6FBDA5; --accent-soft:#05372B; --accent-ink:#01140E;
+  --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 7 Thinking & Intelligence — plum */
+:root[data-palette="u7"],[data-pal="u7"]{
+  --bg:#F6F2FD; --surface:#FDFDFF; --fg:#241E30; --muted:#60596F; --line:#DBD6E5;
+  --accent:#72529D; --accent-soft:#EEE4FF; --accent-ink:#FFFFFF;
+  --note:#896105; --note-bg:#FEF2DD; --note-line:#E9CD9D;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u7"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u7"]{
+    --bg:#110F17; --surface:#1B1721; --fg:#E9E6EF; --muted:#AAA4B8; --line:#35303E;
+    --accent:#B79BE1; --accent-soft:#332745; --accent-ink:#120C1A;
+    --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u7"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u7"]{
+  --bg:#110F17; --surface:#1B1721; --fg:#E9E6EF; --muted:#AAA4B8; --line:#35303E;
+  --accent:#B79BE1; --accent-soft:#332745; --accent-ink:#120C1A;
+  --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 8 Memory — cerulean */
+:root[data-palette="u8"],[data-pal="u8"]{
+  --bg:#EBF6FC; --surface:#FBFDFF; --fg:#0E252F; --muted:#49626E; --line:#CCDCE4;
+  --accent:#066A8A; --accent-soft:#D0EFFE; --accent-ink:#FFFFFF;
+  --note:#975A05; --note-bg:#FEF1E4; --note-line:#F2C8A1;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u8"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u8"]{
+    --bg:#091216; --surface:#101B21; --fg:#E0EAEE; --muted:#95ACB7; --line:#26353D;
+    --accent:#66B7D9; --accent-soft:#053343; --accent-ink:#01121A;
+    --note:#E8A869; --note-bg:#2D1E0F; --note-line:#553D25;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u8"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u8"]{
+  --bg:#091216; --surface:#101B21; --fg:#E0EAEE; --muted:#95ACB7; --line:#26353D;
+  --accent:#66B7D9; --accent-soft:#053343; --accent-ink:#01121A;
+  --note:#E8A869; --note-bg:#2D1E0F; --note-line:#553D25;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 9 Lifespan Development — olive */
+:root[data-palette="u9"],[data-pal="u9"]{
+  --bg:#F5F5EC; --surface:#FDFDFA; --fg:#242310; --muted:#605F4A; --line:#DADACD;
+  --accent:#646716; --accent-soft:#EAEDCB; --accent-ink:#FFFFFF;
+  --note:#7658A5; --note-bg:#F5F1FE; --note-line:#D8C7F9;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u9"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u9"]{
+    --bg:#11110A; --surface:#1B1A10; --fg:#E9E8E0; --muted:#AAA996; --line:#343426;
+    --accent:#ACB171; --accent-soft:#2F300C; --accent-ink:#101103;
+    --note:#C2A7F4; --note-bg:#241E30; --note-line:#463C59;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u9"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u9"]{
+  --bg:#11110A; --surface:#1B1A10; --fg:#E9E8E0; --muted:#AAA996; --line:#343426;
+  --accent:#ACB171; --accent-soft:#2F300C; --accent-ink:#101103;
+  --note:#C2A7F4; --note-bg:#241E30; --note-line:#463C59;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 10 Emotion & Motivation — raspberry */
+:root[data-palette="u10"],[data-pal="u10"]{
+  --bg:#FCF1F5; --surface:#FFFCFD; --fg:#2E1B22; --muted:#6D565E; --line:#E4D4DA;
+  --accent:#9B4270; --accent-soft:#FEE0ED; --accent-ink:#FFFFFF;
+  --note:#8D5E05; --note-bg:#FFF1DF; --note-line:#ECCB9E;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u10"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u10"]{
+    --bg:#160E11; --surface:#20161A; --fg:#EEE5E8; --muted:#B6A1A8; --line:#3D2E33;
+    --accent:#DF8DB5; --accent-soft:#422232; --accent-ink:#190A11;
+    --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u10"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u10"]{
+  --bg:#160E11; --surface:#20161A; --fg:#EEE5E8; --muted:#B6A1A8; --line:#3D2E33;
+  --accent:#DF8DB5; --accent-soft:#422232; --accent-ink:#190A11;
+  --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 11 Personality — bronze */
+:root[data-palette="u11"],[data-pal="u11"]{
+  --bg:#F9F4EC; --surface:#FFFDFA; --fg:#2A2012; --muted:#675C4C; --line:#DFD8CE;
+  --accent:#7E5B06; --accent-soft:#F9E7C8; --accent-ink:#FFFFFF;
+  --note:#176DA7; --note-bg:#EBF5FE; --note-line:#ABD7FD;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u11"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u11"]{
+    --bg:#14100A; --surface:#1E1811; --fg:#ECE7E1; --muted:#B1A697; --line:#393228;
+    --accent:#C6A66B; --accent-soft:#3B2B07; --accent-ink:#160E02;
+    --note:#78BFF9; --note-bg:#132331; --note-line:#2B455B;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u11"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u11"]{
+  --bg:#14100A; --surface:#1E1811; --fg:#ECE7E1; --muted:#B1A697; --line:#393228;
+  --accent:#C6A66B; --accent-soft:#3B2B07; --accent-ink:#160E02;
+  --note:#78BFF9; --note-bg:#132331; --note-line:#2B455B;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 12 Social — periwinkle */
+:root[data-palette="u12"],[data-pal="u12"]{
+  --bg:#EFF5FD; --surface:#FCFDFF; --fg:#172231; --muted:#525F70; --line:#D1DAE5;
+  --accent:#4460A2; --accent-soft:#E0EAFE; --accent-ink:#FFFFFF;
+  --note:#915B02; --note-bg:#FEF1E3; --note-line:#EFCA9F;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u12"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u12"]{
+    --bg:#0C1117; --surface:#141A22; --fg:#E3E8EF; --muted:#9DA9B9; --line:#2B343E;
+    --accent:#8EAAE7; --accent-soft:#202D49; --accent-ink:#090F1C;
+    --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u12"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u12"]{
+  --bg:#0C1117; --surface:#141A22; --fg:#E3E8EF; --muted:#9DA9B9; --line:#2B343E;
+  --accent:#8EAAE7; --accent-soft:#202D49; --accent-ink:#090F1C;
+  --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 13 Industrial-Organizational — steel */
+:root[data-palette="u13"],[data-pal="u13"]{
+  --bg:#EEF6F9; --surface:#FBFEFF; --fg:#14242A; --muted:#4F6167; --line:#D0DBDF;
+  --accent:#346976; --accent-soft:#C9F2FD; --accent-ink:#FFFFFF;
+  --note:#915B02; --note-bg:#FEF1E3; --note-line:#EFCA9F;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u13"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u13"]{
+    --bg:#0B1214; --surface:#121B1E; --fg:#E2E9EC; --muted:#9AABB1; --line:#293539;
+    --accent:#86B4BF; --accent-soft:#00343E; --accent-ink:#001317;
+    --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u13"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u13"]{
+  --bg:#0B1214; --surface:#121B1E; --fg:#E2E9EC; --muted:#9AABB1; --line:#293539;
+  --accent:#86B4BF; --accent-soft:#00343E; --accent-ink:#001317;
+  --note:#E5AB66; --note-bg:#2C1F0E; --note-line:#543E24;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 14 Stress & Health — lagoon */
+:root[data-palette="u14"],[data-pal="u14"]{
+  --bg:#ECF7F5; --surface:#FAFEFD; --fg:#0F2722; --muted:#4A645E; --line:#CDDDD9;
+  --accent:#017067; --accent-soft:#C9F4ED; --accent-ink:#FFFFFF;
+  --note:#9B5708; --note-bg:#FEF1E6; --note-line:#F4C7A3;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u14"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u14"]{
+    --bg:#091311; --surface:#101C1A; --fg:#E1EAE8; --muted:#96AEA8; --line:#263733;
+    --accent:#70BBB1; --accent-soft:#003631; --accent-ink:#001411;
+    --note:#EBA66D; --note-bg:#2E1D10; --note-line:#563C26;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u14"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u14"]{
+  --bg:#091311; --surface:#101C1A; --fg:#E1EAE8; --muted:#96AEA8; --line:#263733;
+  --accent:#70BBB1; --accent-soft:#003631; --accent-ink:#001411;
+  --note:#EBA66D; --note-bg:#2E1D10; --note-line:#563C26;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 15 Disorders — mauve */
+:root[data-palette="u15"],[data-pal="u15"]{
+  --bg:#F8F2F9; --surface:#FEFCFF; --fg:#281D2A; --muted:#655968; --line:#DED6E0;
+  --accent:#775386; --accent-soft:#F5E1FF; --accent-ink:#FFFFFF;
+  --note:#896105; --note-bg:#FEF2DD; --note-line:#E9CD9D;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u15"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u15"]{
+    --bg:#130F14; --surface:#1D171E; --fg:#EBE6EC; --muted:#AFA3B1; --line:#383039;
+    --accent:#BD9DCC; --accent-soft:#382541; --accent-ink:#140B18;
+    --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u15"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u15"]{
+  --bg:#130F14; --surface:#1D171E; --fg:#EBE6EC; --muted:#AFA3B1; --line:#383039;
+  --accent:#BD9DCC; --accent-soft:#382541; --accent-ink:#140B18;
+  --note:#DCAF61; --note-bg:#2A200D; --note-line:#503F22;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+/* Unit 16 Therapy — dusk blue */
+:root[data-palette="u16"],[data-pal="u16"]{
+  --bg:#EEF6FB; --surface:#FCFDFE; --fg:#14242D; --muted:#4F606B; --line:#D0DBE2;
+  --accent:#316689; --accent-soft:#D7EDFE; --accent-ink:#FFFFFF;
+  --note:#8D5E05; --note-bg:#FFF1DF; --note-line:#ECCB9E;
+  --good:#297731; --good-bg:#DFF6DE; --bad:#AA493F; --bad-bg:#FEE9E6;
+}
+@media (prefers-color-scheme: dark){
+  :root[data-palette="u16"]:not([data-theme="light"]),:root:not([data-theme="light"]) [data-pal="u16"]{
+    --bg:#0B1115; --surface:#121B20; --fg:#E2E9ED; --muted:#9AABB5; --line:#29353C;
+    --accent:#84B1D2; --accent-soft:#0F3146; --accent-ink:#03111B;
+    --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+    --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+    color-scheme:dark;
+  }
+}
+:root[data-palette="u16"][data-theme="dark"],:root[data-theme="dark"] [data-pal="u16"]{
+  --bg:#0B1115; --surface:#121B20; --fg:#E2E9ED; --muted:#9AABB5; --line:#29353C;
+  --accent:#84B1D2; --accent-soft:#0F3146; --accent-ink:#03111B;
+  --note:#E1AD63; --note-bg:#2B1F0D; --note-line:#523E23;
+  --good:#7BC27E; --good-bg:#152715; --bad:#F08F83; --bad-bg:#321A17;
+  color-scheme:dark;
+}
+
+/* Selected text and marked text always use a token pair with checked contrast */
+::selection{background:var(--accent);color:var(--accent-ink)}
+mark{background:var(--accent-soft);color:var(--fg);border-radius:2px;padding:0 .1em}
+
+
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 :root{--head-h:3.6rem}
@@ -201,9 +604,10 @@ svg text{font-family:var(--font-ui)}
 .pyramid div{border-radius:4px;padding:.5rem .6rem;text-align:center;color:var(--fg);background:color-mix(in srgb, var(--accent) var(--mix), var(--surface));line-height:1.3}
 .pyramid b{display:block;font-size:.92rem}
 .pyramid span{font-size:.8rem;color:var(--muted)}
-.pyramid div:nth-child(1){width:38%;--mix:55%} .pyramid div:nth-child(2){width:53%;--mix:42%}
-.pyramid div:nth-child(3){width:68%;--mix:30%} .pyramid div:nth-child(4){width:84%;--mix:20%} .pyramid div:nth-child(5){width:100%;--mix:12%}
-.pyramid div:nth-child(1) span,.pyramid div:nth-child(2) span{color:var(--fg)}
+.pyramid div:nth-child(1){width:38%;--mix:36%} .pyramid div:nth-child(2){width:53%;--mix:28%}
+.pyramid div:nth-child(3){width:68%;--mix:20%} .pyramid div:nth-child(4){width:84%;--mix:12%} .pyramid div:nth-child(5){width:100%;--mix:6%}
+.pyramid div:nth-child(1){border:2px solid var(--accent)}
+.pyramid div:nth-child(-n+3) span{color:var(--fg)}
 @media (max-width:520px){.pyramid div:nth-child(1){width:60%}.pyramid div:nth-child(2){width:70%}.pyramid div:nth-child(3){width:80%}.pyramid div:nth-child(4){width:90%}}
 @media (prefers-reduced-motion:no-preference){
   .pyramid div{animation:rise .5s ease-out both}
@@ -1644,7 +2048,7 @@ svg.ico{overflow:visible}
 .u8-lvl i{font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .u8-lvl.l1{background:var(--surface);margin-right:0}
 .u8-lvl.l2{background:color-mix(in srgb, var(--accent) 12%, var(--surface));margin-left:1.2rem}
-.u8-lvl.l3{background:color-mix(in srgb, var(--accent) 26%, var(--surface));border-color:var(--accent);margin-left:2.4rem}
+.u8-lvl.l3{background:var(--accent-soft);border-color:var(--accent);margin-left:2.4rem}
 .u8-lvl.l3 i{color:var(--accent)}
 @media (max-width:560px){.u8-lvl{grid-template-columns:minmax(0,1fr)}.u8-lvl.l2{margin-left:.6rem}.u8-lvl.l3{margin-left:1.2rem}}
 
@@ -2029,6 +2433,7 @@ ol.u9-chips{counter-reset:none}
 .u9-life-ticks span:first-child{transform:none}.u9-life-ticks span:last-child{transform:translateX(-100%)}
 /* Kübler-Ross chain */
 .u9-grief li.on .st{background:color-mix(in srgb, var(--note) 20%, var(--surface));border-color:var(--note)}
+.chain li.on .st small{color:var(--fg)}
 /* Exact tick positions for the HTML axes (8→18 months, 8→18 years) */
 .u9-walk-axis,.u9-pub-axis{position:relative;display:block;height:1.35rem}
 .u9-walk-axis span,.u9-pub-axis span{position:absolute;top:0;transform:translateX(-50%)}
