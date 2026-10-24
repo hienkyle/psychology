@@ -1590,3 +1590,132 @@
     });
   });
 })();
+
+/* ---- Unit 8 components ---- */
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(sel, el) { return (el || document).querySelector(sel); }
+  function $$(sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); }
+  function mk(tag, attrs, parent, text) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function keyable(el, fn) {
+    el.addEventListener('click', fn);
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } });
+  }
+
+  /* Digit span (.u8-span): strings from OpenStax Figure 8.5 */
+  $$('.u8-span').forEach(function (box) {
+    var ROWS = [['9754', '68259', '913825', '5316842', '86951372', '719384273'], ['6419', '67148', '648327', '5963827', '51739826', '163875942']];
+    var row = 0, idx = 0, timer = null, best = 0;
+    var show = $('.u8-span-show', box), form = $('.u8-span-form', box), input = $('input', form), msg = $('.u8-span-msg', box), start = $('.u8-span-start', box), stop = $('.u8-span-stop', box);
+    var log = document.createElement('div'); log.className = 'u8-span-log'; msg.after(log);
+    function idle(t) { show.textContent = t; show.classList.add('idle'); }
+    idle('Press Start');
+    $$('.pill-row button', box).forEach(function (b) {
+      b.addEventListener('click', function () {
+        row = +b.getAttribute('data-row');
+        $$('.pill-row button', box).forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        reset();
+      });
+    });
+    function reset() { clearTimeout(timer); idx = 0; best = 0; log.innerHTML = ''; form.hidden = true; start.hidden = false; start.textContent = 'Start'; stop.hidden = true; idle('Press Start'); msg.textContent = 'Strings run from 4 to 9 digits. Each is shown for about one second per digit.'; }
+    function flash() {
+      var s = ROWS[row][idx];
+      form.hidden = true; input.value = '';
+      idle('Ready?');
+      timer = setTimeout(function () {
+        show.classList.remove('idle'); show.textContent = s;
+        timer = setTimeout(function () { idle('Recall'); form.hidden = false; input.focus(); }, s.length * 1000);
+      }, 900);
+    }
+    function go() { reset(); start.hidden = true; stop.hidden = false; flash(); }
+    start.addEventListener('click', go);
+    stop.addEventListener('click', function () {
+      clearTimeout(timer); form.hidden = true; stop.hidden = true; start.hidden = false; start.textContent = 'Start again';
+      idle('Stopped');
+      msg.innerHTML = '<b>Stopped.</b> Longest string recalled: ' + (best ? best + ' digits' : 'none yet') + '.';
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var s = ROWS[row][idx], ok = input.value.replace(/\D/g, '') === s;
+      if (ok) best = s.length;
+      var chip = document.createElement('span'); chip.className = ok ? 'ok' : 'no'; chip.textContent = s.length + ' digits ' + (ok ? '✓' : '✗'); log.appendChild(chip);
+      show.classList.remove('idle'); show.textContent = s;
+      idx++;
+      if (idx < ROWS[row].length) {
+        msg.innerHTML = (ok ? '<b>Correct.</b> ' : '<b>Not quite</b>, the string was shown above. ') + 'Next: ' + ROWS[row][idx].length + ' digits.';
+        form.hidden = true;
+        timer = setTimeout(flash, 1600);
+      } else {
+        form.hidden = true;
+        msg.innerHTML = '<b>Done.</b> Longest string recalled: ' + (best ? best + ' digits' : 'none yet') + '. Miller’s 7 ± 2 predicts 5 to 9; Cowan puts working-memory capacity nearer 4 ± 1.';
+        stop.hidden = true; start.hidden = false; start.textContent = 'Try again';
+      }
+    });
+  });
+
+  /* Semantic network (.u8-net): selecting a concept spreads activation to its links */
+  $$('.u8-net').forEach(function (box) {
+    var N = {
+      'peanut butter': [100, 60], 'jelly': [100, 180],
+      'picnic': [270, 150], 'plate': [240, 50], 'blanket': [370, 90], 'meal': [200, 250], 'nature': [340, 250],
+      'flower': [520, 180], 'petal': [530, 60], 'garden': [470, 270], 'plants': [420, 160]
+    };
+    var E = [['peanut butter', 'jelly', 5],
+      ['picnic', 'plate', 4], ['picnic', 'blanket', 3], ['picnic', 'meal', 3], ['picnic', 'nature', 3],
+      ['flower', 'petal', 4], ['flower', 'garden', 3], ['flower', 'plants', 3], ['garden', 'plants', 3], ['garden', 'nature', 1.5]];
+    var eg = $('.u8-edges', box), ng = $('.u8-nodes', box), read = $('.u8-net-read', box), nodes = {}, edges = [];
+    E.forEach(function (e) {
+      var a = N[e[0]], b = N[e[1]];
+      edges.push({ a: e[0], b: e[1], el: mk('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: 'e', 'stroke-width': e[2] }, eg) });
+    });
+    Object.keys(N).forEach(function (k) {
+      var p = N[k], w = k.length * 7.6 + 22;
+      var g = mk('g', { class: 'n', tabindex: 0, role: 'button', 'aria-label': k }, ng);
+      mk('rect', { x: p[0] - w / 2, y: p[1] - 15, width: w, height: 30, rx: 15 }, g);
+      mk('text', { x: p[0], y: p[1] + 4.5, 'text-anchor': 'middle' }, g, k);
+      nodes[k] = g;
+      keyable(g, function () { pick(k); });
+    });
+    function pick(k) {
+      var near = [];
+      Object.keys(nodes).forEach(function (n) { nodes[n].classList.remove('on', 'half'); });
+      edges.forEach(function (e) {
+        var hit = e.a === k || e.b === k;
+        e.el.classList.toggle('on', hit);
+        if (hit) near.push(e.a === k ? e.b : e.a);
+      });
+      nodes[k].classList.add('on');
+      near.forEach(function (n) { nodes[n].classList.add('half'); });
+      read.innerHTML = '<b>' + k + '</b> is fully active; ' + near.join(', ') + (near.length > 1 ? ' are' : ' is') + ' partly active, so ' + (near.length > 1 ? 'they are' : 'it is') + ' easier to recall next.';
+    }
+    pick('peanut butter');
+  });
+
+  /* Forgetting curve (.u8-curve): selectable points */
+  $$('.u8-curve').forEach(function (box) {
+    var line = $('.u8-cline', box);
+    try { line.style.setProperty('--len', Math.ceil(line.getTotalLength())); } catch (e) {}
+    var P = [['right after learning', 100], ['20 minutes', 55], ['60 minutes', 40], ['9 hours', 37], ['24 hours', 30], ['48 hours', 25], ['6 days', 20], ['31 days', 10]];
+    var g = $('.u8-pts', box), read = $('.u8-curve-read', box), pts = [];
+    P.forEach(function (p, i) {
+      var x = 70 + i * 70.71, y = 250 - p[1] * 2.2;
+      var el = mk('g', { class: 'u8-pt', tabindex: 0, role: 'button', 'aria-label': p[0] + ': about ' + p[1] + '% retained' }, g);
+      mk('circle', { cx: x, cy: y, r: 6.5 }, el);
+      mk('text', { x: x, y: y - 13, 'text-anchor': 'middle' }, el, '≈' + p[1] + '%');
+      pts.push(el);
+      keyable(el, function () { pick(i); });
+    });
+    function pick(i) {
+      pts.forEach(function (p, j) { p.classList.toggle('on', j === i); });
+      read.innerHTML = '<b>' + P[i][0] + '</b>: about ' + P[i][1] + '% retained' + (i ? ', so about ' + (100 - P[i][1]) + '% forgotten.' : '.');
+    }
+    pick(4);
+  });
+})();
